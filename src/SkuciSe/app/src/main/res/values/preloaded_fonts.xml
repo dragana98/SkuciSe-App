@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/worksans_regular</item>
+        <item>@font/worksans_medium</item>
+        <item>@font/worksans_bold</item>
+        <item>@font/worksans_black</item>
+        <item>@font/worksans_italic</item>
+        <item>@font/worksans_mediumitalic</item>
+        <item>@font/worksans_bolditalic</item>
+        <item>@font/worksans_blackitalic</item>
+    </array>
+</resources>
