@@ -133,11 +133,6 @@ fun SignUpScreen(returnToPreviousScreen: () -> Unit = {}) {
                             // do something here
                         }, modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.AccountCircle,
-                            contentDescription = "registration icon",
-                            Modifier.padding(end = 8.dp)
-                        )
                         Text(text = "Registrujte se")
                     }
                     Box(modifier = Modifier.size(size = 10.dp))
