@@ -22,7 +22,8 @@ import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 @Composable
 fun WelcomeScreen(
     navigateToSignUp: () -> Unit = {},
-    returnToPreviousScreen: () -> Unit = {}
+    returnToPreviousScreen: () -> Unit = {},
+    navigateToLogin: () -> Unit = {}
 ) {
 
     SkuciSeTheme {
@@ -85,8 +86,10 @@ fun WelcomeScreen(
                     Text(text = "Registrujte se")
                 }
                 Spacer(modifier = Modifier.size(size = 20.dp))
+
                 OutlinedButton(
                     onClick = {
+                              navigateToLogin()
                         // do something here
                     }, modifier = Modifier.fillMaxWidth()
                 ) {
@@ -97,7 +100,13 @@ fun WelcomeScreen(
                     )
                     Text(text = "Prijavite se")
                 }
+
+
+
             }
+
+
+
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.blackbyte.skucise
 
+
 import android.os.Bundle
 import android.widget.CalendarView
 import androidx.activity.ComponentActivity
@@ -37,6 +38,7 @@ import androidx.navigation.compose.rememberNavController
 import com.blackbyte.skucise.components.DatePicker
 import com.blackbyte.skucise.components.DropdownButton
 import com.blackbyte.skucise.components.OutlinedInputField
+import com.blackbyte.skucise.screens.LoginScreen
 import com.blackbyte.skucise.screens.SignUpScreen
 import com.blackbyte.skucise.screens.WelcomeScreen
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
@@ -48,6 +50,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SkuciSeTheme {
                 AppNavigator()
+                //LoginScreen()
             }
         }
     }
@@ -63,12 +66,15 @@ class MainActivity : ComponentActivity() {
         var returnToPreviousScreen = fun() {
             navController.popBackStack()
         }
+        var navigateToLogin = fun(){
+            navController.navigate(route = "login")
+        }
 
 
         //                                           v~~~~~ CHANGE THIS
         NavHost(navController = navController, startDestination = "welcome") {
             composable("welcome") {
-                WelcomeScreen(navigateToSignUp, returnToPreviousScreen)
+                WelcomeScreen(navigateToSignUp, returnToPreviousScreen,navigateToLogin)
             }
             // EXAMPLE, WITH PASSING DATA TO A PAGE VIEW:
             /*
@@ -84,9 +90,14 @@ class MainActivity : ComponentActivity() {
             composable("signUp") {
                 SignUpScreen(returnToPreviousScreen)
             }
+            composable("login"){
+                LoginScreen(returnToPreviousScreen)
+            }
 
         }
     }
 }
+
+
 
 
