@@ -77,7 +77,7 @@ fun LoginScreen(returnToPreviousScreen: () -> Unit = {}) {
 
                 OutlinedPasswordField("Lozinka", modifier = Modifier.fillMaxWidth())
 
-                Spacer(modifier = Modifier.size(size = 15.dp))
+                Spacer(modifier = Modifier.size(size = 10.dp))
 
                 Row(
                     horizontalArrangement = Arrangement.End,
@@ -106,35 +106,31 @@ fun LoginScreen(returnToPreviousScreen: () -> Unit = {}) {
                 // Registruj se
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth()
                 ){
 
                     Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        verticalAlignment = Alignment.CenterVertically
+                        //horizontalArrangement = Arrangement.End,
+                        //modifier = Modifier.fillMaxWidth()
                     ){
-                        Row(
-                            verticalAlignment = Alignment.Bottom
-                            //horizontalArrangement = Arrangement.End,
-                            //modifier = Modifier.fillMaxWidth()
-                        ){
-                            Icon(
-                                imageVector = Icons.Filled.ArrowBack,
-                                contentDescription = "registration icon",
-                                modifier = Modifier.size(17.dp),
-                                tint = MaterialTheme.colors.primary
-                            )
-                            Text("Registrujte se ", color = MaterialTheme.colors.primary)
-                        }
-
-                        Text(
-                            text = "ako nemate nalog.",
-                            textAlign = TextAlign.Left,
-                            //modifier = Modifier.width(100.dp)
-                            modifier = Modifier.fillMaxWidth(0.8f)
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "registration icon",
+                            modifier = Modifier.size(17.dp),
+                            tint = MaterialTheme.colors.primary
                         )
+                        Text("Registrujte se ", color = MaterialTheme.colors.primary)
                     }
+
+                    Text(
+                        text = "ako nemate nalog.",
+                        textAlign = TextAlign.Left,
+                        //modifier = Modifier.width(100.dp)
+                        modifier = Modifier.fillMaxWidth(0.7f)
+                    )
+
 
                 }
 
