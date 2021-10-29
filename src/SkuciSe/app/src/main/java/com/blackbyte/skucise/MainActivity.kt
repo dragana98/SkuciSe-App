@@ -34,9 +34,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.blackbyte.skucise.components.DatePicker
-import com.blackbyte.skucise.components.DropdownButton
-import com.blackbyte.skucise.components.OutlinedInputField
+import com.blackbyte.skucise.components.*
+import com.blackbyte.skucise.screens.InboxScreen
 import com.blackbyte.skucise.screens.SignUpScreen
 import com.blackbyte.skucise.screens.WelcomeScreen
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
@@ -47,7 +46,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SkuciSeTheme {
-                AppNavigator()
+                InboxScreen()
             }
         }
     }
