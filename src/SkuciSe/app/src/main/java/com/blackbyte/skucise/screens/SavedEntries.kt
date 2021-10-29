@@ -37,7 +37,7 @@ import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 fun SavedEntries(returnToPreviousScreen: () -> Unit = {}) {
     SkuciSeTheme {
         Scaffold(
-            topBar = { NavTopBar("Sačuvan oglasi", returnToPreviousScreen = returnToPreviousScreen) },
+            topBar = { NavTopBar("Sačuvani oglasi", returnToPreviousScreen = returnToPreviousScreen) },
             backgroundColor = MaterialTheme.colors.background
         ) {
             Column(modifier = Modifier
@@ -85,7 +85,7 @@ fun SavedEntries(returnToPreviousScreen: () -> Unit = {}) {
                                 textAlign = TextAlign.Left
                             )
                             // strelica i Detalji
-
+                            
                             }//col
                         }//row
                     }//row
