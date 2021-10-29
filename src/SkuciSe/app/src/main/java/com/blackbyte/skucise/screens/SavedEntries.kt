@@ -85,7 +85,25 @@ fun SavedEntries(returnToPreviousScreen: () -> Unit = {}) {
                                 textAlign = TextAlign.Left
                             )
                             // strelica i Detalji
-                            
+                            Row(
+                                verticalAlignment = Alignment.Bottom,
+                                horizontalArrangement = Arrangement.End,
+                                modifier = Modifier.fillMaxWidth().absolutePadding(0.dp,3.dp,10.dp,0.dp)
+                            ){
+                                Text(
+                                    text = "Detalji",
+                                    modifier = Modifier.absolutePadding(0.dp,2.dp,0.dp,0.dp),
+                                    fontSize = 14.sp,
+                                    textAlign = TextAlign.Right,
+                                    color = Color.Blue
+                                )
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowForward,
+                                    contentDescription = "Details",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = Color.Blue
+                                )
+                            }
                             }//col
                         }//row
                     }//row
