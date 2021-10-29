@@ -47,15 +47,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SkuciSeTheme {
-                AppNavigator()
+                val navController = rememberNavController()
+                AppNavigator(navController = navController)
             }
         }
     }
 
     @Composable
-    fun AppNavigator() {
-        val navController = rememberNavController()
-
+    fun AppNavigator(navController: NavHostController) {
         var navigateToSignUp = fun() {
             navController.navigate(route = "signUp")
         }

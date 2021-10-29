@@ -2,9 +2,12 @@ package com.blackbyte.skucise.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.*
@@ -12,8 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,15 +23,21 @@ import androidx.compose.ui.unit.dp
 import com.blackbyte.skucise.R
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
+import com.blackbyte.skucise.MainActivity
 import com.blackbyte.skucise.components.OutlinedInputField
+import com.blackbyte.skucise.components.Pager
+import com.blackbyte.skucise.data.DrawerEntry
+import com.blackbyte.skucise.ui.theme.Green
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import kotlinx.coroutines.launch
 
-@Preview
 @Composable
 fun HomeScreen() {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
@@ -38,44 +45,43 @@ fun HomeScreen() {
     val scope = rememberCoroutineScope()
 
     var query by remember { mutableStateOf("") }
+    var enableDrawerGestures by remember { mutableStateOf(false) }
+
+    val regulateDrawer = fun(shouldEnable: Boolean) {
+        enableDrawerGestures = shouldEnable
+    }
 
     val drawerOptions = listOf(
-        listOf(Icons.Filled.AccountCircle, "Moj nalog"),
-        listOf(Icons.Filled.Favorite, "Sačuvani oglasi"),
-        listOf(Icons.Filled.Notifications, "Poruke"),
-        listOf(Icons.Filled.DateRange, "Zakazani obilasci"),
-        listOf(Icons.Filled.Settings, "Podešavanja"),
-        listOf(Icons.Filled.ExitToApp, "Odjava")
-        )
+        DrawerEntry(label = "Moj nalog", icon = Icons.Filled.AccountCircle),
+        DrawerEntry(label = "Sačuvani oglasi", icon = Icons.Filled.Favorite),
+        DrawerEntry(label = "Poruke", icon = Icons.Filled.Email),
+        DrawerEntry(label = "Zakazani obilasci", icon = Icons.Filled.DateRange),
+        DrawerEntry(label = "Podešavanja", icon = Icons.Filled.Settings),
+        DrawerEntry(label = "Odjava", icon = Icons.Filled.ExitToApp)
+    )
 
     SkuciSeTheme {
         Scaffold(
+            backgroundColor = MaterialTheme.colors.background,
             scaffoldState = state,
-            drawerContent =  {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+            drawerGesturesEnabled = enableDrawerGestures,
+            drawerContent = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(all = 20.dp)
+                        .fillMaxWidth()
                 ) {
                     Icon(
                         imageVector = Icons.Filled.AccountCircle,
-                        contentDescription = "registration icon",
+                        contentDescription = "registration icn",
                         modifier = Modifier.size(84.dp)
                     )
-                    Spacer(modifier = Modifier.size(20.dp))
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.height(104.dp)
-                    ) {
-                        Text(
-                            "Dušan",
-                            style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Medium)
-                        )
-                        Text(
-                            "Petrović",
-                            style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Medium)
-                        )
-                    }
+                    Spacer(modifier = Modifier.size(10.dp))
+                    Text(
+                        "Dušan Petrović",
+                        style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Medium)
+                    )
                 }
                 Divider()
                 // Drawer items
@@ -85,10 +91,15 @@ fun HomeScreen() {
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
                     ) {
-                        Icon(imageVector = option[0] as ImageVector, contentDescription = "")
+                        Icon(
+                            imageVector = option.icon,
+                            contentDescription = "",
+                            modifier = Modifier.size(28.dp)
+                        )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = option[1] as String
+                            text = option.label,
+                            fontSize = 18.sp
                         )
                     }
                 }
@@ -113,7 +124,13 @@ fun HomeScreen() {
                                 modifier = Modifier.size(28.dp)
                             )
                             Spacer(modifier = Modifier.size(8.dp))
-                            Text("Skući Se", fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text(
+                                "Skući Se",
+                                style = MaterialTheme.typography.h5.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                )
+                            )
                         }
 
                         Spacer(modifier = Modifier.size(20.dp))
@@ -170,6 +187,70 @@ fun HomeScreen() {
                 }
             },
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(all = 20.dp)
+            ) {
+                Text(
+                    text = "Aktuelne ponude",
+                    style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Bold)
+                )
+
+                Pager(
+                    items = listOf(
+                        R.drawable.property_1,
+                        R.drawable.property_2
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(256.dp),
+                    overshootFraction = .75f,
+                    contentFactory = { item ->
+                        Image(
+                            painter = painterResource(item),
+                            contentDescription = "property image",
+                            contentScale = ContentScale.Crop,            // crop the image if it's not a square
+                            modifier = Modifier
+                                .fillMaxSize() // add a border (optional)
+                        )
+                    },
+                    regulateDrawer = regulateDrawer
+                )
+                Text(
+                    text = "Apartmani Petrović",
+                    style = MaterialTheme.typography.h5.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colors.primary
+                    )
+                )
+
+                val ribbonShape = RoundedCornerShape(0.dp, 18.dp, 18.dp, 0.dp)
+
+                Box (modifier = Modifier.offset(x = (-20).dp, y = 0.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .shadow(elevation = 14.dp, shape = ribbonShape)
+                            .clip(shape = ribbonShape)
+                            .background(color = Green, shape = ribbonShape)
+                    ) {
+                        Text(
+                            "200.00 - 600.00 EUR, mesečno",
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+
+            }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AppPreview() {
+    SkuciSeTheme {
+        HomeScreen()
     }
 }
