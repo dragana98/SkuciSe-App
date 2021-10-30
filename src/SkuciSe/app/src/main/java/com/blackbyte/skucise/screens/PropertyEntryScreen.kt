@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -15,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Cyan
+import com.blackbyte.skucise.ui.theme.Cyan
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -23,12 +24,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.blackbyte.skucise.R
+import com.blackbyte.skucise.components.AmenityChip
 import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.components.Pager
+import com.blackbyte.skucise.data.Amenity
 import com.blackbyte.skucise.ui.theme.Gold
 import com.blackbyte.skucise.ui.theme.LightGrey
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
@@ -316,6 +320,8 @@ fun PropertyEntryScreen() {
                         )
                         Column {
                             Text("200.00 EUR, mesečno")
+                            /*
+                            //SPANSTYLE THROWS EXCEPTION
                             Text(
                                 text = buildAnnotatedString {
                                     append("Površina: 32 m")
@@ -328,7 +334,7 @@ fun PropertyEntryScreen() {
                                         append("2")
                                     }
                                 }
-                            )
+                            )*/
                             Text("Depozit: 300.00 EUR")
                         }
                     }
@@ -381,7 +387,99 @@ fun PropertyEntryScreen() {
                     )
                 )
 
+                val amenities: List<Amenity> = listOf(
+                    Amenity.TERRACE,
+                    Amenity.PET_FRIENDLY,
+                    Amenity.FURNISHED,
+                    Amenity.TV,
+                    Amenity.WIFI
+                )
+                val columns = 2
+                val wholeRows = (amenities.lastIndex + 1) / columns
+                val remainder = (amenities.lastIndex + 1) - (wholeRows * columns)
 
+
+                Column {
+                    var i = 0
+                    while (i < wholeRows) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        ) {
+                            for (t in 0 until columns) {
+                                AmenityChip(amenity = amenities[i * columns + t])
+                            }
+                        }
+                        i++
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp)
+                    ) {
+                        var j = 0
+                        while (j < remainder) {
+                            AmenityChip(amenity = amenities[i * columns + j])
+                            j++
+                            i++
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.size(12.dp))
+                Text(
+                    text = "Kontakt", style = MaterialTheme.typography.h5.copy(
+                        color = MaterialTheme.colors.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+                Spacer(modifier = Modifier.size(4.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()) {
+                    Row {
+                        Image(
+                            painter = painterResource(id = R.drawable.profile_pic_vendor),
+                            contentDescription = "vendor profile picture",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(84.dp)
+                                .clip(RoundedCornerShape(42.dp))
+                                .border(
+                                    width = 4.dp,
+                                    color = LightGrey,
+                                    shape = RoundedCornerShape(42.dp)
+                                )
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Column {
+                            Text(text = "GHP Management d.o.o.", fontWeight = FontWeight.Bold)
+                            Row {
+                                Icon(imageVector = Icons.Default.LocationOn, contentDescription = "location icon")
+                                Column {
+                                    Text("Radoja Domanovića 12")
+                                    Text("Kragujevac 34112")
+                                }
+                            }
+                            Row {
+                                Icon(imageVector = Icons.Default.Home, contentDescription = "location icon")
+                                Text("www.ghpmana.rs", color = Cyan, textDecoration = TextDecoration.Underline)
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+
+                OutlinedButton(onClick = { /*TODO*/ },
+                modifier = Modifier.fillMaxWidth()) {
+                    Text("Pošaljite poruku")
+                }
                 /* CONTENT GOES ABOVE */
             }
         }
