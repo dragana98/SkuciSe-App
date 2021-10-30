@@ -36,15 +36,6 @@ import com.blackbyte.skucise.ui.theme.Green
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import kotlinx.coroutines.launch
 
-private fun ColorMidway(color1: Color, color2: Color): Color {
-    return Color(
-        red = (color1.red + color2.red) / 2.1f,
-        green = (color1.green + color2.green) / 2.1f,
-        blue = (color1.blue + color2.blue) / 2.1f,
-        alpha = (color1.alpha + color2.alpha) / 2.1f,
-    )
-}
-
 @Composable
 fun HomeScreen() {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
@@ -197,7 +188,7 @@ fun HomeScreen() {
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
-                        .padding(20.dp)
+                    .padding(20.dp)
             ) {
                 Text(
                     text = "Aktuelne ponude",
@@ -205,7 +196,7 @@ fun HomeScreen() {
                 )
                 /* CARD STARTS HERE */
                 val cardShape = RoundedCornerShape(8.dp)
-                Surface (
+                Surface(
                     color = MaterialTheme.colors.background,
                     shape = cardShape,
                     elevation = 10.dp
@@ -312,13 +303,5 @@ fun HomeScreen() {
 
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AppPreview() {
-    SkuciSeTheme {
-        HomeScreen()
     }
 }
