@@ -3,8 +3,6 @@ package com.blackbyte.skucise.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
@@ -15,11 +13,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import com.blackbyte.skucise.components.DatePicker
+import com.blackbyte.skucise.components.DatePickerGrid
 import com.blackbyte.skucise.components.DropdownButton
 import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.components.OutlinedInputField
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import java.time.LocalDate
 
 
 @Preview
@@ -121,7 +120,10 @@ fun SignUpScreen(returnToPreviousScreen: () -> Unit = {}) {
                 if (showCalendar)
                     Popup(onDismissRequest = { showCalendar = false }) {
                         Surface(color = MaterialTheme.colors.primaryVariant) {
-                            DatePicker()
+                            DatePickerGrid(
+                                date = LocalDate.of(2021, 11, 14),
+                                onDateSelected = {  }
+                            )
                         }
                     }
                 Column(
@@ -133,11 +135,6 @@ fun SignUpScreen(returnToPreviousScreen: () -> Unit = {}) {
                             // do something here
                         }, modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.AccountCircle,
-                            contentDescription = "registration icon",
-                            Modifier.padding(end = 8.dp)
-                        )
                         Text(text = "Registrujte se")
                     }
                     Box(modifier = Modifier.size(size = 10.dp))
