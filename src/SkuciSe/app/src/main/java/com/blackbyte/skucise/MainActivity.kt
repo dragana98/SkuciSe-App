@@ -1,47 +1,19 @@
 package com.blackbyte.skucise
 
-
 import android.os.Bundle
-import android.widget.CalendarView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.expandVertically
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.material.ButtonDefaults.elevation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Popup
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.blackbyte.skucise.components.DropdownButton
-import com.blackbyte.skucise.components.OutlinedInputField
-import com.blackbyte.skucise.screens.InboxScreen
-import com.blackbyte.skucise.screens.LoginScreen
-import com.blackbyte.skucise.screens.SignUpScreen
-import com.blackbyte.skucise.screens.WelcomeScreen
+import com.blackbyte.skucise.data.DrawerEntry
+import com.blackbyte.skucise.screens.*
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,23 +27,59 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun AppNavigator(navController: NavHostController) {
-        var navigateToSignUp = fun() {
-            navController.navigate(route = "signUp")
-        }
-
         var returnToPreviousScreen = fun() {
             navController.popBackStack()
         }
-        var navigateToLogin = fun(){
-            navController.navigate(route = "login")
+
+        var toHomeScreen = fun() {
+            navController.navigate(route = "home") {
+                launchSingleTop = true
+            }
+        }
+        var toInbox = fun() {
+            navController.navigate(route = "inbox") {
+                launchSingleTop = true
+            }
+        }
+        var toLogin = fun() {
+            navController.navigate(route = "login") {
+                launchSingleTop = true
+            }
+        }
+        var toMessages = fun() {
+            navController.navigate(route = "messages") {
+                launchSingleTop = true
+            }
+        }
+        var toMyAccount = fun() {
+            navController.navigate(route = "myAccount") {
+                launchSingleTop = true
+            }
+        }
+        var toPropertyEntry = fun() {
+            navController.navigate(route = "propertyEntry") {
+                launchSingleTop = true
+            }
+        }
+        var toSavedEntries = fun() {
+            navController.navigate(route = "savedEntries") {
+                launchSingleTop = true
+            }
+        }
+        var toSignUp = fun() {
+            navController.navigate(route = "signUp") {
+                launchSingleTop = true
+            }
+        }
+        var toWelcome = fun() {
+            navController.navigate(route = "welcome") {
+                launchSingleTop = true
+            }
         }
 
 
-        //                                           v~~~~~ CHANGE THIS
+        //                                           v~~~~~ CHANGE THIS TO REFLECT IF USER IS LOGGED IN OR NOT
         NavHost(navController = navController, startDestination = "welcome") {
-            composable("welcome") {
-                WelcomeScreen(navigateToSignUp, returnToPreviousScreen,navigateToLogin)
-            }
             // EXAMPLE, WITH PASSING DATA TO A PAGE VIEW:
             /*
             composable("pageName/{argument}",
@@ -83,17 +91,77 @@ class MainActivity : ComponentActivity() {
                 PageName(argument = stringNameGoesHere)
             }
             */
+            composable("home") {
+                HomeScreen(
+                    drawerOptions = listOf(
+                        DrawerEntry(
+                            label = "Moj nalog",
+                            icon = Icons.Filled.AccountCircle,
+                            onTap = {toMyAccount()}
+                        ),
+                        DrawerEntry(
+                            label = "Sačuvani oglasi",
+                            icon = Icons.Filled.Favorite,
+                            onTap = {toSavedEntries()}
+                        ),
+                        DrawerEntry(
+                            label = "Poruke",
+                            icon = Icons.Filled.Email,
+                            onTap = {toMessages()}
+                        ),
+                        DrawerEntry(
+                            label = "Zakazani obilasci",
+                            icon = Icons.Filled.DateRange,
+                            onTap = { /* TODO */}
+                        ),
+                        DrawerEntry(
+                            label = "Podešavanja",
+                            icon = Icons.Filled.Settings,
+                            onTap = { /* TODO */}
+                        ),
+                        DrawerEntry(
+                            label = "Odjava",
+                            icon = Icons.Filled.ExitToApp,
+                            onTap = { /* TODO */}
+                        )
+                    ),
+                    returnToPreviousScreen = returnToPreviousScreen,
+                    navigateToPropertyEntry = toPropertyEntry
+                )
+            }
+            composable("inbox") {
+                InboxScreen(returnToPreviousScreen = returnToPreviousScreen)
+            }
+            composable("login") {
+                LoginScreen(
+                    returnToPreviousScreen = returnToPreviousScreen,
+                    navigateToHomeScreen = toHomeScreen
+                )
+            }
+            composable("messages") {
+                MessagesScreen(
+                    returnToPreviousScreen = returnToPreviousScreen,
+                    navigateToInbox = toInbox
+                )
+            }
+            composable("myAccount") {
+                MyAccountScreen(returnToPreviousScreen = returnToPreviousScreen)
+            }
+            composable("propertyEntry") {
+                PropertyEntryScreen(returnToPreviousScreen = returnToPreviousScreen)
+            }
+            composable("savedEntries") {
+                SavedEntriesScreen(returnToPreviousScreen = returnToPreviousScreen)
+            }
             composable("signUp") {
-                SignUpScreen(returnToPreviousScreen)
+                SignUpScreen(
+                    returnToPreviousScreen = returnToPreviousScreen,
+                    navigateToHomeScreen = toHomeScreen
+                )
             }
-            composable("login"){
-                LoginScreen(returnToPreviousScreen)
+            composable("welcome") {
+                WelcomeScreen(navigateToSignUp = toSignUp, navigateToLogin = toLogin)
             }
-
         }
     }
 }
-
-
-
-

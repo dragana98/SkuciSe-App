@@ -36,29 +36,36 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun InboxScreen(
-
-){
+    returnToPreviousScreen: () -> Unit
+) {
     var text by rememberSaveable { mutableStateOf("") }
     var messages: List<InboxMessage> by rememberSaveable { mutableStateOf(mutableListOf()) }
     messages = mutableListOf(
-        InboxMessage("Poštovani,\n" +
-                "Vaša poseta je zakazana. Molimo Vas proverite da li je zakazani termin evidentiran u Vašem kalendaru.\n" +
-                "\n" +
-                "Očekujemo Vas!", "13.5.2021. u 9.42 časova", MsgType.TEXT, 0),
-        InboxMessage("Poštovani,\n" +
-                "Vaša poseta je zakazana. Molimo Vas proverite da li je zakazani termin evidentiran u Vašem kalendaru.\n" +
-                "\n" +
-                "Očekujemo Vas!", "13.5.2021. u 9.42 časova", MsgType.TEXT, 0),
-        InboxMessage("Poštovani,\n" +
-                "Vaša poseta je zakazana. Molimo Vas proverite da li je zakazani termin evidentiran u Vašem kalendaru.\n" +
-                "\n" +
-                "Očekujemo Vas!", "13.5.2021. u 9.42 časova", MsgType.TEXT, 1)
+        InboxMessage(
+            "Poštovani,\n" +
+                    "Vaša poseta je zakazana. Molimo Vas proverite da li je zakazani termin evidentiran u Vašem kalendaru.\n" +
+                    "\n" +
+                    "Očekujemo Vas!", "13.5.2021. u 9.42 časova", MsgType.TEXT, 0
+        ),
+        InboxMessage(
+            "Poštovani,\n" +
+                    "Vaša poseta je zakazana. Molimo Vas proverite da li je zakazani termin evidentiran u Vašem kalendaru.\n" +
+                    "\n" +
+                    "Očekujemo Vas!", "13.5.2021. u 9.42 časova", MsgType.TEXT, 0
+        ),
+        InboxMessage(
+            "Poštovani,\n" +
+                    "Vaša poseta je zakazana. Molimo Vas proverite da li je zakazani termin evidentiran u Vašem kalendaru.\n" +
+                    "\n" +
+                    "Očekujemo Vas!", "13.5.2021. u 9.42 časova", MsgType.TEXT, 1
+        )
     );
-    fun sendMessage(){
+    fun sendMessage() {
         var message = InboxMessage(text, "nzm vreme", MsgType.TEXT, 0)
         text = ""
         messages += message
     }
+
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     Scaffold(
@@ -81,23 +88,26 @@ fun InboxScreen(
                         .wrapContentHeight(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     Box(
                         Modifier.width(50.dp),
                         contentAlignment = Alignment.Center
-                    ){
-                        IconButton(onClick = { /*TODO*/ }) {
+                    ) {
+                        IconButton(
+                            onClick = {
+                                returnToPreviousScreen()
+                            }) {
                             Icon(Icons.Filled.ArrowBack, "")
                         }
                     }
                     Box(
                         Modifier.wrapContentSize(),
                         contentAlignment = Alignment.Center
-                    ){
-                        Column (
+                    ) {
+                        Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
-                        ){
+                        ) {
                             Spacer(Modifier.height(3.dp))
                             Image(
                                 painterResource(id = R.drawable.profile_pic_vendor),
@@ -108,7 +118,10 @@ fun InboxScreen(
                                     .size(52.dp)
                             )
                             Spacer(Modifier.height(5.dp))
-                            Text("GHP Management d.o.o.", style = MaterialTheme.typography.subtitle1)
+                            Text(
+                                "GHP Management d.o.o.",
+                                style = MaterialTheme.typography.subtitle1
+                            )
                             Spacer(Modifier.height(3.dp))
                         }
                     }
@@ -125,7 +138,7 @@ fun InboxScreen(
             Surface(
                 modifier = Modifier.wrapContentHeight(),
                 color = Color.White
-            ){
+            ) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically,
@@ -133,7 +146,7 @@ fun InboxScreen(
                         .padding(bottom = 3.dp, top = 3.dp)
                         .wrapContentHeight()
                         .fillMaxWidth()
-                ){
+                ) {
                     Spacer(Modifier.width(15.dp))
                     TextField(
                         singleLine = false,
@@ -141,7 +154,7 @@ fun InboxScreen(
                         onValueChange = {
                             if (it.length <= 400) text = it
                         },
-                        placeholder = { Text("Unesite poruku..." )},
+                        placeholder = { Text("Unesite poruku...") },
                         maxLines = 3,
                         shape = RoundedCornerShape(7.dp),
                         modifier = Modifier
@@ -172,9 +185,9 @@ fun InboxScreen(
                         IconButton(onClick = {
                             sendMessage()
                             coroutineScope.launch {
-                                listState.animateScrollToItem(index = (messages.size-1))
+                                listState.animateScrollToItem(index = (messages.size - 1))
                             }
-                        }, Modifier.padding(4.dp)){
+                        }, Modifier.padding(4.dp)) {
                             Icon(Icons.Filled.Send, "")
                         }
                     }
@@ -192,8 +205,8 @@ fun InboxScreen(
                 .fillMaxHeight()
                 .padding(bottom = 70.dp)
         ) {
-            items(messages.size){
-                    item -> messages[item].DisplayMessage()
+            items(messages.size) { item ->
+                messages[item].DisplayMessage()
             }
         }
     }
@@ -206,8 +219,8 @@ fun InboxScreen(
     showBackground = true
 )
 @Composable
-fun InboxScreenPreview(){
+fun InboxScreenPreview() {
     SkuciSeTheme {
-        InboxScreen()
+        InboxScreen(returnToPreviousScreen = {})
     }
 }

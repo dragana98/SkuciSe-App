@@ -125,11 +125,12 @@ fun RatingStars(
 }
 
 @Composable
-fun PropertyEntryScreen() {
-
+fun PropertyEntryScreen(
+    returnToPreviousScreen : () -> Unit
+) {
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
-        topBar = { NavTopBar("Apartmani Petrović") },
+        topBar = { NavTopBar("Apartmani Petrović", returnToPreviousScreen = returnToPreviousScreen) },
     ) {
         Column(
             modifier = Modifier
@@ -491,6 +492,6 @@ fun PropertyEntryScreen() {
 @Composable
 fun PropertyEntryPreview() {
     SkuciSeTheme {
-        PropertyEntryScreen()
+        PropertyEntryScreen({})
     }
 }

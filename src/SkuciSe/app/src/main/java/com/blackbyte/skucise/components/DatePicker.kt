@@ -22,6 +22,18 @@ import java.time.LocalDate
 import androidx.compose.ui.input.pointer.pointerInput
 import com.blackbyte.skucise.ui.theme.Green
 
+enum class DatePickerMode {
+    ALLOW_ALL,
+    INACTIVATE_PAST_DAYS,
+    INACTIVATE_UPCOMING_DAYS
+}
+
+private enum class DatePickerDayDecoration {
+    REGULAR,
+    DISABLED,
+    HIGHLIGHTED
+}
+
 private fun DayIndex(day: Int, month: Int, year: Int): Int {
     //val t: Array<Int> = arrayOf(0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4)
     val t: Array<Int> = arrayOf(6, 2, 1, 4, 6, 2, 4, 0, 3, 5, 1, 3)
@@ -71,18 +83,6 @@ private fun MonthName(month: Int): String {
             "???"
         }
     }
-}
-
-enum class DatePickerMode {
-    ALLOW_ALL,
-    INACTIVATE_PAST_DAYS,
-    INACTIVATE_UPCOMING_DAYS
-}
-
-private enum class DatePickerDayDecoration {
-    REGULAR,
-    DISABLED,
-    HIGHLIGHTED
 }
 
 @Composable
@@ -347,7 +347,7 @@ fun DatePickerPreview() {
     SkuciSeTheme {
         Scaffold(
             backgroundColor = MaterialTheme.colors.background,
-            topBar = { NavTopBar("Odabir datuma") },
+            topBar = { NavTopBar("Odabir datuma", returnToPreviousScreen = {}) },
         ) {
             var pickedDate by remember {
                 mutableStateOf(LocalDate.now())
