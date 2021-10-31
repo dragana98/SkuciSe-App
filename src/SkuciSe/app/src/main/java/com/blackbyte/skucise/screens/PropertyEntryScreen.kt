@@ -489,7 +489,7 @@ fun PropertyEntryScreen() {
 
 @Preview(showBackground = true)
 @Composable
-fun AppPreview() {
+fun PropertyEntryPreview() {
     SkuciSeTheme {
         PropertyEntryScreen()
     }
