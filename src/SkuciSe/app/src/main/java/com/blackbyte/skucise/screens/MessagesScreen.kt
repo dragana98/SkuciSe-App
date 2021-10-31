@@ -25,6 +25,7 @@ import com.blackbyte.skucise.components.Chat
 import com.blackbyte.skucise.components.InboxMessage
 import com.blackbyte.skucise.components.MsgType
 import com.blackbyte.skucise.R
+import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 
 @Composable
@@ -52,41 +53,8 @@ fun MessagesScreen(
         )
     )
     Scaffold(
-        topBar =
-        {
-            TopAppBar(
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = 8.dp,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                //TopAppBar Content
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        Modifier.width(50.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(Icons.Filled.ArrowBack, "")
-                        }
-                    }
-                    Box(
-                        Modifier.wrapContentWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Poruke", style = MaterialTheme.typography.subtitle1)
-                    }
-                    Box(
-                        Modifier.width(50.dp),
-                        contentAlignment = Alignment.Center
-                    )
-                    {
-                    }
-                }
-            }
+        topBar = {
+            NavTopBar(title = "Poruke", returnToPreviousScreen = returnToPreviousScreen)
         }
 
     ) {
