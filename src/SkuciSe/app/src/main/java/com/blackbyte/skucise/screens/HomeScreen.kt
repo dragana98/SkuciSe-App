@@ -1,6 +1,7 @@
 package com.blackbyte.skucise.screens
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -25,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
@@ -81,7 +83,13 @@ fun HomeScreen(
             drawerOptions.forEach { option ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp).pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                option.onTap()
+                            }
+                        )
+                    }
                 ) {
                     Icon(
                         imageVector = option.icon,
