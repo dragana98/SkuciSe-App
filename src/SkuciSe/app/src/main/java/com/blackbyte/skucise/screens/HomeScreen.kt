@@ -1,6 +1,7 @@
 package com.blackbyte.skucise.screens
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -25,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
@@ -32,7 +34,7 @@ import com.blackbyte.skucise.MainActivity
 import com.blackbyte.skucise.components.OutlinedInputField
 import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.data.DrawerEntry
-import com.blackbyte.skucise.ui.theme.Green
+import com.blackbyte.skucise.ui.theme.LightGreen
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import kotlinx.coroutines.launch
 
@@ -40,7 +42,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     drawerOptions: List<DrawerEntry>,
     returnToPreviousScreen: () -> Unit,
-    navigateToPropertyEntry: () -> Unit,
+    navigateToPropertyEntry: () -> Unit
     ) {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
@@ -82,6 +84,13 @@ fun HomeScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+                        .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                option.onTap()
+                            }
+                        )
+                    }
                 ) {
                     Icon(
                         imageVector = option.icon,
@@ -193,7 +202,13 @@ fun HomeScreen(
             Surface(
                 color = MaterialTheme.colors.background,
                 shape = cardShape,
-                elevation = 10.dp
+                elevation = 10.dp,
+                modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            navigateToPropertyEntry()
+                        }
+                    )}
             ) {
                 Column {
                     Pager(
@@ -231,7 +246,7 @@ fun HomeScreen(
                             Column(
                                 modifier = Modifier
                                     .clip(shape = ribbonShape)
-                                    .background(color = Green, shape = ribbonShape)
+                                    .background(color = LightGreen, shape = ribbonShape)
                             ) {
                                 Text(
                                     "200.00 - 600.00 EUR, mesečno",

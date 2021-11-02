@@ -116,7 +116,7 @@ fun SignUpScreen(
             }
             Spacer(modifier = Modifier.size(size  = 20.dp))
             OutlinedPasswordField("Lozinka", modifier = Modifier.fillMaxWidth())
-
+            Spacer(modifier = Modifier.size(size  = 20.dp))
             if (showCalendar)
                 Popup(onDismissRequest = { showCalendar = false }) {
                     Surface(color = MaterialTheme.colors.primaryVariant) {
