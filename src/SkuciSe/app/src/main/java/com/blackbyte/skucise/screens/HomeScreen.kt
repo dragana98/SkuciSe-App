@@ -32,7 +32,7 @@ import com.blackbyte.skucise.MainActivity
 import com.blackbyte.skucise.components.OutlinedInputField
 import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.data.DrawerEntry
-import com.blackbyte.skucise.ui.theme.Green
+import com.blackbyte.skucise.ui.theme.LightGreen
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import kotlinx.coroutines.launch
 
@@ -231,7 +231,7 @@ fun HomeScreen(
                             Column(
                                 modifier = Modifier
                                     .clip(shape = ribbonShape)
-                                    .background(color = Green, shape = ribbonShape)
+                                    .background(color = LightGreen, shape = ribbonShape)
                             ) {
                                 Text(
                                     "200.00 - 600.00 EUR, mesečno",
