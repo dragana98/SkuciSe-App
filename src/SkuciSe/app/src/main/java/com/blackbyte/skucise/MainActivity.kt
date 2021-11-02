@@ -27,51 +27,56 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun AppNavigator(navController: NavHostController) {
-        var returnToPreviousScreen = fun() {
+        val returnToPreviousScreen = fun() {
             navController.popBackStack()
         }
 
-        var toHomeScreen = fun() {
+        val toHomeScreen = fun() {
             navController.navigate(route = "home") {
                 launchSingleTop = true
             }
         }
-        var toInbox = fun() {
+        val toInbox = fun() {
             navController.navigate(route = "inbox") {
                 launchSingleTop = true
             }
         }
-        var toLogin = fun() {
+        val toLogin = fun() {
             navController.navigate(route = "login") {
                 launchSingleTop = true
             }
         }
-        var toMessages = fun() {
+        val toMessages = fun() {
             navController.navigate(route = "messages") {
                 launchSingleTop = true
             }
         }
-        var toMyAccount = fun() {
+        val toMyAccount = fun() {
             navController.navigate(route = "myAccount") {
                 launchSingleTop = true
             }
         }
-        var toPropertyEntry = fun() {
+        val toPropertyEntry = fun() {
             navController.navigate(route = "propertyEntry") {
                 launchSingleTop = true
             }
         }
-        var toSavedEntries = fun() {
+        val toReviews = fun() {
+            navController.navigate(route = "reviews") {
+                launchSingleTop = true
+            }
+        }
+        val toSavedEntries = fun() {
             navController.navigate(route = "savedEntries") {
                 launchSingleTop = true
             }
         }
-        var toSignUp = fun() {
+        val toSignUp = fun() {
             navController.navigate(route = "signUp") {
                 launchSingleTop = true
             }
         }
-        var toWelcome = fun() {
+        val toWelcome = fun() {
             navController.navigate(route = "welcome") {
                 launchSingleTop = true
             }
@@ -148,7 +153,12 @@ class MainActivity : ComponentActivity() {
                 MyAccountScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
             composable("propertyEntry") {
-                PropertyEntryScreen(returnToPreviousScreen = returnToPreviousScreen)
+                PropertyEntryScreen(
+                    navigateToVendorInbox = toInbox,
+                    returnToPreviousScreen = returnToPreviousScreen)
+            }
+            composable("reviews") {
+                ReviewsScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
             composable("savedEntries") {
                 SavedEntriesScreen(returnToPreviousScreen = returnToPreviousScreen)

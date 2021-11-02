@@ -41,7 +41,8 @@ import kotlin.math.round
 
 @Composable
 fun PropertyEntryScreen(
-    returnToPreviousScreen: () -> Unit
+    returnToPreviousScreen: () -> Unit,
+    navigateToVendorInbox: () -> Unit
 ) {
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
@@ -413,7 +414,7 @@ fun PropertyEntryScreen(
                 Spacer(modifier = Modifier.size(16.dp))
 
                 OutlinedButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { navigateToVendorInbox() },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Pošaljite poruku")
@@ -429,6 +430,6 @@ fun PropertyEntryScreen(
 @Composable
 fun PropertyEntryPreview() {
     SkuciSeTheme {
-        PropertyEntryScreen({})
+        PropertyEntryScreen({}, {})
     }
 }
