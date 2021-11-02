@@ -21,6 +21,7 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
+                
             }
         }
     }
@@ -76,6 +77,11 @@ class MainActivity : ComponentActivity() {
                 launchSingleTop = true
             }
         }
+        var toScheduledTours = fun(){
+            navController.navigate(route = "scheduledTours"){
+                launchSingleTop = true
+            }
+        }
 
 
         //                                           v~~~~~ CHANGE THIS TO REFLECT IF USER IS LOGGED IN OR NOT
@@ -112,7 +118,7 @@ class MainActivity : ComponentActivity() {
                         DrawerEntry(
                             label = "Zakazani obilasci",
                             icon = Icons.Filled.DateRange,
-                            onTap = { /* TODO */}
+                            onTap = {toScheduledTours()}
                         ),
                         DrawerEntry(
                             label = "Podešavanja",
@@ -161,6 +167,11 @@ class MainActivity : ComponentActivity() {
             }
             composable("welcome") {
                 WelcomeScreen(navigateToSignUp = toSignUp, navigateToLogin = toLogin)
+            }
+            composable("scheduledTours"){
+                ScheduledToursScreen(
+                    returnToPreviousScreen = returnToPreviousScreen
+                )
             }
         }
     }
