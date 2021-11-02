@@ -17,12 +17,10 @@ import androidx.compose.ui.unit.sp
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 
-
-@Preview
 @Composable
 fun WelcomeScreen(
-    navigateToSignUp: () -> Unit = {},
-    returnToPreviousScreen: () -> Unit = {}
+    navigateToSignUp: () -> Unit,
+    navigateToLogin: () -> Unit
 ) {
 
     SkuciSeTheme {
@@ -85,9 +83,10 @@ fun WelcomeScreen(
                     Text(text = "Registrujte se")
                 }
                 Spacer(modifier = Modifier.size(size = 20.dp))
+
                 OutlinedButton(
                     onClick = {
-                        // do something here
+                        navigateToLogin()
                     }, modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
@@ -99,5 +98,14 @@ fun WelcomeScreen(
                 }
             }
         }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun WelcomeScreenPreview() {
+    SkuciSeTheme {
+        WelcomeScreen(navigateToSignUp = {}, navigateToLogin = {})
     }
 }

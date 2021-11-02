@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun NavTopBar(title: String, returnToPreviousScreen: () -> Unit = {}) {
+fun NavTopBar(title: String, returnToPreviousScreen: () -> Unit) {
     TopAppBar(title = {
         Button(
             elevation = ButtonDefaults.elevation(0.dp),
