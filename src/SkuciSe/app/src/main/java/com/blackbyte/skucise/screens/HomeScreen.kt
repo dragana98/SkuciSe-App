@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     drawerOptions: List<DrawerEntry>,
     returnToPreviousScreen: () -> Unit,
-    navigateToPropertyEntry: () -> Unit,
+    navigateToPropertyEntry: () -> Unit
     ) {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()

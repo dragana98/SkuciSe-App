@@ -2,6 +2,7 @@ package com.blackbyte.skucise.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import com.blackbyte.skucise.ui.theme.Cyan
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
@@ -42,7 +44,9 @@ import kotlin.math.round
 @Composable
 fun PropertyEntryScreen(
     returnToPreviousScreen: () -> Unit,
-    navigateToVendorInbox: () -> Unit
+    navigateToVendorInbox: () -> Unit,
+    navigateToPropertyReviews: () -> Unit,
+    navigateToScheduleATour: () -> Unit
 ) {
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
@@ -110,7 +114,12 @@ fun PropertyEntryScreen(
                             Spacer(modifier = Modifier.size(6.dp))
                             Text("(4.8)", fontWeight = FontWeight.Medium)
                         }
-                        Row {
+                        Row (modifier = Modifier.pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    navigateToPropertyReviews()
+                                }
+                            )}){
                             Text(
                                 "Sve recenzije (9)",
                                 color = MaterialTheme.colors.secondary,
@@ -281,7 +290,7 @@ fun PropertyEntryScreen(
                             .size(6.dp)
                     )
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = { navigateToScheduleATour() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Zakažite oblilazak")
@@ -430,6 +439,6 @@ fun PropertyEntryScreen(
 @Composable
 fun PropertyEntryPreview() {
     SkuciSeTheme {
-        PropertyEntryScreen({}, {})
+        PropertyEntryScreen({}, {}, {}, {})
     }
 }

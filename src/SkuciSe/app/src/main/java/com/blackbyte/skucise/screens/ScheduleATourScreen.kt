@@ -35,8 +35,10 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ScheduleATourScreen(){
-    var buttonText by rememberSaveable{ mutableStateOf("") }
+fun ScheduleATourScreen(
+    returnToPreviousScreen: () -> Unit
+) {
+    var buttonText by rememberSaveable { mutableStateOf("") }
     val configuration = LocalConfiguration.current
     var scrollState = rememberScrollState()
     var nazivClick by rememberSaveable {
@@ -54,8 +56,10 @@ fun ScheduleATourScreen(){
     var name by rememberSaveable { mutableStateOf("") }
     Scaffold(
         topBar = {
-            NavTopBar(title = "Zakažite obilazak") {
-            }
+            NavTopBar(
+                title = "Zakažite obilazak",
+                returnToPreviousScreen = returnToPreviousScreen
+            )
         }
     ) {
         Column(
@@ -65,7 +69,7 @@ fun ScheduleATourScreen(){
                 .padding(all = 20.dp)
                 .verticalScroll(scrollState)
         ) {
-            Box(Modifier.size(height = 200.dp, width = 400.dp)){
+            Box(Modifier.size(height = 200.dp, width = 400.dp)) {
                 Image(
                     painter = painterResource(id = R.drawable.property_2),
                     contentScale = ContentScale.Crop,
@@ -76,66 +80,98 @@ fun ScheduleATourScreen(){
                 )
             }
             Spacer(Modifier.height(15.dp))
-            Text("Informacije", style = MaterialTheme.typography.h6, modifier = Modifier.align(Alignment.Start))
+            Text(
+                "Informacije",
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.align(Alignment.Start)
+            )
             Column(
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Row(){
-                        Text("Naziv objekta", modifier = Modifier.width(120.dp), style = MaterialTheme.typography.subtitle1)
-                        Spacer(Modifier.width(15.dp))
-                        Text("Apartmani Petrovićasfasdfaasdfafsdasdfasfdaasfdasdfasfdasfdasfdasfdsdfasdfasfdasfdasfdasfdasf",
-                            maxLines = if(nazivClick) Int.MAX_VALUE else 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                            .clickable{ nazivClick = !nazivClick }
-                        )
-                }
-                Row(){
-                        Text("U vlasništvu", modifier = Modifier.width(120.dp), style = MaterialTheme.typography.subtitle1)
+                Row() {
+                    Text(
+                        "Naziv objekta",
+                        modifier = Modifier.width(120.dp),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.subtitle1
+                    )
                     Spacer(Modifier.width(15.dp))
-                    Text("GHP Management d.o.o.  asdfas",
-                        maxLines = if(vlasnistvoClick) Int.MAX_VALUE else 1,
+                    Text("Apartmani Petrović",
+                        maxLines = if (nazivClick) Int.MAX_VALUE else 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                        .clickable{ vlasnistvoClick = !vlasnistvoClick })
+                            .clickable { nazivClick = !nazivClick }
+                    )
                 }
-                Row(){
-                    Text("Odgovorno lice", modifier = Modifier.width(120.dp), style = MaterialTheme.typography.subtitle1)
+                Row() {
+                    Text(
+                        "U vlasništvu",
+                        modifier = Modifier.width(120.dp),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.subtitle1
+                    )
                     Spacer(Modifier.width(15.dp))
-                    Text("Ana Đurđević asfasdfaasfdas",
-                        maxLines = if(odgovornoLiceClick) Int.MAX_VALUE else 1,
+                    Text("GHP Management d.o.o.",
+                        maxLines = if (vlasnistvoClick) Int.MAX_VALUE else 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .clickable{ odgovornoLiceClick = !odgovornoLiceClick })
+                            .clickable { vlasnistvoClick = !vlasnistvoClick })
                 }
-                Row(){
-                    Text("Kontakt", modifier = Modifier.width(120.dp), style = MaterialTheme.typography.subtitle1)
+                Row() {
+                    Text(
+                        "Odgovorno lice",
+                        modifier = Modifier.width(120.dp),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.subtitle1
+                    )
+                    Spacer(Modifier.width(15.dp))
+                    Text("Ana Đurđević",
+                        maxLines = if (odgovornoLiceClick) Int.MAX_VALUE else 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .clickable { odgovornoLiceClick = !odgovornoLiceClick })
+                }
+                Row() {
+                    Text(
+                        "Kontakt",
+                        modifier = Modifier.width(120.dp),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.subtitle1
+                    )
                     Spacer(Modifier.width(15.dp))
                     Text("+381 (0)64 97-49-754",
-                        maxLines = if(kontaktClick) Int.MAX_VALUE else 1,
+                        maxLines = if (kontaktClick) Int.MAX_VALUE else 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                        .clickable{ kontaktClick = !kontaktClick })
+                            .clickable { kontaktClick = !kontaktClick })
                 }
             }
             Spacer(Modifier.height(15.dp))
-            Text("Izaberite datum i vreme", style = MaterialTheme.typography.h6, modifier = Modifier.align(Alignment.Start))
+            Text(
+                "Izaberite datum i vreme",
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.align(Alignment.Start)
+            )
             Row(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                DatePickerGrid(onDateSelected = {
-                        input-> if(input!=null){
-                            buttonText = input.dayOfMonth.toString() +"."+ input.monthValue.toString()+"."+ input.year.toString()
-                        }
-                }
-                 , date = LocalDate.now())
+                DatePickerGrid(onDateSelected = { input ->
+                    if (input != null) {
+                        buttonText =
+                            input.dayOfMonth.toString() + "." + input.monthValue.toString() + "." + input.year.toString()
+                    }
+                }, date = LocalDate.now())
             }
             Spacer(Modifier.height(15.dp))
-            Text("Obilazak je moguće otkazati ili odgoditi najkasnije 1 dan pred zakazani termin. Propušteni obilasci podležu sankcijama.",
-                style = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.W500), fontSize = 11.sp, textAlign = TextAlign.Center)
+            Text(
+                "Obilazak je moguće otkazati ili odgoditi najkasnije 1 dan pred zakazani termin. Propušteni obilasci podležu sankcijama.",
+                style = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.W500),
+                fontSize = 11.sp,
+                textAlign = TextAlign.Center
+            )
             Spacer(Modifier.height(15.dp))
             Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
                 Text("Zakazati - $buttonText")

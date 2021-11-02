@@ -71,12 +71,6 @@ fun ScheduledToursScreen(returnToPreviousScreen: () -> Unit){
                         ),
                         onDateSelected = { t : LocalDate? -> pickedDate = t}
                     )
-                    if(pickedDate != null) {
-                        Text("Izabrali ste datum: ${pickedDate.dayOfMonth}.${pickedDate.monthValue}.${pickedDate.year}.")
-                    } else {
-                        Text("Izaberite datum.")
-                    }
-
                 }
             } // end
 
