@@ -8,6 +8,10 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.outlined.AddLocation
+import androidx.compose.material.icons.outlined.LockClock
+import androidx.compose.material.icons.outlined.QueryBuilder
+import androidx.compose.material.icons.outlined.Watch
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -134,20 +138,46 @@ fun ScheduledToursScreen(returnToPreviousScreen: () -> Unit){
                             fontSize = 19.sp,
                             textAlign = TextAlign.Left
                         )
-                        Text(
-                            text = "5. oktobar 2021.\n10.30 časova",
-                            modifier = Modifier.absolutePadding(5.dp,1.dp,0.dp,0.dp),
-                            color = Color.Black,
-                            fontSize = 15.sp,
-                            textAlign = TextAlign.Left
-                        )
-                        Text(
-                            text = "Zmaj Jovina 14,\u2028Kragujevac 34000",
-                            modifier = Modifier.absolutePadding(5.dp,1.dp,0.dp,0.dp),
-                            color = Color.Black,
-                            fontSize = 15.sp,
-                            textAlign = TextAlign.Left
-                        )
+                        
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            //horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ){
+                            Icon(
+                                imageVector = Icons.Outlined.QueryBuilder,
+                                contentDescription = "Clock",
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.Black
+                            )
+                            Text(
+                                text = "5. oktobar 2021.\n10.30 časova",
+                                modifier = Modifier.absolutePadding(5.dp,1.dp,0.dp,0.dp),
+                                color = Color.Black,
+                                fontSize = 15.sp,
+                                textAlign = TextAlign.Left)
+
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ){
+                            Icon(
+                                imageVector = Icons.Outlined.AddLocation,
+                                contentDescription = "Location",
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.Black
+                            )
+                            Text(
+                                text = "Zmaj Jovina 14,\nKragujevac 34000",
+                                modifier = Modifier.absolutePadding(5.dp,1.dp,0.dp,0.dp),
+                                color = Color.Black,
+                                fontSize = 15.sp,
+                                textAlign = TextAlign.Left)
+
+                        }
 
                     }
                 }
@@ -193,7 +223,7 @@ fun ScheduledToursScreen(returnToPreviousScreen: () -> Unit){
                     )
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
 
-                    Text(text = "Prikaži na mapi", color = Color.White, fontSize = 17.sp)
+                    Text(text = "Prikaži na mapi", color = Color.White, fontSize = 16.sp)
                 }
             }
 
