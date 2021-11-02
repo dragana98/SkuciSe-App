@@ -2,6 +2,7 @@ package com.blackbyte.skucise.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import com.blackbyte.skucise.ui.theme.Cyan
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
@@ -32,6 +34,7 @@ import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.AmenityChip
 import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.components.Pager
+import com.blackbyte.skucise.components.RatingStars
 import com.blackbyte.skucise.data.Amenity
 import com.blackbyte.skucise.ui.theme.Gold
 import com.blackbyte.skucise.ui.theme.LightGrey
@@ -39,98 +42,20 @@ import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import kotlin.math.round
 
 @Composable
-fun RatingStars(
-    rating: Float,
-    maxRating: Int,
-    starSize: Dp,
-    spacing: Dp,
-    tint: Color
-) {
-    var whole: Int = rating.toInt()
-    var decimal: Int = round((rating * 10f) - (whole * 10f)).toInt()
-
-    whole += decimal / 10
-    decimal %= 10
-
-    if ((rating < 0f) or (rating > maxRating.toFloat())) {
-        whole = 0
-        decimal = 0
-    }
-
-    Row {
-        var t: Int = 0
-        var i: Int = 0
-
-        while (i < whole) {
-            Icon(
-                painter = painterResource(R.drawable.starfilled),
-                contentDescription = "star rating",
-                tint = tint,
-                modifier = Modifier.size(starSize)
-            )
-            Spacer(modifier = Modifier.size(spacing))
-            i++
-            t++
-        }
-
-        if (decimal != 0) {
-            Box {
-                Icon(
-                    painter = painterResource(R.drawable.staroutlined),
-                    contentDescription = "star rating",
-                    tint = tint,
-                    modifier = Modifier.size(starSize)
-                )
-                Box(
-                    modifier =
-                    Modifier
-                        .offset(
-                            x = starSize
-                                .div(10)
-                                .times(decimal - 10), y = 0.dp
-                        )
-                        .clip(shape = RectangleShape)
-                ) {
-                    Box(
-                        modifier = Modifier.offset(
-                            x = starSize
-                                .div(10)
-                                .times(10 - decimal), y = 0.dp
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.starfilled),
-                            contentDescription = "star rating",
-                            tint = tint,
-                            modifier = Modifier.size(starSize)
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.size(spacing))
-            t++
-        }
-        while (t < maxRating) {
-            Icon(
-                painter = painterResource(R.drawable.staroutlined),
-                contentDescription = "star rating",
-                tint = tint,
-                modifier = Modifier.size(starSize)
-            )
-            Spacer(modifier = Modifier.size(spacing))
-            t++
-        }
-
-    }
-}
-
-@Composable
 fun PropertyEntryScreen(
-    returnToPreviousScreen : () -> Unit
+    returnToPreviousScreen: () -> Unit,
+    navigateToVendorInbox: () -> Unit,
+    navigateToPropertyReviews: () -> Unit,
+    navigateToScheduleATour: () -> Unit
 ) {
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
-        topBar = { NavTopBar("Apartmani Petrović", returnToPreviousScreen = returnToPreviousScreen) },
+        topBar = {
+            NavTopBar(
+                "Apartmani Petrović",
+                returnToPreviousScreen = returnToPreviousScreen
+            )
+        },
     ) {
         Column(
             modifier = Modifier
@@ -189,7 +114,12 @@ fun PropertyEntryScreen(
                             Spacer(modifier = Modifier.size(6.dp))
                             Text("(4.8)", fontWeight = FontWeight.Medium)
                         }
-                        Row {
+                        Row (modifier = Modifier.pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    navigateToPropertyReviews()
+                                }
+                            )}){
                             Text(
                                 "Sve recenzije (9)",
                                 color = MaterialTheme.colors.secondary,
@@ -263,10 +193,14 @@ fun PropertyEntryScreen(
                     }
                 }
 
-                Text("*moguća promena cene po dogovoru.", style = MaterialTheme.typography.body2)
+                Text(
+                    "*moguća promena cene po dogovoru.",
+                    style = MaterialTheme.typography.body2
+                )
                 Spacer(modifier = Modifier.size(12.dp))
                 Text(
-                    text = "Raspored soba i cenovnik", style = MaterialTheme.typography.h5.copy(
+                    text = "Raspored soba i cenovnik",
+                    style = MaterialTheme.typography.h5.copy(
                         color = MaterialTheme.colors.primary,
                         fontWeight = FontWeight.Bold
                     )
@@ -356,7 +290,7 @@ fun PropertyEntryScreen(
                             .size(6.dp)
                     )
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = { navigateToScheduleATour() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Zakažite oblilazak")
@@ -443,7 +377,8 @@ fun PropertyEntryScreen(
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()) {
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Row {
                         Image(
                             painter = painterResource(id = R.drawable.profile_pic_vendor),
@@ -462,23 +397,35 @@ fun PropertyEntryScreen(
                         Column {
                             Text(text = "GHP Management d.o.o.", fontWeight = FontWeight.Bold)
                             Row {
-                                Icon(imageVector = Icons.Default.LocationOn, contentDescription = "location icon")
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "location icon"
+                                )
                                 Column {
                                     Text("Radoja Domanovića 12")
                                     Text("Kragujevac 34112")
                                 }
                             }
                             Row {
-                                Icon(imageVector = Icons.Default.Home, contentDescription = "location icon")
-                                Text("www.ghpmana.rs", color = Cyan, textDecoration = TextDecoration.Underline)
+                                Icon(
+                                    imageVector = Icons.Default.Home,
+                                    contentDescription = "location icon"
+                                )
+                                Text(
+                                    "www.ghpmana.rs",
+                                    color = Cyan,
+                                    textDecoration = TextDecoration.Underline
+                                )
                             }
                         }
                     }
                 }
                 Spacer(modifier = Modifier.size(16.dp))
 
-                OutlinedButton(onClick = { /*TODO*/ },
-                modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(
+                    onClick = { navigateToVendorInbox() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text("Pošaljite poruku")
                 }
                 /* CONTENT GOES ABOVE */
@@ -492,6 +439,6 @@ fun PropertyEntryScreen(
 @Composable
 fun PropertyEntryPreview() {
     SkuciSeTheme {
-        PropertyEntryScreen({})
+        PropertyEntryScreen({}, {}, {}, {})
     }
 }
