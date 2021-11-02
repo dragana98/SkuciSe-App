@@ -83,7 +83,8 @@ fun HomeScreen(
             drawerOptions.forEach { option ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp).pointerInput(Unit) {
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+                        .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = {
                                 option.onTap()
@@ -201,7 +202,13 @@ fun HomeScreen(
             Surface(
                 color = MaterialTheme.colors.background,
                 shape = cardShape,
-                elevation = 10.dp
+                elevation = 10.dp,
+                modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            navigateToPropertyEntry()
+                        }
+                    )}
             ) {
                 Column {
                     Pager(
