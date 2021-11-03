@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.blackbyte.skucise.R
-import com.blackbyte.skucise.components.Ad
+import com.blackbyte.skucise.data.Ad
 import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 

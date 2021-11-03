@@ -21,6 +21,7 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
+                
             }
         }
     }
@@ -81,8 +82,16 @@ class MainActivity : ComponentActivity() {
                 launchSingleTop = true
             }
         }
-
-
+        var toScheduledTours = fun(){
+            navController.navigate(route = "scheduledTours"){
+                launchSingleTop = true
+            }
+        }
+        var toScheduleATour = fun(){
+            navController.navigate(route = "scheduleATour"){
+                launchSingleTop = true
+            }
+        }
         //                                           v~~~~~ CHANGE THIS TO REFLECT IF USER IS LOGGED IN OR NOT
         NavHost(navController = navController, startDestination = "welcome") {
             // EXAMPLE, WITH PASSING DATA TO A PAGE VIEW:
@@ -117,7 +126,7 @@ class MainActivity : ComponentActivity() {
                         DrawerEntry(
                             label = "Zakazani obilasci",
                             icon = Icons.Filled.DateRange,
-                            onTap = { /* TODO */}
+                            onTap = {toScheduledTours()}
                         ),
                         DrawerEntry(
                             label = "Podešavanja",
@@ -131,7 +140,8 @@ class MainActivity : ComponentActivity() {
                         )
                     ),
                     returnToPreviousScreen = returnToPreviousScreen,
-                    navigateToPropertyEntry = toPropertyEntry
+                    navigateToPropertyEntry = toPropertyEntry,
+                    //navigateToPropertyReviews = toReviews
                 )
             }
             composable("inbox") {
@@ -154,7 +164,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("propertyEntry") {
                 PropertyEntryScreen(
+                    navigateToPropertyReviews = toReviews,
                     navigateToVendorInbox = toInbox,
+                    navigateToScheduleATour = toScheduleATour,
                     returnToPreviousScreen = returnToPreviousScreen)
             }
             composable("reviews") {
@@ -171,6 +183,16 @@ class MainActivity : ComponentActivity() {
             }
             composable("welcome") {
                 WelcomeScreen(navigateToSignUp = toSignUp, navigateToLogin = toLogin)
+            }
+            composable("scheduledTours"){
+                ScheduledToursScreen(
+                    returnToPreviousScreen = returnToPreviousScreen
+                )
+            }
+            composable("scheduleATour"){
+                ScheduleATourScreen(
+                    returnToPreviousScreen = returnToPreviousScreen
+                )
             }
         }
     }
