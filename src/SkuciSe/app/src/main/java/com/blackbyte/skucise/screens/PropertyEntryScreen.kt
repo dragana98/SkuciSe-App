@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import com.blackbyte.skucise.ui.theme.Cyan
 import androidx.compose.ui.graphics.Outline
@@ -36,6 +37,7 @@ import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.components.RatingStars
 import com.blackbyte.skucise.data.Amenity
+import com.blackbyte.skucise.data.PropertyEntry
 import com.blackbyte.skucise.ui.theme.Gold
 import com.blackbyte.skucise.ui.theme.LightGrey
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
@@ -48,14 +50,69 @@ fun PropertyEntryScreen(
     navigateToPropertyReviews: () -> Unit,
     navigateToScheduleATour: () -> Unit
 ) {
+    //val propertyEntry: PropertyEntry(id = 1, ) = object : Leasable()
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
         topBar = {
-            NavTopBar(
-                "Apartmani Petrović",
-                returnToPreviousScreen = returnToPreviousScreen
-            )
-        },
+            TopAppBar(
+                backgroundColor = MaterialTheme.colors.background,
+                elevation = 5.dp,
+                modifier = Modifier
+                    .height(84.dp)
+                    .shadow(
+                        shape = RectangleShape,
+                        elevation = 10.dp,
+                        clip = true
+                    )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp)
+                ) {
+                    Button(
+                        elevation = ButtonDefaults.elevation(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color.Transparent
+                        ),
+                        onClick = {
+                            returnToPreviousScreen()
+                        }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "arrow back",
+                            Modifier.size(size = 32.dp)
+                        )
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+
+                        ) {
+                        Text(
+                            "Apartmani Petrović",
+                            style = MaterialTheme.typography.h5.copy(
+                                color = MaterialTheme.colors.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                        Spacer(Modifier.height(5.dp))
+                        Row {
+                            Icon(
+                                imageVector = Icons.Filled.LocationOn,
+                                contentDescription = "map pin location"
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(
+                                text = "34000, Kragujevac",
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
     ) {
         Column(
             modifier = Modifier
@@ -83,43 +140,28 @@ fun PropertyEntryScreen(
             Column(modifier = Modifier.padding(20.dp)) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                    modifier = Modifier.fillMaxWidth(),
+
+                    ) {
                     Column {
-                        Surface(
-                            modifier =
-                            Modifier.clip(RoundedCornerShape(16.dp))
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(vertical = 4.dp, horizontal = 20.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.LocationOn,
-                                    contentDescription = "map pin location"
-                                )
-                                Spacer(modifier = Modifier.size(8.dp))
-                                Text(text = "34000, Kragujevac", fontWeight = FontWeight.Medium)
-                            }
-                        }
-                        Spacer(modifier = Modifier.size(24.dp))
                         Row {
                             RatingStars(
                                 rating = 4.6f,
                                 maxRating = 5,
-                                starSize = 22.dp,
+                                starSize = 16.dp,
                                 spacing = 4.dp,
                                 tint = Gold
                             )
                             Spacer(modifier = Modifier.size(6.dp))
                             Text("(4.8)", fontWeight = FontWeight.Medium)
                         }
-                        Row (modifier = Modifier.pointerInput(Unit) {
+                        Row(modifier = Modifier.pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
                                     navigateToPropertyReviews()
                                 }
-                            )}){
+                            )
+                        }) {
                             Text(
                                 "Sve recenzije (9)",
                                 color = MaterialTheme.colors.secondary,
@@ -132,7 +174,7 @@ fun PropertyEntryScreen(
                             )
                         }
                     }
-                    Column {
+                    Row {
                         OutlinedButton(
                             onClick = { /*TODO*/ },
                             modifier = Modifier
@@ -197,6 +239,7 @@ fun PropertyEntryScreen(
                     "*moguća promena cene po dogovoru.",
                     style = MaterialTheme.typography.body2
                 )
+
                 Spacer(modifier = Modifier.size(12.dp))
                 Text(
                     text = "Raspored soba i cenovnik",

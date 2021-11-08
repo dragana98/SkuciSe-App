@@ -2,5 +2,6 @@ package com.blackbyte.skucise.data
 
 abstract class Leasable
     (
-    val pricePerMonth: Float
+    val price: Float,
+    val deposit: Float,
 )
