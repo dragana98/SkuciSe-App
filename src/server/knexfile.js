@@ -14,6 +14,10 @@ module.exports = {
       }
     }
   },
+
+  production: {
+    
+  }
 /*
   staging: {
     client: 'sqlite3',
