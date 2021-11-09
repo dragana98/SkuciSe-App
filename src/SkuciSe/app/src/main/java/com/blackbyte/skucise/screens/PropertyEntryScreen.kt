@@ -50,12 +50,13 @@ fun PropertyEntryScreen(
     navigateToPropertyReviews: () -> Unit,
     navigateToScheduleATour: () -> Unit
 ) {
-    //val propertyEntry: PropertyEntry(id: 1,
-    //    val imageUrls: List<String>,
-    //    val propertyName: String,
-    //    val approximateLocation: String,
-    //    //val preciseLocation: String,
-    //    val flats: List<Flat>,
+    //val propertyEntry: PropertyEntry(id = 1,
+    //    imageUrls = listOf("http://localhost:8080/img/property_1.jpg","http://localhost:8080/img/property_2.jpg"),
+    //    propertyName = "Apartmani Petrović",
+    //    approximateLocation = "34000, Kragujevac",
+    //    flats = listOf(
+    //
+    //    ),
     //    val addedToFavorites: Boolean,
     //    val avgReviewRating: Float,
     //    val description: String,
