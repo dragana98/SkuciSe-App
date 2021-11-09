@@ -50,7 +50,16 @@ fun PropertyEntryScreen(
     navigateToPropertyReviews: () -> Unit,
     navigateToScheduleATour: () -> Unit
 ) {
-    //val propertyEntry: PropertyEntry(id = 1, ) = object : Leasable()
+    //val propertyEntry: PropertyEntry(id: 1,
+    //    val imageUrls: List<String>,
+    //    val propertyName: String,
+    //    val approximateLocation: String,
+    //    //val preciseLocation: String,
+    //    val flats: List<Flat>,
+    //    val addedToFavorites: Boolean,
+    //    val avgReviewRating: Float,
+    //    val description: String,
+    //    val amenities: List<Amenity>,) = object : Leasable()
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
         topBar = {
