@@ -21,58 +21,63 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
-                
+
             }
         }
     }
 
     @Composable
     fun AppNavigator(navController: NavHostController) {
-        var returnToPreviousScreen = fun() {
+        val returnToPreviousScreen = fun() {
             navController.popBackStack()
         }
 
-        var toHomeScreen = fun() {
+        val toHomeScreen = fun() {
             navController.navigate(route = "home") {
                 launchSingleTop = true
             }
         }
-        var toInbox = fun() {
+        val toInbox = fun() {
             navController.navigate(route = "inbox") {
                 launchSingleTop = true
             }
         }
-        var toLogin = fun() {
+        val toLogin = fun() {
             navController.navigate(route = "login") {
                 launchSingleTop = true
             }
         }
-        var toMessages = fun() {
+        val toMessages = fun() {
             navController.navigate(route = "messages") {
                 launchSingleTop = true
             }
         }
-        var toMyAccount = fun() {
+        val toMyAccount = fun() {
             navController.navigate(route = "myAccount") {
                 launchSingleTop = true
             }
         }
-        var toPropertyEntry = fun() {
+        val toPropertyEntry = fun() {
             navController.navigate(route = "propertyEntry") {
                 launchSingleTop = true
             }
         }
-        var toSavedEntries = fun() {
+        val toReviews = fun() {
+            navController.navigate(route = "reviews") {
+                launchSingleTop = true
+            }
+        }
+        val toSavedEntries = fun() {
             navController.navigate(route = "savedEntries") {
                 launchSingleTop = true
             }
         }
-        var toSignUp = fun() {
+        val toSignUp = fun() {
             navController.navigate(route = "signUp") {
                 launchSingleTop = true
             }
         }
-        var toWelcome = fun() {
+        val toWelcome = fun() {
             navController.navigate(route = "welcome") {
                 launchSingleTop = true
             }
@@ -82,12 +87,16 @@ class MainActivity : ComponentActivity() {
                 launchSingleTop = true
             }
         }
+        var toScheduleATour = fun(){
+            navController.navigate(route = "scheduleATour"){
+                launchSingleTop = true
+            }
+        }
         var toSearch = fun(){
             navController.navigate(route = "search"){
                 launchSingleTop = true
             }
         }
-
 
         //                                           v~~~~~ CHANGE THIS TO REFLECT IF USER IS LOGGED IN OR NOT
         NavHost(navController = navController, startDestination = "welcome") {
@@ -141,7 +150,6 @@ class MainActivity : ComponentActivity() {
                     navigateToSavedEntries = toSavedEntries,
                     navigateToScheduledTours = toScheduledTours,
                     navigateToSearch = toSearch   // dodato
-
                 )
             }
             composable("inbox") {
@@ -163,7 +171,14 @@ class MainActivity : ComponentActivity() {
                 MyAccountScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
             composable("propertyEntry") {
-                PropertyEntryScreen(returnToPreviousScreen = returnToPreviousScreen)
+                PropertyEntryScreen(
+                    navigateToPropertyReviews = toReviews,
+                    navigateToVendorInbox = toInbox,
+                    navigateToScheduleATour = toScheduleATour,
+                    returnToPreviousScreen = returnToPreviousScreen)
+            }
+            composable("reviews") {
+                ReviewsScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
             composable("savedEntries") {
                 SavedEntriesScreen(returnToPreviousScreen = returnToPreviousScreen)
@@ -178,12 +193,18 @@ class MainActivity : ComponentActivity() {
                 WelcomeScreen(navigateToSignUp = toSignUp, navigateToLogin = toLogin)
             }
             composable("scheduledTours"){
-                ScheduledToursScreen(returnToPreviousScreen = returnToPreviousScreen)
+                ScheduledToursScreen(
+                    returnToPreviousScreen = returnToPreviousScreen
+                )
+            }
+            composable("scheduleATour"){
+                ScheduleATourScreen(
+                    returnToPreviousScreen = returnToPreviousScreen
+                )
             }
             composable("search"){
                 SearchScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
-
         }
     }
 }

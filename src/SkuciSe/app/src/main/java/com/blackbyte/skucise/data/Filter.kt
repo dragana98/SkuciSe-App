@@ -28,5 +28,16 @@ val listOfObjects = listOf(
     Filter("Vikendica"),
     Filter("Apartman"),
     Filter("Kuća")
+)
 
+
+val listOfAmenities = listOf(
+    Filter("Parking"),
+    Filter("Terasa"),
+    Filter("Grejanje"),
+    Filter("Pet-friendly"),
+    Filter("TV"),
+    Filter("Bazen"),
+    Filter("WiFi"),
+    Filter("Posluga")
 )
