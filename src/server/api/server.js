@@ -2,6 +2,7 @@ const express = require('express');
 const usersRouter = require("../routes/users-routes");
 const authRouter = require("../auth/auth-routes");
 const restricted = require("../auth/restricted-middleware");
+const realtiesRouter = require("../routes/realties-routes");
 
 const server = express();
 server.use(express.json());
@@ -12,5 +13,5 @@ server.get('/', (req, res) => {
 
 server.use('/api/users', restricted, usersRouter);
 server.use('/api/auth', authRouter);
-
+server.use('/api/realties', realtiesRouter);
 module.exports = server;

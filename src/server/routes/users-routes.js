@@ -16,7 +16,7 @@ router.get('/', (req, res) => {
 
 router.get('/:username', (req, res) => {
     const { username } = req.params;
-    Users.findUserByUsername(username)
+    Users.read(username)
     .then( user => {
         res.status(200).json(user) 
     })
@@ -25,4 +25,14 @@ router.get('/:username', (req, res) => {
     })
 });
 
+router.get('/:id/favorites', (req, res) => {
+    const { id } = req.params;
+    Users.getFavorites(id)
+    .then( favs => {
+        res.status(200).json(favs)
+    })
+    .catch( err => {
+        res.status(200).json(err);
+    })
+});
 module.exports = router;

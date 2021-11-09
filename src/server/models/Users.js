@@ -8,7 +8,8 @@ module.exports = {
     read,
     readAll,
     update,
-    del
+    del,
+    getFavorites
 }
 
 //queries
@@ -27,4 +28,7 @@ function update(){
 }
 function del(id){
     return db(table).where({ id }).del();
+}
+function getFavorites(id){
+    return  db("favorites").where({ user_id: id});
 }
