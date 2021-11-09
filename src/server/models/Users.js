@@ -8,8 +8,12 @@ module.exports = {
     read,
     readAll,
     update,
+<<<<<<< HEAD
     del,
     getFavorites
+=======
+    del
+>>>>>>> krunoslav
 }
 
 //queries
@@ -29,6 +33,9 @@ function update(){
 function del(id){
     return db(table).where({ id }).del();
 }
+<<<<<<< HEAD
 function getFavorites(id){
     return  db("favorites").where({ user_id: id});
 }
+=======
+>>>>>>> krunoslav
