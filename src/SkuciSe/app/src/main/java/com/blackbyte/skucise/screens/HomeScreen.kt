@@ -1,7 +1,6 @@
 package com.blackbyte.skucise.screens
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -26,9 +25,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.Role
 import androidx.navigation.compose.rememberNavController
 import com.blackbyte.skucise.MainActivity
 import com.blackbyte.skucise.components.OutlinedInputField
@@ -42,7 +41,10 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     drawerOptions: List<DrawerEntry>,
     returnToPreviousScreen: () -> Unit,
-    navigateToPropertyEntry: () -> Unit
+    navigateToPropertyEntry: () -> Unit,
+    navigateToSavedEntries: () -> Unit,
+    navigateToScheduledTours: () -> Unit,
+    navigateToSearch: () -> Unit
     ) {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
@@ -84,13 +86,6 @@ fun HomeScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
-                        .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = {
-                                option.onTap()
-                            }
-                        )
-                    }
                 ) {
                     Icon(
                         imageVector = option.icon,
@@ -100,7 +95,15 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = option.label,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        modifier = Modifier.clickable(
+                            enabled = true,
+                            role = Role.Button){
+                            if(option.label == "Sačuvani oglasi")
+                                navigateToSavedEntries()
+                            if(option.label == "Zakazani obilasci")
+                                navigateToScheduledTours()
+                        }
                     )
                 }
             }
@@ -165,7 +168,7 @@ fun HomeScreen(
                             ),
                             singleLine = true,
                             value = query,
-                            onValueChange = { query = it },
+                            onValueChange = { navigateToSearch() }, //onValueChange = { query = it },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Search,
@@ -174,7 +177,13 @@ fun HomeScreen(
                                 )
                             },
                             label = {
-                                Text("Pretraga...")
+                                Text(text = "Pretraga...",
+                                modifier = Modifier.clickable(
+                                    enabled = true,
+                                    role = Role.Switch
+                                ){
+                                    navigateToSearch()
+                                })
                             },
                             textStyle = LocalTextStyle.current.copy(color = Color.Black),
                             shape = RoundedCornerShape(4.dp),
@@ -182,6 +191,7 @@ fun HomeScreen(
                                 .height(48.dp)
                                 .padding(0.dp)
                                 .fillMaxWidth()
+
                         )
                     }
                 }
@@ -202,13 +212,7 @@ fun HomeScreen(
             Surface(
                 color = MaterialTheme.colors.background,
                 shape = cardShape,
-                elevation = 10.dp,
-                modifier = Modifier.pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            navigateToPropertyEntry()
-                        }
-                    )}
+                elevation = 10.dp
             ) {
                 Column {
                     Pager(
@@ -318,6 +322,6 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     SkuciSeTheme {
-        HomeScreen(listOf(), {}, {})
+        HomeScreen(listOf(), {}, {},{},{},{})
     }
 }
