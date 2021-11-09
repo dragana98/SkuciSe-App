@@ -52,7 +52,7 @@ router.get('/logout', (req, res) => {
     if(req.session){
         req.session.destroy(error => {
             if(error){
-                res.statuts(500).jso({ message: "You may check out anytime you like, but you may never leave"});
+                res.status(500).json({ message: "You may check out anytime you like, but you may never leave"});
             }else{
                 res.status(200).json({message: "Successfully logged out"})
             }

@@ -30,5 +30,5 @@ function del(id){
     return db(table).where({ id }).del();
 }
 function getFavorites(id){
-    return  db("favorites").where({ user_id: id});
+    return  db("favorites as f").join("realties as r", "f.realty_id", "r.id").where({ user_id: id});
 }
