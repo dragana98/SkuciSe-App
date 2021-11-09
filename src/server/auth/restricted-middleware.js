@@ -1,8 +1,18 @@
+const jwt = require('jsonwebtoken')
 module.exports = (req, res, next) => {
-    console.log(req.session);
-    if(req.session && req.session.user) {
-        next();
+    const token = req.headers.authorization
+    const secret = process.env.SECRET
+
+    if(token){
+        jwt.verify(token, secret, (err, decoded) => {
+            if(err){
+                res.status(401).json({ message: "Invalid token received" })
+            }else{
+                req.decodedToken = decoded;
+                next();
+            }
+        })
     }else{
-        res.status(401).json({ message: "Session expired"});
+        res.status(401).json({ message: "No token received" });
     }
 };
