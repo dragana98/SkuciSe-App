@@ -16,7 +16,7 @@ router.get('/', (req, res) => {
 
 router.get('/:username', (req, res) => {
     const { username } = req.params;
-    Users.read(username)
+    Users.readData(username)
     .then( user => {
         res.status(200).json(user) 
     })
@@ -24,10 +24,20 @@ router.get('/:username', (req, res) => {
         res.status(500).json({ mesage: "Server Error"})
     })
 });
-
-router.get('/:id/favorites', (req, res) => {
-    const { id } = req.params;
-    Users.getFavorites(id)
+        //!favorites
+router.post('/:username/favorites', (req, res) => {
+    const {} = req.params;
+    Users.makeFavorite()
+    .then( favs => {
+        res.status(200).json(favs)
+    })
+    .catch( err => {
+        res.status(200).json(err);
+    })
+});
+router.get('/:username/favorites', (req, res) => {
+    const { username } = req.params;
+    Users.getFavorites(username)
     .then( favs => {
         res.status(200).json(favs)
     })
