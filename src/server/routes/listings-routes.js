@@ -1,20 +1,21 @@
 const express = require('express');
-const Realties = require('../models/Realties');
+const Listings = require('../models/Listings');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-    Realties.readAll()
+    Listings.readAll()
     .then( realties => {
         res.status(200).json(realties)
     })
     .catch( err => {
+        console.log(err);
         res.status(500).json(err)
     })
 });
 
 router.get('/:id', (req, res) => {
     const { id } = req.params;
-    Realties.read(id)
+    Listings.read(id)
     .then( realty => {
         res.status(200).json(realty);
     })
@@ -26,7 +27,7 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
     const data = req.body;
 
-    Realties.create(data)
+    Listings.create(data)
     .then( realty => {
         res.status(200).json(realty);
     })
@@ -39,7 +40,7 @@ router.post('/', (req, res) => {
 router.delete('/:id', (req, res) => {
     const { id } = req.params;
 
-    Realties.del(id)
+    Listings.del(id)
     .then( num => {
         res.status(200).json(num);
     })
@@ -49,5 +50,28 @@ router.delete('/:id', (req, res) => {
     })
 });
 
+router.post('/:id/review', (req, res) => {
 
+    const { id } = req.params;
+    const body = req.body;
+
+    Listings.leaveReview(id, body)
+    .then( id => {
+        res.status(200).json(id)
+    })
+    .catch()
+})
+
+router.get('/:id/review', (req, res) => {
+
+    const { id } = req.params;
+    Listings.getReview(id)
+    .then( review => {
+        res.status(200).json(review)
+    })
+    .catch( err => {
+            res.status(500).json(err)
+        }
+    )
+})
 module.exports = router;

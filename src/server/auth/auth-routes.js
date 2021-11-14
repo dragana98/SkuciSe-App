@@ -6,23 +6,24 @@ const generateToken = require('./generateToken');
 
 router.post('/register', (req, res) => {
     const credentials = req.body;
-    const { username, password } = credentials;
+    const { username, password, name } = credentials;
 
-    if( !(username && password) ){
+    if( !(username && password && name) ){        //TODO: prosiriti
         res.status(400).json({message: "Missing information"})
     }
+    else{
+        const hash = bcrypt.hashSync(credentials.password, 12);
+        credentials.password = hash;
 
-    const hash = bcrypt.hashSync(credentials.password, 12);
-    credentials.password = hash;
-
-    Users.create(credentials)
-    .then( user => {
-        res.status(200).json(user)
-    })
-    .catch( error => {
-        if(error.errno == 19)
-            res.status(418).json({ message: "I'm a teapot"})
-    })
+        Users.create(credentials)
+        .then( user => {
+            res.status(200).json(user)
+        })
+        .catch( err => {
+            if(err)
+                res.status(500).json(err.message)
+        })
+    }
 });
 
 router.post('/login', (req, res) => {
@@ -31,7 +32,7 @@ router.post('/login', (req, res) => {
     if(!(username && password)){
         res.status(400).json({message: "Missing information"})
     }else{
-        Users.read(username)
+        Users.readCred(username)
         .then( user => {
             if(user && bcrypt.compareSync(password, user['password'])){
                const token = generateToken(user);
@@ -48,17 +49,4 @@ router.post('/login', (req, res) => {
     }
 });
 
-router.get('/logout', (req, res) => {
-    if(req.session){
-        req.session.destroy(error => {
-            if(error){
-                res.status(500).json({ message: "You may check out anytime you like, but you may never leave"});
-            }else{
-                res.status(200).json({message: "Successfully logged out"})
-            }
-        });
-    }else{
-        res.status(200).json({ message: "Session not found"});
-    }
-})
 module.exports = router;
