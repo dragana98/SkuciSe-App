@@ -44,7 +44,8 @@ fun HomeScreen(
     navigateToPropertyEntry: () -> Unit,
     navigateToSavedEntries: () -> Unit,
     navigateToScheduledTours: () -> Unit,
-    navigateToSearch: () -> Unit
+    navigateToSearch: () -> Unit,
+    navigateToAdvertise: () -> Unit
     ) {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
@@ -103,6 +104,8 @@ fun HomeScreen(
                                 navigateToSavedEntries()
                             if(option.label == "Zakazani obilasci")
                                 navigateToScheduledTours()
+                            if(option.label == "Oglasi")
+                                navigateToAdvertise()
                         }
                     )
                 }
@@ -322,6 +325,6 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     SkuciSeTheme {
-        HomeScreen(listOf(), {}, {},{},{},{})
+        HomeScreen(listOf(), {}, {},{},{},{},{})
     }
 }

@@ -21,7 +21,9 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
-                
+                //ScheduledToursScreenPreview()
+                //SearchScreenPreview()
+                //AdvertiseScreenPreview()
             }
         }
     }
@@ -87,6 +89,11 @@ class MainActivity : ComponentActivity() {
                 launchSingleTop = true
             }
         }
+        var toAdvertise = fun(){
+            navController.navigate(route = "advertise"){
+                launchSingleTop = true
+            }
+        }
 
 
         //                                           v~~~~~ CHANGE THIS TO REFLECT IF USER IS LOGGED IN OR NOT
@@ -109,6 +116,11 @@ class MainActivity : ComponentActivity() {
                             label = "Moj nalog",
                             icon = Icons.Filled.AccountCircle,
                             onTap = {toMyAccount()}
+                        ),
+                        DrawerEntry(
+                            label = "Oglasi",
+                            icon = Icons.Filled.House,
+                            onTap = {toAdvertise()}
                         ),
                         DrawerEntry(
                             label = "Sačuvani oglasi",
@@ -135,12 +147,14 @@ class MainActivity : ComponentActivity() {
                             icon = Icons.Filled.ExitToApp,
                             onTap = { /* TODO */}
                         )
+
                     ),
                     returnToPreviousScreen = returnToPreviousScreen,
                     navigateToPropertyEntry = toPropertyEntry,
                     navigateToSavedEntries = toSavedEntries,
                     navigateToScheduledTours = toScheduledTours,
-                    navigateToSearch = toSearch   // dodato
+                    navigateToSearch = toSearch,
+                    navigateToAdvertise = toAdvertise
 
                 )
             }
@@ -182,6 +196,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("search"){
                 SearchScreen(returnToPreviousScreen = returnToPreviousScreen)
+            }
+            composable("advertise"){
+                AdvertiseScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
 
         }
