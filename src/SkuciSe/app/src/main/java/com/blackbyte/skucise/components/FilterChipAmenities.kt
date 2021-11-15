@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
+import com.blackbyte.skucise.ui.theme.LightPurple
 import kotlin.math.ln
 
 @Composable
@@ -77,13 +78,14 @@ fun FilterChipAmenities(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp, bottom = 16.dp)
-                    .padding(horizontal = 5.dp)
+                    //.padding(horizontal = 5.dp)
             ){
                 filters.forEach{filter ->
                     ChipAmenity(
                         filter = filter,
                         modifier = Modifier.padding(end = 4.dp,bottom = 8.dp)
                     )
+                    Spacer(modifier = Modifier.size(13.dp))
 
                 }
             }
@@ -99,12 +101,12 @@ fun ChipAmenity(
 ){
     val  (selected, setSelected) = filter.enabled
     val backgroundColor by  animateColorAsState(
-        if(selected) Purple500 else Color.White
+        if(selected) MaterialTheme.colors.primary else Color.White
     )
     val border = Modifier.fadeInDiagonalGradientBorder(
         showBorder = !selected,
         colors = listOf(
-            Purple200, Purple200
+            Color.LightGray,  Color.LightGray
         ),
         shape = shape,
 
@@ -129,7 +131,7 @@ fun ChipAmenity(
             if (pressed) {
                 Modifier.offsetGradientBackground(
                     listOf(
-                        Purple500, Purple200
+                        Color.LightGray, Color.LightGray
                     ),
                     200f,
                     0f

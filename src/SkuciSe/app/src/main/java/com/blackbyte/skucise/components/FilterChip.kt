@@ -83,6 +83,7 @@ fun FilterChip(
                         filter = filter,
                         modifier = Modifier.padding(end = 4.dp,bottom = 8.dp)
                     )
+                    Spacer(modifier = Modifier.size(5.dp))
 
                 }
             }
