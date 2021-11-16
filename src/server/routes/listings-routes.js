@@ -2,7 +2,7 @@ const express = require('express');
 const Listings = require('../models/Listings');
 const router = express.Router();
 
-router.get('/', (req, res) => {
+/* router.get('/', (req, res) => {
     Listings.readAll()
     .then( realties => {
         res.status(200).json(realties)
@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
         console.log(err);
         res.status(500).json(err)
     })
-});
+}); */
 
 router.get('/:id', (req, res) => {
     const { id } = req.params;
@@ -50,28 +50,4 @@ router.delete('/:id', (req, res) => {
     })
 });
 
-router.post('/:id/review', (req, res) => {
-
-    const { id } = req.params;
-    const body = req.body;
-
-    Listings.leaveReview(id, body)
-    .then( id => {
-        res.status(200).json(id)
-    })
-    .catch()
-})
-
-router.get('/:id/review', (req, res) => {
-
-    const { id } = req.params;
-    Listings.getReview(id)
-    .then( review => {
-        res.status(200).json(review)
-    })
-    .catch( err => {
-            res.status(500).json(err)
-        }
-    )
-})
 module.exports = router;

@@ -14,6 +14,9 @@ exports.up = function (knex) {
         tbl.integer('stars').notNullable()
 
         tbl.text('contents', 255).notNullable()
+
+        tbl.text('response')
+        tbl.text('response_date')
     })
 };
 

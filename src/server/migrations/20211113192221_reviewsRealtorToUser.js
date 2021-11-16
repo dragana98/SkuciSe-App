@@ -12,9 +12,6 @@ exports.up = function (knex) {
         tbl.text('date', 128).notNullable()
         tbl.integer('recommends').notNullable()
         tbl.text('contents', 255).notNullable()
-
-        tbl.text('response')
-        tbl.text('response_date')
     })
 };
 
