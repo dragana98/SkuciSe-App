@@ -2,16 +2,11 @@ package com.blackbyte.skucise.components
 
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.blackbyte.skucise.data.Filter
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,27 +33,28 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.*
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
-import com.blackbyte.skucise.ui.theme.LightPurple
 import kotlin.math.ln
 
 @Composable
-fun FilterChipAmenities(
-    filters:List<Filter>
+fun AdvertiseFilterChip(
+    filters:List<Filter>,
+    clickedValueB: MutableState<String>
 ){
     val context = LocalContext.current
+    var previousFun by remember {
+        mutableStateOf(fun(): Unit{})
+    }
 
     Column(
         modifier = Modifier
@@ -70,23 +66,28 @@ fun FilterChipAmenities(
         Column(
             modifier = Modifier
                 .padding(5.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ){
             FlowRow(
                 // position of chips
-                mainAxisAlignment = FlowMainAxisAlignment.Center,
+                mainAxisAlignment = FlowMainAxisAlignment.Start,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp, bottom = 16.dp)
-                    //.padding(horizontal = 5.dp)
+                    .padding(horizontal = 5.dp)
             ){
-                filters.forEach{filter ->
-                    ChipAmenity(
-                        filter = filter,
-                        modifier = Modifier.padding(end = 4.dp,bottom = 8.dp)
-                    )
-                    Spacer(modifier = Modifier.size(13.dp))
 
+                filters.forEach{filter ->
+
+                    AdvertiseChip(
+                        filter = filter,
+                        modifier = Modifier.padding(end = 4.dp,bottom = 8.dp),
+                        onToggle = {t ->  previousFun = t},
+                        previousFun = previousFun,
+                        clickedValue = clickedValueB
+                    )
+
+                    Spacer(modifier = Modifier.size(5.dp))
                 }
             }
         }
@@ -94,31 +95,47 @@ fun FilterChipAmenities(
 }
 
 @Composable
-fun ChipAmenity(
+fun AdvertiseChip(
     filter: Filter,
     modifier: Modifier = Modifier,
-    shape: Shape = MaterialTheme.shapes.medium
+    shape: Shape = MaterialTheme.shapes.small,
+    onToggle: (()->Unit) -> Unit,
+    previousFun: () -> Unit,
+    clickedValue: MutableState<String>
 ){
-    val  (selected, setSelected) = filter.enabled
+    var selected by remember { mutableStateOf(filter.enabled)}
+
+    val disableDecoration = fun(){
+        selected.value = false
+    }
+    val setSelected = fun(value: Boolean){
+
+        selected.value = value
+        clickedValue.value = filter.name
+
+        previousFun()
+        onToggle(disableDecoration)
+    }
+
     val backgroundColor by  animateColorAsState(
-        if(selected) MaterialTheme.colors.primary else Color.White
+        if(selected.value) Purple500 else Color.White
     )
     val border = Modifier.fadeInDiagonalGradientBorder(
-        showBorder = !selected,
+        showBorder = !selected.value,
         colors = listOf(
-            Color.LightGray,  Color.LightGray
+            Purple500, Purple200
         ),
         shape = shape,
 
         )
     val textColor by animateColorAsState(
-        if(selected) Color.White else
+        if(selected.value) Color.White else
             Color.Black
     )
 
     // surface
-    ChipSurface(
-        modifier = modifier.height(40.dp).width(150.dp),
+    AdvertiseChipSurface(
+        modifier = modifier.height(40.dp),
         color = backgroundColor,
         contentColor = textColor,
         shape = shape,
@@ -131,7 +148,7 @@ fun ChipAmenity(
             if (pressed) {
                 Modifier.offsetGradientBackground(
                     listOf(
-                        Color.LightGray, Color.LightGray
+                        Purple500, Purple200
                     ),
                     200f,
                     0f
@@ -142,7 +159,7 @@ fun ChipAmenity(
         Box(
             modifier = Modifier
                 .toggleable(
-                    value = selected,
+                    value = selected.value,
                     onValueChange = setSelected,
                     interactionSource = interactionSource,
                     indication = null
@@ -150,7 +167,7 @@ fun ChipAmenity(
                 .then(backgroundPressed)
                 .then(border)
                 .height(40.dp)
-                .width(150.dp) // size of box
+
         ) {
             Text(
                 text = filter.name,
@@ -163,7 +180,50 @@ fun ChipAmenity(
                     .fillMaxHeight()
             )
         }
-
     }
 }
 
+@Composable
+fun AdvertiseChipSurface(
+    modifier: Modifier = Modifier,
+    shape: Shape = RectangleShape,
+    color: Color = Purple500,
+    contentColor: Color = Purple200,
+    border: BorderStroke? = null,
+    elevation: Dp = 0.dp,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .shadow(elevation = elevation, shape = shape, clip = false)
+            .zIndex(elevation.value)
+            .then(if (border != null) Modifier.border(border, shape = shape) else Modifier)
+            .background(
+                color = getBackgroundColorForElevation(color = color, elevation = elevation),
+                shape = shape
+            )
+            .clip(shape = shape)
+
+    ) {
+        CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
+    }
+}
+
+@Composable
+private fun getBackgroundColorForElevation(color: Color, elevation: Dp) : Color {
+    return if (elevation > 0.dp) {
+        color.withElevation(elevation = elevation)
+    } else {
+        color
+    }
+}
+
+private fun calculateForeground(elevation: Dp) : Color {
+    val alpha = ((4.5f * ln(elevation.value + 1)) + 2f) / 100f
+    return Color.White.copy(alpha = alpha)
+}
+
+private fun Color.withElevation(elevation: Dp): Color {
+    val foreground = calculateForeground(elevation = elevation)
+    return foreground.compositeOver(this)
+}
