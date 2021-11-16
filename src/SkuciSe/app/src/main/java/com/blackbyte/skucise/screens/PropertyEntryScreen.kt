@@ -346,7 +346,7 @@ fun PropertyEntryScreen(
                         onClick = { navigateToScheduleATour() },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Zakažite oblilazak")
+                        Text("Zakažite obilazak")
                     }
                 }
 

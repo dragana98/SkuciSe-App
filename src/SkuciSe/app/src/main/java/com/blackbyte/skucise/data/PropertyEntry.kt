@@ -9,6 +9,8 @@ class PropertyEntry (
     val flats: List<Flat>,
     val addedToFavorites: Boolean,
     val avgReviewRating: Float,
+    val reviewCount: Int,
     val description: String,
     val amenities: List<Amenity>,
-        )
+    val vendor: VendorPublicInfo
+)

@@ -20,7 +20,6 @@ function readCred(username){
     return db('users').where({ username }).first();
 }
 async function create(data){
-    
     db.transaction( 
     (trx) => {
         db('users').insert({
@@ -29,8 +28,14 @@ async function create(data){
         }).transacting(trx)
         .then( () => {
             return db('userData').insert({
+                username: data['username'],
                 name: data['name'],
-                username: data['username']
+                surname: data['surname'],
+                date_of_birth: data['date_of_birth'],
+                phone_number: data['phone_number'],
+                document_type: data['document_type'],
+                document_number: data['document_number'],
+                avatar_url: data['avatar_url']
             }).transacting(trx);
         })
         .then(trx.commit)

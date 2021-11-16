@@ -28,9 +28,14 @@ val listOfObjects = listOf(
     Filter("Vikendica"),
     Filter("Apartman"),
     Filter("Kuća")
-
 )
 
+
+<<<<<<< HEAD
+)
+
+=======
+>>>>>>> krunoslav
 val listOfAmenities = listOf(
     Filter("Parking"),
     Filter("Terasa"),
@@ -40,4 +45,8 @@ val listOfAmenities = listOf(
     Filter("Bazen"),
     Filter("WiFi"),
     Filter("Posluga")
+<<<<<<< HEAD
 )
+=======
+)
+>>>>>>> krunoslav

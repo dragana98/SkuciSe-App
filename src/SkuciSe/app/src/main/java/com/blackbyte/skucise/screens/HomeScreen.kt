@@ -1,6 +1,7 @@
 package com.blackbyte.skucise.screens
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -25,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.semantics.Role
@@ -44,9 +46,14 @@ fun HomeScreen(
     navigateToPropertyEntry: () -> Unit,
     navigateToSavedEntries: () -> Unit,
     navigateToScheduledTours: () -> Unit,
+<<<<<<< HEAD
     navigateToSearch: () -> Unit,
     navigateToAdvertise: () -> Unit
     ) {
+=======
+    navigateToSearch: () -> Unit
+) {
+>>>>>>> krunoslav
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
     val scope = rememberCoroutineScope()
@@ -86,7 +93,14 @@ fun HomeScreen(
             drawerOptions.forEach { option ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp, vertical = 12.dp)
+                        .clickable(
+                            enabled = true,
+                            role = Role.Button
+                        ) {
+                            option.onTap()
+                        }
                 ) {
                     Icon(
                         imageVector = option.icon,
@@ -96,6 +110,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = option.label,
+<<<<<<< HEAD
                         fontSize = 18.sp,
                         modifier = Modifier.clickable(
                             enabled = true,
@@ -107,6 +122,9 @@ fun HomeScreen(
                             if(option.label == "Oglasi")
                                 navigateToAdvertise()
                         }
+=======
+                        fontSize = 18.sp
+>>>>>>> krunoslav
                     )
                 }
             }
@@ -181,12 +199,12 @@ fun HomeScreen(
                             },
                             label = {
                                 Text(text = "Pretraga...",
-                                modifier = Modifier.clickable(
-                                    enabled = true,
-                                    role = Role.Switch
-                                ){
-                                    navigateToSearch()
-                                })
+                                    modifier = Modifier.clickable(
+                                        enabled = true,
+                                        role = Role.Switch
+                                    ) {
+                                        navigateToSearch()
+                                    })
                             },
                             textStyle = LocalTextStyle.current.copy(color = Color.Black),
                             shape = RoundedCornerShape(4.dp),
@@ -215,8 +233,16 @@ fun HomeScreen(
             Surface(
                 color = MaterialTheme.colors.background,
                 shape = cardShape,
-                elevation = 10.dp
-            ) {
+                elevation = 10.dp,
+                modifier = Modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            navigateToPropertyEntry()
+                        }
+                    )
+                }
+            )
+            {
                 Column {
                     Pager(
                         items = listOf(
@@ -325,6 +351,10 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     SkuciSeTheme {
+<<<<<<< HEAD
         HomeScreen(listOf(), {}, {},{},{},{},{})
+=======
+        HomeScreen(listOf(), {}, {}, {}, {}, {})
+>>>>>>> krunoslav
     }
 }
