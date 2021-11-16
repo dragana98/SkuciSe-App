@@ -24,3 +24,5 @@ router.get('/:username', (req, res) => {
         res.status(500).json({ mesage: "Server Error"})
     })
 });
+
+module.exports = router;
