@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.blackbyte.skucise.components.*
+import com.blackbyte.skucise.data.amenityList
 import com.blackbyte.skucise.data.listOfAmenities
 import com.blackbyte.skucise.data.listOfObjects
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
@@ -37,6 +38,7 @@ fun AdvertiseScreen(
             .verticalScroll(rememberScrollState())
         ) {
 
+            // Naslov oglasa
             Text(
                 text = "Naslov oglasa ",
                 fontSize = 19.sp,
@@ -49,6 +51,7 @@ fun AdvertiseScreen(
 
             Spacer(modifier = Modifier.size(size = 29.dp))
 
+            // Ponuda objekta
             Text(
                 text = "Ovim oglasom se nudi ",
                 fontSize = 19.sp,
@@ -249,7 +252,7 @@ fun AdvertiseScreen(
                 )
                 Spacer(modifier = Modifier.size(size = 10.dp))
 
-                FilterChipAmenities(filters = listOfAmenities)
+                FilterChipAmenities(filters = amenityList)
             }
 
             // Opis oglasa

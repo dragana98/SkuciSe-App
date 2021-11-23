@@ -51,12 +51,13 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
+import com.blackbyte.skucise.data.FilterAmenities
 import com.blackbyte.skucise.ui.theme.LightPurple
 import kotlin.math.ln
 
 @Composable
 fun FilterChipAmenities(
-    filters:List<Filter>
+    filters:List<FilterAmenities>
 ){
     val context = LocalContext.current
 
@@ -95,9 +96,9 @@ fun FilterChipAmenities(
 
 @Composable
 fun ChipAmenity(
-    filter: Filter,
+    filter: FilterAmenities,
     modifier: Modifier = Modifier,
-    shape: Shape = MaterialTheme.shapes.medium
+    shape: Shape = MaterialTheme.shapes.medium // OVDEEEEEEEEEEEEE
 ){
     val  (selected, setSelected) = filter.enabled
     val backgroundColor by  animateColorAsState(
@@ -139,6 +140,8 @@ fun ChipAmenity(
             } else {
                 Modifier.background(Color.Transparent)
             }
+
+
         Box(
             modifier = Modifier
                 .toggleable(
@@ -152,17 +155,34 @@ fun ChipAmenity(
                 .height(40.dp)
                 .width(150.dp) // size of box
         ) {
-            Text(
-                text = filter.name,
-                style = MaterialTheme.typography.caption,
-                maxLines = 1,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 6.dp)
-                    .fillMaxHeight()
+
+            Row(
             )
+            {
+                Icon(
+                    imageVector = filter.icon,
+                    contentDescription = "",
+                    modifier = Modifier.size(28.dp).padding(start = 8.dp,top = 10.dp,end = 0.dp,bottom = 0.dp)
+                )
+
+
+                Text(
+                    text = filter.name,
+                    style = MaterialTheme.typography.caption,
+                    maxLines = 1,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp, vertical = 6.dp)
+                        .fillMaxHeight()
+                )
+            }
+
         }
+
+
+
+
 
     }
 }
