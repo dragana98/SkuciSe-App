@@ -37,6 +37,7 @@ import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.data.DrawerEntry
 import com.blackbyte.skucise.ui.theme.LightGreen
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.utils.Utils
 import kotlinx.coroutines.launch
 
 @Composable
@@ -46,14 +47,10 @@ fun HomeScreen(
     navigateToPropertyEntry: () -> Unit,
     navigateToSavedEntries: () -> Unit,
     navigateToScheduledTours: () -> Unit,
-<<<<<<< HEAD
     navigateToSearch: () -> Unit,
     navigateToAdvertise: () -> Unit
     ) {
-=======
-    navigateToSearch: () -> Unit
-) {
->>>>>>> krunoslav
+    print(Utils.Requests.getUserData("kvelfel@gmail.com"))
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
     val scope = rememberCoroutineScope()
@@ -110,7 +107,6 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = option.label,
-<<<<<<< HEAD
                         fontSize = 18.sp,
                         modifier = Modifier.clickable(
                             enabled = true,
@@ -122,9 +118,6 @@ fun HomeScreen(
                             if(option.label == "Oglasi")
                                 navigateToAdvertise()
                         }
-=======
-                        fontSize = 18.sp
->>>>>>> krunoslav
                     )
                 }
             }
@@ -351,10 +344,6 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     SkuciSeTheme {
-<<<<<<< HEAD
         HomeScreen(listOf(), {}, {},{},{},{},{})
-=======
-        HomeScreen(listOf(), {}, {}, {}, {}, {})
->>>>>>> krunoslav
     }
 }

@@ -21,13 +21,6 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
-<<<<<<< HEAD
-                //ScheduledToursScreenPreview()
-                //SearchScreenPreview()
-                //AdvertiseScreenPreview()
-=======
-
->>>>>>> krunoslav
             }
         }
     }
@@ -166,13 +159,8 @@ class MainActivity : ComponentActivity() {
                     navigateToPropertyEntry = toPropertyEntry,
                     navigateToSavedEntries = toSavedEntries,
                     navigateToScheduledTours = toScheduledTours,
-<<<<<<< HEAD
                     navigateToSearch = toSearch,
                     navigateToAdvertise = toAdvertise
-
-=======
-                    navigateToSearch = toSearch   // dodato
->>>>>>> krunoslav
                 )
             }
             composable("inbox") {
@@ -228,13 +216,10 @@ class MainActivity : ComponentActivity() {
             composable("search"){
                 SearchScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
-<<<<<<< HEAD
             composable("advertise"){
                 AdvertiseScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
 
-=======
->>>>>>> krunoslav
         }
     }
 }
