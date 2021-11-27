@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.blackbyte.skucise.ui.theme.LightPurple
+import com.blackbyte.skucise.ui.theme.Purple200
 
 @Composable
 fun DropdownButton(
@@ -47,8 +49,9 @@ fun DropdownButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    MaterialTheme.colors.primaryVariant
+                    LightPurple
                 )
+
         ) {
             items.forEachIndexed { index, s ->
                 DropdownMenuItem(onClick = {

@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.Role
 import androidx.navigation.compose.rememberNavController
 import com.blackbyte.skucise.MainActivity
 import com.blackbyte.skucise.components.OutlinedInputField
@@ -42,8 +43,17 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     drawerOptions: List<DrawerEntry>,
     returnToPreviousScreen: () -> Unit,
-    navigateToPropertyEntry: () -> Unit
+    navigateToPropertyEntry: () -> Unit,
+    navigateToSavedEntries: () -> Unit,
+    navigateToScheduledTours: () -> Unit,
+<<<<<<< HEAD
+    navigateToSearch: () -> Unit,
+    navigateToAdvertise: () -> Unit
     ) {
+=======
+    navigateToSearch: () -> Unit
+) {
+>>>>>>> krunoslav
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
     val scope = rememberCoroutineScope()
@@ -83,14 +93,14 @@ fun HomeScreen(
             drawerOptions.forEach { option ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
-                        .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = {
-                                option.onTap()
-                            }
-                        )
-                    }
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp, vertical = 12.dp)
+                        .clickable(
+                            enabled = true,
+                            role = Role.Button
+                        ) {
+                            option.onTap()
+                        }
                 ) {
                     Icon(
                         imageVector = option.icon,
@@ -100,7 +110,21 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = option.label,
+<<<<<<< HEAD
+                        fontSize = 18.sp,
+                        modifier = Modifier.clickable(
+                            enabled = true,
+                            role = Role.Button){
+                            if(option.label == "Sačuvani oglasi")
+                                navigateToSavedEntries()
+                            if(option.label == "Zakazani obilasci")
+                                navigateToScheduledTours()
+                            if(option.label == "Oglasi")
+                                navigateToAdvertise()
+                        }
+=======
                         fontSize = 18.sp
+>>>>>>> krunoslav
                     )
                 }
             }
@@ -165,7 +189,7 @@ fun HomeScreen(
                             ),
                             singleLine = true,
                             value = query,
-                            onValueChange = { query = it },
+                            onValueChange = { navigateToSearch() }, //onValueChange = { query = it },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Search,
@@ -174,7 +198,13 @@ fun HomeScreen(
                                 )
                             },
                             label = {
-                                Text("Pretraga...")
+                                Text(text = "Pretraga...",
+                                    modifier = Modifier.clickable(
+                                        enabled = true,
+                                        role = Role.Switch
+                                    ) {
+                                        navigateToSearch()
+                                    })
                             },
                             textStyle = LocalTextStyle.current.copy(color = Color.Black),
                             shape = RoundedCornerShape(4.dp),
@@ -182,6 +212,7 @@ fun HomeScreen(
                                 .height(48.dp)
                                 .padding(0.dp)
                                 .fillMaxWidth()
+
                         )
                     }
                 }
@@ -208,8 +239,10 @@ fun HomeScreen(
                         onTap = {
                             navigateToPropertyEntry()
                         }
-                    )}
-            ) {
+                    )
+                }
+            )
+            {
                 Column {
                     Pager(
                         items = listOf(
@@ -318,6 +351,10 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     SkuciSeTheme {
-        HomeScreen(listOf(), {}, {})
+<<<<<<< HEAD
+        HomeScreen(listOf(), {}, {},{},{},{},{})
+=======
+        HomeScreen(listOf(), {}, {}, {}, {}, {})
+>>>>>>> krunoslav
     }
 }

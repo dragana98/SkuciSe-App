@@ -21,7 +21,13 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
-                
+<<<<<<< HEAD
+                //ScheduledToursScreenPreview()
+                //SearchScreenPreview()
+                //AdvertiseScreenPreview()
+=======
+
+>>>>>>> krunoslav
             }
         }
     }
@@ -92,6 +98,17 @@ class MainActivity : ComponentActivity() {
                 launchSingleTop = true
             }
         }
+        var toSearch = fun(){
+            navController.navigate(route = "search"){
+                launchSingleTop = true
+            }
+        }
+        var toAdvertise = fun(){
+            navController.navigate(route = "advertise"){
+                launchSingleTop = true
+            }
+        }
+
         //                                           v~~~~~ CHANGE THIS TO REFLECT IF USER IS LOGGED IN OR NOT
         NavHost(navController = navController, startDestination = "welcome") {
             // EXAMPLE, WITH PASSING DATA TO A PAGE VIEW:
@@ -112,6 +129,11 @@ class MainActivity : ComponentActivity() {
                             label = "Moj nalog",
                             icon = Icons.Filled.AccountCircle,
                             onTap = {toMyAccount()}
+                        ),
+                        DrawerEntry(
+                            label = "Oglasi",
+                            icon = Icons.Filled.House,
+                            onTap = {toAdvertise()}
                         ),
                         DrawerEntry(
                             label = "Sačuvani oglasi",
@@ -138,10 +160,19 @@ class MainActivity : ComponentActivity() {
                             icon = Icons.Filled.ExitToApp,
                             onTap = { /* TODO */}
                         )
+
                     ),
                     returnToPreviousScreen = returnToPreviousScreen,
                     navigateToPropertyEntry = toPropertyEntry,
-                    //navigateToPropertyReviews = toReviews
+                    navigateToSavedEntries = toSavedEntries,
+                    navigateToScheduledTours = toScheduledTours,
+<<<<<<< HEAD
+                    navigateToSearch = toSearch,
+                    navigateToAdvertise = toAdvertise
+
+=======
+                    navigateToSearch = toSearch   // dodato
+>>>>>>> krunoslav
                 )
             }
             composable("inbox") {
@@ -194,6 +225,16 @@ class MainActivity : ComponentActivity() {
                     returnToPreviousScreen = returnToPreviousScreen
                 )
             }
+            composable("search"){
+                SearchScreen(returnToPreviousScreen = returnToPreviousScreen)
+            }
+<<<<<<< HEAD
+            composable("advertise"){
+                AdvertiseScreen(returnToPreviousScreen = returnToPreviousScreen)
+            }
+
+=======
+>>>>>>> krunoslav
         }
     }
 }
