@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.blackbyte.skucise.data.DrawerEntry
 import com.blackbyte.skucise.screens.*
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.utils.Utils
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -6,12 +6,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 
 @Composable
-fun OutlinedInputField(label: String = "", modifier: Modifier = Modifier) {
+fun OutlinedInputField(
+    label: String = "",
+    onValueChange: (s: String) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     var text by remember { mutableStateOf("") }
 
     OutlinedTextField(
         value = text,
-        onValueChange = { text = it },
+        onValueChange = {
+            text = it
+            onValueChange(text)
+        },
         label = { Text(label) },
         modifier = modifier
     )

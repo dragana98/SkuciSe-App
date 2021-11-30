@@ -1,5 +1,7 @@
 package com.blackbyte.skucise.screens
 
+import android.util.Log
+import android.os.Handler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -39,6 +41,7 @@ import com.blackbyte.skucise.ui.theme.LightGreen
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import com.blackbyte.skucise.utils.Utils
 import kotlinx.coroutines.launch
+import android.os.Looper
 
 @Composable
 fun HomeScreen(
@@ -49,8 +52,14 @@ fun HomeScreen(
     navigateToScheduledTours: () -> Unit,
     navigateToSearch: () -> Unit,
     navigateToAdvertise: () -> Unit
-    ) {
-    print(Utils.Requests.getUserData("kvelfel@gmail.com"))
+) {
+    /*Utils.Requests.getUserData(username = "kvelfel@gmail.com", onFinish = fun(s: String) {
+        Log.d("GETUSERDATA:\t", s)
+    Handler(Looper.getMainLooper()).post(Runnable {
+
+        })
+    })*/
+
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
     val scope = rememberCoroutineScope()
@@ -110,12 +119,13 @@ fun HomeScreen(
                         fontSize = 18.sp,
                         modifier = Modifier.clickable(
                             enabled = true,
-                            role = Role.Button){
-                            if(option.label == "Sačuvani oglasi")
+                            role = Role.Button
+                        ) {
+                            if (option.label == "Sačuvani oglasi")
                                 navigateToSavedEntries()
-                            if(option.label == "Zakazani obilasci")
+                            if (option.label == "Zakazani obilasci")
                                 navigateToScheduledTours()
-                            if(option.label == "Oglasi")
+                            if (option.label == "Oglasi")
                                 navigateToAdvertise()
                         }
                     )
@@ -344,6 +354,6 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     SkuciSeTheme {
-        HomeScreen(listOf(), {}, {},{},{},{},{})
+        HomeScreen(listOf(), {}, {}, {}, {}, {}, {})
     }
 }

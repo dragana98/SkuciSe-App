@@ -1,62 +1,163 @@
 package com.blackbyte.skucise.utils
 
-import android.R.attr
 import android.util.Base64
+import com.squareup.okhttp.MediaType
+import com.squareup.okhttp.OkHttpClient
+import com.squareup.okhttp.Request
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
-import android.R.attr.password
-import java.util.Base64.getEncoder
+import kotlin.concurrent.thread
+import com.squareup.okhttp.RequestBody
 
 
-enum class RequestType{
+enum class RequestType {
     REQUEST_POST,
     REQUEST_GET
 }
 
 class Utils {
     companion object Requests {
-        fun GET (apiURL: String, params: List<Pair<String,String>> = listOf(), includeAuthParams : Boolean = false) : String {
-            var reqParam = ""
-            for (param in params) {
-                reqParam += "&${URLEncoder.encode(param.first, "UTF-8")}=${URLEncoder.encode(param.second, "UTF-8")}"
-            }
-            // Remove leading '&'
-            reqParam = reqParam.substring(startIndex = 1)
+        fun GET(
+            apiURL: String,
+            params: List<Pair<String, String>> = listOf(),
+            includeAuthParams: Boolean = false,
+            onFinish: (s: String) -> Unit
+        ) {
+            thread {
+                val client = OkHttpClient()
 
-            val mURL = URL("$apiURL?$reqParam")
-
-            with(mURL.openConnection() as HttpURLConnection) {
-                // optional default is GET
-                this.requestMethod = "GET"
-
-                if(includeAuthParams) {
-                    // TODO: replace with shared preferences
-                    val userCredentials = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJrdmVsZmVsQGdtYWlsLmNvbSIsImlhdCI6MTYzODAyODgyNSwiZXhwIjoxNjM4MTE1MjI1fQ.7Zij1F-0J7tFbkFx9Ngq3RuZaCO8MJBcX5wcicsHLQU"
-
-                    val basicAuth = Base64.encode(userCredentials.toByteArray(), Base64.DEFAULT)
-                    this.setRequestProperty("Authorization", "Basic $basicAuth")
+                var reqParam = ""
+                for (param in params) {
+                    reqParam += "&${URLEncoder.encode(param.first, "UTF-8")}=${
+                        URLEncoder.encode(
+                            param.second,
+                            "UTF-8"
+                        )
+                    }"
                 }
-                println("URL : $url")
-                println("Response Code : $responseCode")
+                // Remove leading '&'
+                if (params.lastIndex != -1) {
+                    reqParam = reqParam.substring(startIndex = 1)
+                }
 
-                BufferedReader(InputStreamReader(inputStream)).use {
-                    val response = StringBuffer()
-
-                    var inputLine = it.readLine()
-                    while (inputLine != null) {
-                        response.append(inputLine)
-                        inputLine = it.readLine()
+                val request =
+                    if (includeAuthParams) {
+                        Request.Builder()
+                            .url("$apiURL?$reqParam")
+                            .get()
+                            .addHeader(
+                                "Authorization",
+                                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJrdmVsZmVsQGdtYWlsLmNvbSIsImlhdCI6MTYzODAyODgyNSwiZXhwIjoxNjM4MTE1MjI1fQ.7Zij1F-0J7tFbkFx9Ngq3RuZaCO8MJBcX5wcicsHLQU"
+                            )
+                            .build()
+                    } else {
+                        Request.Builder()
+                            .url("$apiURL?$reqParam")
+                            .get()
+                            .build()
                     }
-                    it.close()
-                    return response.toString()
-                }
+                onFinish(client.newCall(request).execute().body().string())
             }
         }
-        fun getUserData(username: String) : String {
-            return GET(apiURL = "http://${Config.Settings.SERVER_ADDRESS}:${Config.Settings.PORT}/api/users/$username")
+
+        fun POST(
+            apiURL: String,
+            params: List<Pair<String, String>> = listOf(),
+            includeAuthParams: Boolean = false,
+            onFinish: (s: String) -> Unit
+        ) {
+            thread {
+                val JSON: MediaType = MediaType.parse("application/json; charset=utf-8")
+                val client = OkHttpClient()
+
+                var jsonParam = ""
+                for (param in params) {
+                    jsonParam += ",\"${URLEncoder.encode(param.first, "UTF-8")}\":\"${
+                        URLEncoder.encode(
+                            param.second,
+                            "UTF-8"
+                        )
+                    }\""
+                }
+                // Remove leading ','
+                if (params.lastIndex != -1) {
+                    jsonParam = "{${jsonParam.substring(startIndex = 1)}}"
+                }
+
+                val body: RequestBody = RequestBody.create(JSON, jsonParam)
+
+                val request = if (includeAuthParams) {
+                    Request.Builder()
+                        .url(apiURL)
+                        .post(body)
+                        .addHeader(
+                            "Authorization",
+                            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJrdmVsZmVsQGdtYWlsLmNvbSIsImlhdCI6MTYzODAyODgyNSwiZXhwIjoxNjM4MTE1MjI1fQ.7Zij1F-0J7tFbkFx9Ngq3RuZaCO8MJBcX5wcicsHLQU"
+                        )
+                        .build()
+                } else {
+                    Request.Builder()
+                        .url(apiURL)
+                        .post(body)
+                        .build()
+                }
+                onFinish(client.newCall(request).execute().body().string())
+            }
         }
+
+        fun getUserData(username: String, onFinish: (s: String) -> Unit) {
+            GET(
+                includeAuthParams = true,
+                apiURL = "http://${Config.Settings.SERVER_ADDRESS}:${Config.Settings.PORT}/api/users/$username",
+                onFinish = onFinish
+            )
+        }
+
+        fun register(
+            username: String,
+            password: String,
+            name: String,
+            surname: String,
+            date_of_birth: String,
+            phone_number: String,
+            document_type: String,
+            document_number: String,
+            avatar_url: String,
+            onFinish: (s: String) -> Unit
+        ) {
+            POST(
+                params = listOf(
+                    Pair("username", username),
+                    Pair("password", password),
+                    Pair("name", name),
+                    Pair("surname", surname),
+                    Pair("date_of_birth", date_of_birth),
+                    Pair("phone_number", phone_number),
+                    Pair("document_type", document_type),
+                    Pair("document_number", document_number),
+                    Pair("avatar_url", avatar_url)
+                ),
+                apiURL = "http://${Config.Settings.SERVER_ADDRESS}:${Config.Settings.PORT}/api/auth/register",
+                onFinish = onFinish
+            )
+        }
+        fun login(
+            username: String,
+            password: String,
+            onFinish: (s: String) -> Unit
+        ) {
+            POST(
+                params = listOf(
+                    Pair("username", username),
+                    Pair("password", password)
+                ),
+                apiURL = "http://${Config.Settings.SERVER_ADDRESS}:${Config.Settings.PORT}/api/auth/login",
+                onFinish = onFinish
+            )
+        }
+
     }
 }
