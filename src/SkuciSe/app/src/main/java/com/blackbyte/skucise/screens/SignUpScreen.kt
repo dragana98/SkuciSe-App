@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import com.blackbyte.skucise.MainActivity.Companion.prefs
 import com.blackbyte.skucise.components.*
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import java.time.LocalDate
@@ -360,8 +361,6 @@ fun SignUpScreen(
                     onValueChange = { phoneNumber = it },
                     modifier = Modifier.fillMaxWidth()
                 )
-
-
             }
             Spacer(modifier = Modifier.size(size = 20.dp))
             Row(
@@ -410,7 +409,7 @@ fun SignUpScreen(
                 Popup(onDismissRequest = { showCalendar = false }) {
                     Surface(color = MaterialTheme.colors.primaryVariant) {
                         DatePickerGrid(
-                            date = LocalDate.of(2021, 11, 14),
+                            date = dateOfBirth,
                             onDateSelected = { dateOfBirth = it }
                         )
                     }

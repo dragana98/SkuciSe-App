@@ -53,13 +53,6 @@ fun HomeScreen(
     navigateToSearch: () -> Unit,
     navigateToAdvertise: () -> Unit
 ) {
-    /*Utils.Requests.getUserData(username = "kvelfel@gmail.com", onFinish = fun(s: String) {
-        Log.d("GETUSERDATA:\t", s)
-    Handler(Looper.getMainLooper()).post(Runnable {
-
-        })
-    })*/
-
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
     val scope = rememberCoroutineScope()

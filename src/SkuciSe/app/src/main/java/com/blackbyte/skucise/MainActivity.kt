@@ -13,11 +13,31 @@ import androidx.navigation.compose.rememberNavController
 import com.blackbyte.skucise.data.DrawerEntry
 import com.blackbyte.skucise.screens.*
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.utils.Prefs
 import com.blackbyte.skucise.utils.Utils
 
+val prefs: Prefs by lazy {
+    MainActivity.prefs!!
+}
+
+
 class MainActivity : ComponentActivity() {
+    companion object {
+        var prefs: Prefs? = null
+        lateinit var instance: MainActivity
+            private set
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
+        prefs = Prefs(applicationContext)
+
+        /*
+        val authTokenVal = prefs.authToken // GET
+        prefs.authToken = 9  // SET
+        */
+
         setContent {
             SkuciSeTheme {
                 val navController = rememberNavController()
