@@ -1,7 +1,6 @@
 package com.blackbyte.skucise.screens
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -26,7 +25,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.semantics.Role
@@ -37,7 +35,6 @@ import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.data.DrawerEntry
 import com.blackbyte.skucise.ui.theme.LightGreen
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
-import com.blackbyte.skucise.utils.Utils
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,9 +45,8 @@ fun HomeScreen(
     navigateToSavedEntries: () -> Unit,
     navigateToScheduledTours: () -> Unit,
     navigateToSearch: () -> Unit,
-    navigateToAdvertise: () -> Unit
+    navigateToAd: () -> Unit
     ) {
-    print(Utils.Requests.getUserData("kvelfel@gmail.com"))
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
     val scope = rememberCoroutineScope()
@@ -90,14 +86,7 @@ fun HomeScreen(
             drawerOptions.forEach { option ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp, vertical = 12.dp)
-                        .clickable(
-                            enabled = true,
-                            role = Role.Button
-                        ) {
-                            option.onTap()
-                        }
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
                 ) {
                     Icon(
                         imageVector = option.icon,
@@ -116,7 +105,7 @@ fun HomeScreen(
                             if(option.label == "Zakazani obilasci")
                                 navigateToScheduledTours()
                             if(option.label == "Oglasi")
-                                navigateToAdvertise()
+                                navigateToAd()
                         }
                     )
                 }
@@ -192,12 +181,12 @@ fun HomeScreen(
                             },
                             label = {
                                 Text(text = "Pretraga...",
-                                    modifier = Modifier.clickable(
-                                        enabled = true,
-                                        role = Role.Switch
-                                    ) {
-                                        navigateToSearch()
-                                    })
+                                modifier = Modifier.clickable(
+                                    enabled = true,
+                                    role = Role.Switch
+                                ){
+                                    navigateToSearch()
+                                })
                             },
                             textStyle = LocalTextStyle.current.copy(color = Color.Black),
                             shape = RoundedCornerShape(4.dp),
@@ -226,16 +215,8 @@ fun HomeScreen(
             Surface(
                 color = MaterialTheme.colors.background,
                 shape = cardShape,
-                elevation = 10.dp,
-                modifier = Modifier.pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            navigateToPropertyEntry()
-                        }
-                    )
-                }
-            )
-            {
+                elevation = 10.dp
+            ) {
                 Column {
                     Pager(
                         items = listOf(
