@@ -10,13 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.blackbyte.skucise.components.DropdownButton
+import com.blackbyte.skucise.components.ImagePicker
 import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.components.OutlinedInputField
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.components.*
 
 @Composable
 fun MyAccountScreen(returnToPreviousScreen: () -> Unit) {
@@ -29,6 +33,9 @@ fun MyAccountScreen(returnToPreviousScreen: () -> Unit) {
                 .padding(20.dp)
                 .fillMaxHeight()
         ) {
+            //row
+            /*
+
             Row(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -43,7 +50,7 @@ fun MyAccountScreen(returnToPreviousScreen: () -> Unit) {
                         modifier = Modifier.fillMaxSize()
                     )
                     IconButton(
-                        onClick = { /*TODO*/ },
+                        onClick = {  },
                         modifier = Modifier
                             .background(color = MaterialTheme.colors.primary)
                             .size(24.dp)
@@ -73,7 +80,42 @@ fun MyAccountScreen(returnToPreviousScreen: () -> Unit) {
                     )
                 }
             }
+             */
+            AdProfilePicture()
+
             Spacer(modifier = Modifier.size(20.dp))
+
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text(
+                    text = "Broj telefona: "
+                )
+                Text(
+                    text = "0123 456789",
+                    fontStyle = FontStyle.Italic
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                Text(
+                    text = "E-mail adresa: "
+                )
+                Text(
+                    text = "dusan.petrovic@gmail.com ",
+                    fontStyle = FontStyle.Italic
+                )
+            }
+
+            Spacer(modifier = Modifier.size(29.dp))
+
+            Text(
+                text = "Izmena podataka ",
+                fontSize = 20.sp
+            )
+
+            Spacer(modifier = Modifier.size(5.dp))
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -93,8 +135,11 @@ fun MyAccountScreen(returnToPreviousScreen: () -> Unit) {
 
 
             }
+
             Spacer(modifier = Modifier.size(18.dp))
+
             OutlinedInputField(label = "E-adresa", modifier = Modifier.fillMaxWidth())
+
             Column(
                 verticalArrangement = Arrangement.Bottom,
                 modifier = Modifier.fillMaxHeight()
@@ -107,6 +152,7 @@ fun MyAccountScreen(returnToPreviousScreen: () -> Unit) {
                     Text(text = "Potvrdite izmene")
                 }
             }
+
         }
     }
 }
