@@ -9,12 +9,14 @@ import androidx.compose.ui.Modifier
 fun OutlinedInputField(
     label: String = "",
     onValueChange: (s: String) -> Unit = {},
+    readOnly: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var text by remember { mutableStateOf("") }
 
     OutlinedTextField(
         value = text,
+        readOnly = readOnly,
         onValueChange = {
             text = it
             onValueChange(text)

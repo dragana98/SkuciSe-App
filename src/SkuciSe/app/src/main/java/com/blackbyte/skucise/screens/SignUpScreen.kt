@@ -1,8 +1,12 @@
 package com.blackbyte.skucise.screens
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -10,33 +14,44 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.blackbyte.skucise.MainActivity.Companion.prefs
 import com.blackbyte.skucise.components.*
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.utils.Utils
+import com.blackbyte.skucise.utils.Utils.Requests.register
 import java.time.LocalDate
 
 
+@ExperimentalComposeUiApi
 @Composable
 fun SignUpScreen(
     returnToPreviousScreen: () -> Unit,
-    navigateToHomeScreen: () -> Unit
+    navigateToLoginScreen: () -> Unit
 ) {
     var showCalendar: Boolean by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var dateOfBirth by remember { mutableStateOf(LocalDate.now()) }
+    var dateOfBirth: LocalDate? by remember { mutableStateOf(null) }
     var countryCodeIdIndex by remember { mutableStateOf(196) } // Podrazumijevani indeks, Srbija
     var phoneNumber by remember { mutableStateOf("") }
     var documentTypeIndex by remember { mutableStateOf(0) }
     var documentNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    var showSnackbar by remember { mutableStateOf(false) }
 
     val documentTypes = listOf("Lična karta", "Pasoš", "Vozačka dozvola")
 
@@ -324,7 +339,6 @@ fun SignUpScreen(
                     showCalendar = true
                 },
                 modifier = Modifier
-                    .height(46.dp)
                     .fillMaxWidth()
             ) {
                 Row(
@@ -332,10 +346,19 @@ fun SignUpScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Datum rođenja")
+                    Column {
+                        Text(text = "Datum rođenja")
+                        if (dateOfBirth != null) {
+                            Spacer(modifier = Modifier.size(size = 4.dp))
+                            Text(
+                                text = "${dateOfBirth!!.dayOfMonth}.${dateOfBirth!!.monthValue}.${dateOfBirth!!.year}",
+                                style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold)
+                            )
+                        }
+                    }
                     Icon(
                         imageVector = Icons.Filled.DateRange,
-                        contentDescription = "registration icon"
+                        contentDescription = "date picker"
                     )
                 }
             }
@@ -406,10 +429,14 @@ fun SignUpScreen(
             )
             Spacer(modifier = Modifier.size(size = 20.dp))
             if (showCalendar)
-                Popup(onDismissRequest = { showCalendar = false }) {
-                    Surface(color = MaterialTheme.colors.primaryVariant) {
+                Dialog(
+                    properties = DialogProperties(usePlatformDefaultWidth = false),
+                    onDismissRequest = { showCalendar = false }) {
+                    Surface(color = MaterialTheme.colors.surface,
+                        shape = RoundedCornerShape(4.dp),
+                        modifier = Modifier.padding(all = 28.dp)) {
                         DatePickerGrid(
-                            date = dateOfBirth,
+                            date = if (dateOfBirth == null) LocalDate.now() else dateOfBirth!!,
                             onDateSelected = { dateOfBirth = it }
                         )
                     }
@@ -420,8 +447,34 @@ fun SignUpScreen(
             ) {
                 Button(
                     onClick = {
-                        Log.d("DEBUG", "$name  $surname  $email  $dateOfBirth  $countryCodeIdIndex  $phoneNumber  $documentTypeIndex  $documentNumber  $password")
-                        navigateToHomeScreen()
+                        var numberPrefix: String = ""
+                        var i = countries[countryCodeIdIndex].lastIndex
+                        while (countries[countryCodeIdIndex][i] != '(') {
+                            i--
+                        }
+                        i++
+                        numberPrefix = countries[countryCodeIdIndex].substring(
+                            startIndex = i,
+                            endIndex = countries[countryCodeIdIndex].lastIndex - 1
+                        )
+                        Utils.Requests.register(name = name,
+                            surname = surname,
+                            username = email,
+                            date_of_birth = if (dateOfBirth == null) "" else dateOfBirth.toString()!!,
+                            phone_number = "$numberPrefix$phoneNumber",
+                            document_type = documentTypes[documentTypeIndex],
+                            document_number = documentNumber,
+                            avatar_url = "default",
+                            password = password, onFinish = fun(body, responseCode) {
+                                Log.d("DEBUG", "RESPONSE: $responseCode\tBODY: $body")
+                                if(responseCode == 200) {
+                                    Handler(Looper.getMainLooper()).post(Runnable {
+                                        navigateToLoginScreen()
+                                    })
+                                } else {
+                                    showSnackbar = true
+                                }
+                            })
                     }, modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "Registrujte se")
@@ -434,10 +487,22 @@ fun SignUpScreen(
                 )
             }
         }
+        if (showSnackbar) {
+            Snackbar(
+                action = {
+                    Button(onClick = {
+                        showSnackbar = false
+                    }) {
+                        Text("Pokušajte ponovo")
+                    }
+                },
+                modifier = Modifier.padding(8.dp)
+            ) { Text(text = "Neuspešna registracija.") }
+        }
     }
 }
 
-
+@ExperimentalComposeUiApi
 @Preview(showBackground = true)
 @Composable
 fun SignUpScrenPreview() {

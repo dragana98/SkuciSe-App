@@ -2,7 +2,7 @@ const express = require('express');
 const Listings = require('../models/Listings');
 const router = express.Router();
 
-/* router.get('/', (req, res) => {
+router.get('/all', (req, res) => {
     Listings.readAll()
     .then( realties => {
         res.status(200).json(realties)
@@ -11,7 +11,7 @@ const router = express.Router();
         console.log(err);
         res.status(500).json(err)
     })
-}); */
+});
 
 router.get('/:id', (req, res) => {
     const { id } = req.params;

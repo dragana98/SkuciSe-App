@@ -1,11 +1,13 @@
 package com.blackbyte.skucise
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,6 +30,7 @@ class MainActivity : ComponentActivity() {
             private set
     }
 
+    @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         instance = this
@@ -46,6 +49,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @ExperimentalComposeUiApi
     @Composable
     fun AppNavigator(navController: NavHostController) {
         val returnToPreviousScreen = fun() {
@@ -102,29 +106,35 @@ class MainActivity : ComponentActivity() {
                 launchSingleTop = true
             }
         }
-        var toScheduledTours = fun(){
-            navController.navigate(route = "scheduledTours"){
+        var toScheduledTours = fun() {
+            navController.navigate(route = "scheduledTours") {
                 launchSingleTop = true
             }
         }
-        var toScheduleATour = fun(){
-            navController.navigate(route = "scheduleATour"){
+        var toScheduleATour = fun() {
+            navController.navigate(route = "scheduleATour") {
                 launchSingleTop = true
             }
         }
-        var toSearch = fun(){
-            navController.navigate(route = "search"){
+        var toSearch = fun() {
+            navController.navigate(route = "search") {
                 launchSingleTop = true
             }
         }
-        var toAdvertise = fun(){
-            navController.navigate(route = "advertise"){
+        var toAdvertise = fun() {
+            navController.navigate(route = "advertise") {
                 launchSingleTop = true
             }
         }
 
-        //                                           v~~~~~ CHANGE THIS TO REFLECT IF USER IS LOGGED IN OR NOT
-        NavHost(navController = navController, startDestination = "welcome") {
+        val authTokenVal = prefs?.authToken
+        // TODO test if token expired
+        var dest = "welcome"
+        if(authTokenVal != "unset") {
+            dest = "home"
+        }
+
+        NavHost(navController = navController, startDestination = dest) {
             // EXAMPLE, WITH PASSING DATA TO A PAGE VIEW:
             /*
             composable("pageName/{argument}",
@@ -142,39 +152,43 @@ class MainActivity : ComponentActivity() {
                         DrawerEntry(
                             label = "Moj nalog",
                             icon = Icons.Filled.AccountCircle,
-                            onTap = {toMyAccount()}
+                            onTap = { toMyAccount() }
                         ),
                         DrawerEntry(
                             label = "Oglasi",
                             icon = Icons.Filled.House,
-                            onTap = {toAdvertise()}
+                            onTap = { toAdvertise() }
                         ),
                         DrawerEntry(
                             label = "Sačuvani oglasi",
                             icon = Icons.Filled.Favorite,
-                            onTap = {toSavedEntries()}
+                            onTap = { toSavedEntries() }
                         ),
                         DrawerEntry(
                             label = "Poruke",
                             icon = Icons.Filled.Email,
-                            onTap = {toMessages()}
+                            onTap = { toMessages() }
                         ),
                         DrawerEntry(
                             label = "Zakazani obilasci",
                             icon = Icons.Filled.DateRange,
-                            onTap = {toScheduledTours()}
+                            onTap = { toScheduledTours() }
                         ),
                         DrawerEntry(
                             label = "Podešavanja",
                             icon = Icons.Filled.Settings,
-                            onTap = { /* TODO */}
+                            onTap = { /* TODO */ }
                         ),
                         DrawerEntry(
                             label = "Odjava",
                             icon = Icons.Filled.ExitToApp,
-                            onTap = { /* TODO */}
-                        )
+                            onTap = {
+                                prefs?.authToken = "unset"
+                                prefs?.authToken = "unset"
 
+                                toWelcome()
+                            }
+                        )
                     ),
                     returnToPreviousScreen = returnToPreviousScreen,
                     navigateToPropertyEntry = toPropertyEntry,
@@ -190,7 +204,8 @@ class MainActivity : ComponentActivity() {
             composable("login") {
                 LoginScreen(
                     returnToPreviousScreen = returnToPreviousScreen,
-                    navigateToHomeScreen = toHomeScreen
+                    navigateToHomeScreen = toHomeScreen,
+                    navigateToSignUpScreen = toSignUp
                 )
             }
             composable("messages") {
@@ -207,7 +222,8 @@ class MainActivity : ComponentActivity() {
                     navigateToPropertyReviews = toReviews,
                     navigateToVendorInbox = toInbox,
                     navigateToScheduleATour = toScheduleATour,
-                    returnToPreviousScreen = returnToPreviousScreen)
+                    returnToPreviousScreen = returnToPreviousScreen
+                )
             }
             composable("reviews") {
                 ReviewsScreen(returnToPreviousScreen = returnToPreviousScreen)
@@ -218,26 +234,26 @@ class MainActivity : ComponentActivity() {
             composable("signUp") {
                 SignUpScreen(
                     returnToPreviousScreen = returnToPreviousScreen,
-                    navigateToHomeScreen = toHomeScreen
+                    navigateToLoginScreen = toLogin
                 )
             }
             composable("welcome") {
                 WelcomeScreen(navigateToSignUp = toSignUp, navigateToLogin = toLogin)
             }
-            composable("scheduledTours"){
+            composable("scheduledTours") {
                 ScheduledToursScreen(
                     returnToPreviousScreen = returnToPreviousScreen
                 )
             }
-            composable("scheduleATour"){
+            composable("scheduleATour") {
                 ScheduleATourScreen(
                     returnToPreviousScreen = returnToPreviousScreen
                 )
             }
-            composable("search"){
+            composable("search") {
                 SearchScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
-            composable("advertise"){
+            composable("advertise") {
                 AdvertiseScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
 

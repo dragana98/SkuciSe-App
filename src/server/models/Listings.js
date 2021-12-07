@@ -27,16 +27,20 @@ async function create(data) {
                 street_address: data['street_address'],
                 leasable: data['leasable'],
                 unified: data['unified']
-            }).transacting(trx).returning('id').then(([id]) => propertyId = id);
+            }).transacting(trx);
+            const [row] = await db('propertyAd').select('LAST_INSERT_ID() as id');
+            propertyId = row.id;
 
+            console.log("IMAGE URLS:            " + data['images']);
             data['images'].forEach(imageUrl => {
+                console.log("IMAGE URL:            " + imageUrl);
                 db('propertyAdImages').insert({
                     property_ad_id: propertyId,
                     url: imageUrl
                 }).transacting(trx).returning('id').then(([id]) => propertyId = id);
     
             });
-            
+            console.log("PROPERTY ID IS        :" + propertyId)
             data['amenities'].forEach(amenity => {
                 db('propertyAdAmenities').insert({
                     property_ad_id: propertyId,
@@ -69,7 +73,7 @@ async function create(data) {
                 var realtyId;
 
                 db('propertyAdRealties').insert({
-                    property_ad_id: realty['property_ad_id'],
+                    property_ad_id: propertyId,
                     number_of_rooms: realty['number_of_rooms'],
                     number_of_bathrooms: realty['number_of_bathrooms'],
                     surface: realty['surface'],
@@ -105,7 +109,9 @@ function del(id) {
     return db("propertyAd").where({ id }).del();
 }
 async function readAll() {
-    return db('propertyAd').select('*')
+    return db('propertyAd as pa')
+            .join('propertyAdImages as pai', 'pa.id', 'pai.property_ad_id')
+            .where('pa.id', 'pai.property_ad_id')
 
     /* var listings = db("listings")
 

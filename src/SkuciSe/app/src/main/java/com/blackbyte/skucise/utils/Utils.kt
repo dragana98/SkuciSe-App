@@ -1,6 +1,8 @@
 package com.blackbyte.skucise.utils
 
 import android.util.Base64
+import android.util.Log
+import com.blackbyte.skucise.MainActivity
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
@@ -24,7 +26,7 @@ class Utils {
             apiURL: String,
             params: List<Pair<String, String>> = listOf(),
             includeAuthParams: Boolean = false,
-            onFinish: (s: String) -> Unit
+            onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             thread {
                 val client = OkHttpClient()
@@ -50,7 +52,7 @@ class Utils {
                             .get()
                             .addHeader(
                                 "Authorization",
-                                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJrdmVsZmVsQGdtYWlsLmNvbSIsImlhdCI6MTYzODAyODgyNSwiZXhwIjoxNjM4MTE1MjI1fQ.7Zij1F-0J7tFbkFx9Ngq3RuZaCO8MJBcX5wcicsHLQU"
+                                MainActivity.prefs?.authToken
                             )
                             .build()
                     } else {
@@ -59,7 +61,12 @@ class Utils {
                             .get()
                             .build()
                     }
-                onFinish(client.newCall(request).execute().body().string())
+                try {
+                    val response = client.newCall(request).execute()
+                    onFinish(response.body().string(), response.code())
+                } catch (e:Exception) {
+                    onFinish("", 12163)
+                }
             }
         }
 
@@ -67,7 +74,7 @@ class Utils {
             apiURL: String,
             params: List<Pair<String, String>> = listOf(),
             includeAuthParams: Boolean = false,
-            onFinish: (s: String) -> Unit
+            onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             thread {
                 val JSON: MediaType = MediaType.parse("application/json; charset=utf-8")
@@ -75,12 +82,11 @@ class Utils {
 
                 var jsonParam = ""
                 for (param in params) {
-                    jsonParam += ",\"${URLEncoder.encode(param.first, "UTF-8")}\":\"${
-                        URLEncoder.encode(
-                            param.second,
-                            "UTF-8"
-                        )
-                    }\""
+                    if(param.second is String) {
+                        jsonParam += ",\"${param.first}\":\"${param.second}\""
+                    } else {
+                        jsonParam += ",\"${param.first}\":${param.second}"
+                    }
                 }
                 // Remove leading ','
                 if (params.lastIndex != -1) {
@@ -88,14 +94,13 @@ class Utils {
                 }
 
                 val body: RequestBody = RequestBody.create(JSON, jsonParam)
-
                 val request = if (includeAuthParams) {
                     Request.Builder()
                         .url(apiURL)
                         .post(body)
                         .addHeader(
                             "Authorization",
-                            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJrdmVsZmVsQGdtYWlsLmNvbSIsImlhdCI6MTYzODAyODgyNSwiZXhwIjoxNjM4MTE1MjI1fQ.7Zij1F-0J7tFbkFx9Ngq3RuZaCO8MJBcX5wcicsHLQU"
+                            MainActivity.prefs?.authToken
                         )
                         .build()
                 } else {
@@ -104,11 +109,16 @@ class Utils {
                         .post(body)
                         .build()
                 }
-                onFinish(client.newCall(request).execute().body().string())
+                try {
+                    val response = client.newCall(request).execute()
+                    onFinish(response.body().string(), response.code())
+                } catch (e:Exception) {
+                    onFinish("", 12163)
+                }
             }
         }
 
-        fun getUserData(username: String, onFinish: (s: String) -> Unit) {
+        fun getUserData(username: String, onFinish: (body: String, responseCode: Int) -> Unit) {
             GET(
                 includeAuthParams = true,
                 apiURL = "http://${Config.Settings.SERVER_ADDRESS}:${Config.Settings.PORT}/api/users/$username",
@@ -126,7 +136,7 @@ class Utils {
             document_type: String,
             document_number: String,
             avatar_url: String,
-            onFinish: (s: String) -> Unit
+            onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
                 params = listOf(
@@ -147,7 +157,7 @@ class Utils {
         fun login(
             username: String,
             password: String,
-            onFinish: (s: String) -> Unit
+            onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
                 params = listOf(
@@ -158,6 +168,5 @@ class Utils {
                 onFinish = onFinish
             )
         }
-
     }
 }

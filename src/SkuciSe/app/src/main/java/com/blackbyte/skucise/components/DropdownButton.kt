@@ -50,7 +50,7 @@ fun DropdownButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    LightPurple
+                    MaterialTheme.colors.surface
                 )
 
         ) {
