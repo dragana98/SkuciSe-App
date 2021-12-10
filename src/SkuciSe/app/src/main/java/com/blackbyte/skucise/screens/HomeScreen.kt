@@ -45,7 +45,8 @@ fun HomeScreen(
     navigateToSavedEntries: () -> Unit,
     navigateToScheduledTours: () -> Unit,
     navigateToSearch: () -> Unit,
-    navigateToAd: () -> Unit
+    navigateToAd: () -> Unit,
+    navigateToMyAccount: () -> Unit
     ) {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
@@ -106,6 +107,8 @@ fun HomeScreen(
                                 navigateToScheduledTours()
                             if(option.label == "Oglasi")
                                 navigateToAd()
+                            if(option.label == "Moj nalog")
+                                navigateToMyAccount()
                         }
                     )
                 }
@@ -325,6 +328,6 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     SkuciSeTheme {
-        HomeScreen(listOf(), {}, {},{},{},{},{})
+        HomeScreen(listOf(), {}, {},{},{},{},{},{})
     }
 }
