@@ -91,7 +91,8 @@ fun MyAccountScreen(returnToPreviousScreen: () -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             ){
                 Text(
-                    text = "Broj telefona: "
+                    text = "Broj telefona: ",
+                    color = MaterialTheme.colors.primary
                 )
                 Text(
                     text = "0123 456789",
@@ -99,7 +100,8 @@ fun MyAccountScreen(returnToPreviousScreen: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(
-                    text = "E-mail adresa: "
+                    text = "E-mail adresa: ",
+                    color = MaterialTheme.colors.primary
                 )
                 Text(
                     text = "dusan.petrovic@gmail.com ",
