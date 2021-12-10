@@ -21,6 +21,7 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
+               
             }
         }
     }
@@ -156,7 +157,8 @@ class MainActivity : ComponentActivity() {
                     navigateToSavedEntries = toSavedEntries,
                     navigateToScheduledTours = toScheduledTours,
                     navigateToSearch = toSearch,
-                    navigateToAd = toAd
+                    navigateToAd = toAd,
+                    navigateToMyAccount = toMyAccount
 
                 )
             }
