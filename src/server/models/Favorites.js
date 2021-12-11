@@ -12,6 +12,13 @@ function read(user_id){
     return db('favorites').where({ user_id }).first();
 }
 
+async function getFavorites(username) {
+    const { id } = await db('users').where({ username }).first();
+    knex.where().first()
+    return db("favorites as f").join("realties as r", "f.realty_id", "r.id").where({ user_id: id });
+}
+
+
 async function create(data) {
     db.transaction(
         (trx) => {

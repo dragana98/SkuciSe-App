@@ -23,13 +23,17 @@ async function create(data) {
 
     await db.transaction(
         (trx) => {
+            const user_id = await db('users')
+                .where('username', data['username'])
+                .select('id')
+                .first();
+
             db('realtors').insert({
-                user_id: data['user_id'],
+                user_id: user_id,
                 natural_person: data['natural_person']
-            }).transacting(trx)
-                .then(([o]) => {
-                    id = o
-                }).then(trx.commit)
+            })
+                .transacting(trx)
+                .then(trx.commit)
                 .catch(trx.rollback);
         })
 
@@ -42,13 +46,12 @@ async function create(data) {
                     corporate_address: data['corporate_address'],
                     website_url: data['website_url'],
                     avatar_url: data['avatar_url']
-                }).transacting(trx).then(trx.commit)
+                })
+                    .transacting(trx)
+                    .then(trx.commit)
                     .catch(trx.rollback);
-
             })
     }
-
-    return { id }
 }
 
 function del(username) {

@@ -26,10 +26,12 @@ router.get('/legalEntity/:id', (req, res) => {
 
 
 router.post('/', (req, res) => {
-    const data = req.body;
-    const { user_id, natural_person, name, corporate_address, website_url, avatar_url } = data
+    var data = req.body;
+    const { natural_person, name, corporate_address, website_url, avatar_url } = data
+    
+    data.username = req.decodedToken.username;
 
-    if (!(user_id && (natural_person != undefined))) {
+    if (!(natural_person != undefined)) {
         res.status(400).json({ message: "Missing information" })
     } else if (natural_person == 0 && (!(name && corporate_address && website_url && avatar_url))) {
         res.status(400).json({ message: "Missing information" })
