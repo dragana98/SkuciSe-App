@@ -2,10 +2,10 @@ const express = require('express');
 const Favorites = require('../models/Favorites');
 const router = express.Router();
 
-router.get('/:data', (req, res) => {
-    // TODO dynamically add/remove favorite
-    const { user_id } = req.params;
-    Favorites.read(user_id)
+router.get('/', (req, res) => {
+    const username = req.decodedToken.username;
+
+    Favorites.read(username)
         .then(fav => {
             res.status(200).json(fav)
         })
@@ -15,12 +15,15 @@ router.get('/:data', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-    const data = req.body;
-    const { property_ad_id, user_id} = data
-    if (! (property_ad_id && user_id)) {
+    var data = req.body;
+    
+    const { property_ad_id} = data
+    data.username = req.decodedToken.username;
+    
+    if (! property_ad_id) {
         res.status(400).json({ message: "Missing information" })
     } else {
-        Favorites.create(data)
+        Favorites.create_del(data)
             .then(fav => {
                 res.status(200).json(fav);
             })

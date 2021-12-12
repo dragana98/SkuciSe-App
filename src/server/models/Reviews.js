@@ -18,10 +18,15 @@ function readUserToRealtyByPropertyId(property_ad_id){
 async function createUserToRealty(data) {
     db.transaction(
         (trx) => {
+            const user_id = await db('users')
+            .where({username: data['username']})
+            .select('id')
+            .first();
+
             return db('reviewsUserToRealty').insert({
-                reviewer_id: data['reviewer_id'],
+                reviewer_id: user_id,
                 property_ad_id: data['property_ad_id'],
-                date: data['date'],
+                date: new Date().toISOString(),
                 stars: data['stars'],
                 contents: data['contents'],
                 response: data['response'],
@@ -50,8 +55,19 @@ function readRealtorToUserByUserId(user_id){
 async function createRealtorToUser(data) {
     db.transaction(
         (trx) => {
+            const user_id = await db('users')
+            .where({username: data['username']})
+            .select('id')
+            .first();
+
+            const realtor_id = await db('realtors')
+            .where({user_id})
+            .select('id')
+            .first();
+
+
             return db('reviewsRealtorToUser').insert({
-                realtor_id: data['realtor_id'],
+                realtor_id: realtor_id,
                 user_id: data['user_id'],
                 date: data['date'],
                 recommends: data['recommends'],

@@ -22,9 +22,9 @@ function readCred(username) {
     return db('users').where({ username }).first();
 }
 
-function readBasicData(username) {
+function readBasicData(id) {
     return db('userData')
-        .where({ username })
+        .where({ id })
         .select('name', 'surname', 'username', 'avatar_url', 'phone_number')
         .first();
 }
@@ -87,21 +87,6 @@ function update(data) {
                     .then(trx.commit)
                     .catch(trx.rollback);
             }
-
-            // Don't forget to update the messages:
-            await db('messages')
-                .where({ usnd: old_username })
-                .update({ usnd: username })
-                .transacting(trx)
-                .then(trx.commit)
-                .catch(trx.rollback);
-
-            await db('messages')
-                .where({ usrcv: old_username })
-                .update({ usrcv: username })
-                .transacting(trx)
-                .then(trx.commit)
-                .catch(trx.rollback);
         })
         .then(() => {
             console.log('transaction complete');

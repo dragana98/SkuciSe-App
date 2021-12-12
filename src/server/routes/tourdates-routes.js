@@ -16,11 +16,10 @@ router.get('/:data', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-    const data = req.body;
-    var { property_ad_id, date, scheduled_by_user_id, scheduled_at } = data
+    var data = req.body;
+    var { property_ad_id, date } = data
 
-    scheduled_at = null
-    scheduled_by_user_id = null
+    data.username = req.decodedToken.username;
 
     if (!(property_ad_id && date)) {
         res.status(400).json({ message: "Missing information" })

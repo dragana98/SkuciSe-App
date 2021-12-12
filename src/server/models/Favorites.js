@@ -3,31 +3,54 @@ const config = require('../knexfile');
 const db = knex(config.development);
 
 module.exports = {
-    create,
-    del,
+    create_del,
     read
 }
 
-function read(user_id){
-    return db('favorites').where({ user_id }).first();
+async function read(username) {
+    const user_id = await db('users')
+        .where({ username })
+        .select('id')
+        .first();
+
+    return db("favorites")
+        .where({ user_id })
+        .select('property_id')
 }
 
-async function getFavorites(username) {
-    const { id } = await db('users').where({ username }).first();
-    knex.where().first()
-    return db("favorites as f").join("realties as r", "f.realty_id", "r.id").where({ user_id: id });
-}
-
-
-async function create(data) {
+async function create_del(data) {
     db.transaction(
         (trx) => {
-            return db('favorites').insert({
-                property_ad_id: data['property_ad_id'],
-                user_id: data['user_id']
-            }).transacting(trx)
-                .then(trx.commit)
-                .catch(trx.rollback);
+            const user_id = await db(users)
+                .where({ username: data['user_id'] })
+                .select('id')
+                .first();
+
+            const is_fav = await db('favorites')
+                .where({ user_id, property_ad_id: data['property_ad_id'] })
+                .select('COUNT (*)')
+                .first();
+
+            if (is_fav != '0') {
+                return db('favorites')
+                    .where({
+                        property_ad_id: data['property_ad_id'],
+                        user_id: user_id
+                    })
+                    .del()
+                    .transacting(trx)
+                    .then(trx.commit)
+                    .catch(trx.rollback);
+            } else {
+                return db('favorites')
+                    .insert({
+                        property_ad_id: data['property_ad_id'],
+                        user_id: user_id
+                    })
+                    .transacting(trx)
+                    .then(trx.commit)
+                    .catch(trx.rollback);
+            }
         })
         .then(() => {
             console.log('transaction complete');
@@ -35,8 +58,4 @@ async function create(data) {
         .catch(err => {
             console.log(err);
         })
-}
-
-function del(user_id){
-    return db('favorites').where({ user_id }).del();
 }
