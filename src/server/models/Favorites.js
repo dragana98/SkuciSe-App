@@ -8,28 +8,33 @@ module.exports = {
 }
 
 async function read(username) {
-    const user_id = await db('users')
+    var [user_id] = await db('users')
         .where({ username })
-        .select('id')
-        .first();
+        .select('id');
+
+    user_id = user_id.id;
 
     return db("favorites")
         .where({ user_id })
-        .select('property_id')
+        .select('property_ad_id');
 }
 
 async function create_del(data) {
     db.transaction(
-        (trx) => {
-            const user_id = await db(users)
-                .where({ username: data['user_id'] })
+        async (trx) => {
+            var [user_id] = await db('users')
+                .where({ username: data['username'] })
                 .select('id')
-                .first();
+                .transacting(trx);
 
-            const is_fav = await db('favorites')
+            user_id = user_id.id;
+            
+            var [is_fav] = await db('favorites')
                 .where({ user_id, property_ad_id: data['property_ad_id'] })
-                .select('COUNT (*)')
-                .first();
+                .count()
+                .transacting(trx);
+
+            is_fav = is_fav['count(*)'];
 
             if (is_fav != '0') {
                 return db('favorites')
@@ -38,18 +43,14 @@ async function create_del(data) {
                         user_id: user_id
                     })
                     .del()
-                    .transacting(trx)
-                    .then(trx.commit)
-                    .catch(trx.rollback);
+                    .transacting(trx);
             } else {
                 return db('favorites')
                     .insert({
                         property_ad_id: data['property_ad_id'],
                         user_id: user_id
                     })
-                    .transacting(trx)
-                    .then(trx.commit)
-                    .catch(trx.rollback);
+                    .transacting(trx);
             }
         })
         .then(() => {

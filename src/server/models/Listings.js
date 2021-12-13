@@ -2,19 +2,21 @@
 const knex = require('knex');
 const config = require('../knexfile');
 const db = knex(config.development);
+const Favorites = require('./Favorites');
 
 module.exports = {
     create,
     del,
     readAll,
-    readByPropertyId,
+    readByPropertyId
     //readByUsername,
     //leaveReview,
     //getReview
 }
 
-async function readByPropertyId(id) {
+async function readByPropertyId(data) {
     try {
+        const id = data.id;
         var listing = await db("propertyAd")
             .where('id', '=', id)
             .select()
@@ -87,6 +89,22 @@ async function readByPropertyId(id) {
             }
         }
 
+        t = await Favorites.read(data.username);
+
+        var inArray = false;
+
+        for (var i = 0; i < t.length; i++) {
+            if (t[i].property_ad_id == id) {
+                inArray = true;
+            }
+        }
+
+        if (inArray) {
+            listing.is_favorite = true;
+        } else {
+            listing.is_favorite = false;
+        }
+
         listing.property_ad_realties = realties
 
         return listing;
@@ -97,6 +115,8 @@ async function readByPropertyId(id) {
 }
 
 async function create(data) {
+    var id = -1;
+
     try {
         db.transaction(async trx => {
             // Insert basic, common information regardless of type of the realty
@@ -113,6 +133,8 @@ async function create(data) {
                 })
                 .select('SELECT last_insert_rowid() AS id')
                 .transacting(trx);
+
+            id = propertyId;
 
             // Images are common for all 
             for (var i = 0; i < data['images'].length; i++) {
@@ -187,19 +209,23 @@ async function create(data) {
     }
     catch (err) { console.log(err) }
 
+    if (id != -1) {
+        return { id };
+    }
 }
 function del(id) {
     /* TODO */
     return db("propertyAd").where({ id }).del();
 }
-async function readAll() {
+async function readAll(data) {
     var ids = await db('propertyAd').select('id')
     var result = []
 
     try {
-        for(var i = 0; i < ids.length; i++) {
-            const id = ids[i].id
-            var t = await readByPropertyId(id);
+        for (var i = 0; i < ids.length; i++) {
+            var _data = ids[i];
+            _data.username = data.username;
+            var t = await readByPropertyId(_data);
             result.push(t)
         }
     } catch (e) {

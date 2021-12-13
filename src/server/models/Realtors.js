@@ -22,36 +22,44 @@ async function create(data) {
     var id
 
     await db.transaction(
-        (trx) => {
-            const user_id = await db('users')
+        async (trx) => {
+            var [t] = await db('users')
                 .where('username', data['username'])
                 .select('id')
-                .first();
+                .transacting(trx);
 
-            db('realtors').insert({
-                user_id: user_id,
-                natural_person: data['natural_person']
-            })
-                .transacting(trx)
-                .then(trx.commit)
-                .catch(trx.rollback);
-        })
+            user_id = t.id;
 
-    if (data['natural_person'] == 0) {
-        await db.transaction(
-            (trx) => {
-                db('realtorsLegalEntities').insert({
+            [t] = await db('realtors')
+                .insert({
+                    user_id: user_id,
+                    natural_person: data['natural_person']
+                })
+                .select('last_insert_rowid() AS id')
+                .transacting(trx);
+
+            id = t;
+
+            console.log("REALTOR ID: " + id);
+
+            if (data['natural_person'] == 0) {
+                await db('realtorsLegalEntities').insert({
                     id: id,
                     name: data['name'],
                     corporate_address: data['corporate_address'],
                     website_url: data['website_url'],
                     avatar_url: data['avatar_url']
                 })
-                    .transacting(trx)
-                    .then(trx.commit)
-                    .catch(trx.rollback);
-            })
-    }
+                    .transacting(trx);
+            }
+        })
+        .then(() => {
+            console.log('transaction complete');
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    return { id };
 }
 
 function del(username) {

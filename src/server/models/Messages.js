@@ -14,23 +14,25 @@ async function push(data) {
     var id
 
     await db.transaction(
-        (trx) => {
-            const user_id = await db('users')
-            .where({username: data['username']})
-            .select('id')
-            .first();
+        async (trx) => {
+            var [user_id] = await db('users')
+                .where({ username: data['username'] })
+                .select('id')
+                .transacting(trx);
 
-            db('messages').insert({
-                usnd: user_id,
-                urcv: data['urcv'],
-                contents: data['contents'],
-                read: "0",
-                date: new Date().toISOString()
-            }).transacting(trx)
-                .then(([o]) => {
-                    id = o
-                }).then(trx.commit)
-                .catch(trx.rollback);
+            user_id = user_id.id;
+
+            var [t] = await db('messages')
+                .insert({
+                    usnd: user_id,
+                    urcv: data['urcv'],
+                    contents: data['contents'],
+                    read: "0",
+                    date: new Date().toISOString()
+                })
+                .select('last_insert_rowid() as id')
+                .transacting(trx);
+            id = t;
         })
     return { id }
 }
@@ -42,32 +44,34 @@ function readAll(uid) {
         .orderBy('date');
 }
 
-function preview(uid) {
-    const last_msg = await db('messages')
-    .where('usnd', uid)
-    .orWhere('urcv', uid)
-    .select('MAX(date) as last_msg')
-    
+async function preview(uid) {
+    var [last_msg] = await db('messages')
+        .where('usnd', uid)
+        .orWhere('urcv', uid)
+        .max('date')
+
+    last_msg = last_msg["max(`date`)"];
+
     return db('messages')
-        .where({date: last_msg})
+        .where({ date: last_msg })
         .first();
 }
 
 function markConversationAsRead(data) {
-    db.transaction(
-        (trx) => {
-            const user_id = await db('users')
+    return db.transaction(
+        async (trx) => {
+            var [user_id] = await db('users')
                 .where({ username: data['username'] })
                 .select('id')
-                .first();
-            
-                await db('messages')
+                .transacting(trx);
+
+            user_id = user_id.id;
+
+            await db('messages')
                 .where({ urcv: user_id })
                 .andWhere({ usnd: data['usnd'] })
                 .update({ read: 1 })
-                .transacting(trx)
-                .then(trx.commit)
-                .catch(trx.rollback);
+                .transacting(trx);
         })
         .then(() => {
             console.log('transaction complete');

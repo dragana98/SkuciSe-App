@@ -41,31 +41,32 @@ router.get('/basic/:id', (req, res) => {
 
 router.post('/update/', (req, res) => {
     var data = req.body;
-    var passed = true;
 
     const { username, phone_number, password, avatar_url } = data
-    passed &&= (username && phone_number);
 
-    if(password === undefined) {
+    if (username) {
+        data.username = req.decodedToken.username;
+    }
+    if (phone_number) {
+        data.phone_number = null
+    }
+
+    if (password) {
         data.password = null
     }
 
-    if (avatar_url === undefined) {
+    if (avatar_url) {
         data.avatar_url = null;
     }
 
-    if (passed) {
-        data.old_username = req.decodedToken.username;
-        Users.update(data)
-            .then(user => {
-                res.status(200).json(user)
-            })
-            .catch(error => {
-                res.status(500).json({ mesage: "Server Error" })
-            })
-    } else {
-        res.status(400).json({ message: "Missing information" })
-    }
+    data.old_username = req.decodedToken.username;
+    Users.update(data)
+        .then(user => {
+            res.status(200).json(user)
+        })
+        .catch(error => {
+            res.status(500).json({ mesage: "Server Error" })
+        })
 });
 
 module.exports = router;

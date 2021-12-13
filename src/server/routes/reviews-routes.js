@@ -2,7 +2,7 @@ const express = require('express');
 const Reviews = require('../models/Reviews');
 const router = express.Router();
 
-router.get('/realtyReviews/:data', (req, res) => {
+router.get('/realty/:property_ad_id', (req, res) => {
     const { property_ad_id } = req.params;
 
     if (!property_ad_id) {
@@ -18,7 +18,7 @@ router.get('/realtyReviews/:data', (req, res) => {
     }
 });
 
-router.get('/userReviews/:data', (req, res) => {
+router.get('/user/:user_id', (req, res) => {
     const { user_id } = req.params;
 
     if (!user_id) {
@@ -36,14 +36,11 @@ router.get('/userReviews/:data', (req, res) => {
 
 router.post('/userToRealty', (req, res) => {
     var data = req.body;
-    var { property_ad_id, date, stars, contents} = data
-
-    data.response = null
-    data.response_date = null
+    var { property_ad_id, stars, contents} = data
 
     data.username = req.decodedToken.username;
 
-    if (!( property_ad_id && date && stars && contents)) {
+    if (!( property_ad_id && stars && contents)) {
         res.status(400).json({ message: "Missing information" })
     } else {
         Reviews.createUserToRealty(data)
@@ -59,14 +56,34 @@ router.post('/userToRealty', (req, res) => {
 
 router.post('/realtorToUser', (req, res) => {
     var data = req.body;
-    var { user_id, date, recommends, contents } = data
+    var { user_id, recommends, contents } = data
 
     data.username = req.decodedToken.username;
 
-    if (!(user_id && date && recommends && contents)) {
+    if (!(user_id && recommends && contents)) {
         res.status(400).json({ message: "Missing information" })
     } else {
         Reviews.createRealtorToUser(data)
+            .then(rev => {
+                res.status(200).json(rev);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json(err);
+            })
+    }
+});
+
+router.post('/realtorsResponse', (req, res) => {
+    var data = req.body;
+    var { id, response } = data
+
+    data.username = req.decodedToken.username;
+
+    if (!(id && response)) {
+        res.status(400).json({ message: "Missing information" })
+    } else {
+        Reviews.realtorsResponse(data)
             .then(rev => {
                 res.status(200).json(rev);
             })

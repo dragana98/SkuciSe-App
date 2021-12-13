@@ -49,7 +49,7 @@ router.get('/preview/:uid', (req, res) => {
             res.status(200).json(avdate)
         })
         .catch(error => {
-            res.status(500).json({ message: "Server Error" })
+            res.status(500).json({ message: "Server Error" + error })
         })
 });
 

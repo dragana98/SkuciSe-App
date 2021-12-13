@@ -3,7 +3,11 @@ const Listings = require('../models/Listings');
 const router = express.Router();
 
 router.get('/all', (req, res) => {
-    Listings.readAll()
+    var data = {username: ""};
+    
+    data.username = req.decodedToken.username;
+
+    Listings.readAll(data)
         .then(realties => {
             res.status(200).json(realties)
         })
@@ -14,12 +18,14 @@ router.get('/all', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-    const { id } = req.params;
+    var data = req.params;
 
-    if (id == undefined) {
+    data.username = req.decodedToken.username;
+
+    if (data.id == undefined) {
         res.status(400).json({ message: "Missing information" })
     } else {
-        Listings.readByPropertyId(id)
+        Listings.readByPropertyId(data)
             .then(realty => {
                 res.status(200).json(realty);
             })

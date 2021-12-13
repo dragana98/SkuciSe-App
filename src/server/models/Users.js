@@ -58,24 +58,33 @@ async function create(data) {
             console.log(err);
         })
 }
-function update(data) {
-    db.transaction(
-        (trx) => {
+
+async function update(data) {
+    return db.transaction(
+        async (trx) => {
             const { old_username, username, phone_number, password, avatar_url } = data;
 
-            await db('userData')
-                .where({ username: old_username })
-                .update({ phone_number, avatar_url })
-                .transacting(trx)
-                .then(trx.commit)
-                .catch(trx.rollback);
+            if (avatar_url != null) {
 
-            await db('users')
-                .where({ username: old_username })
-                .update({ username: username })
-                .transacting(trx)
-                .then(trx.commit)
-                .catch(trx.rollback);
+                await db('userData')
+                    .where({ username: old_username })
+                    .update({ avatar_url })
+                    .transacting(trx);
+            }
+            if (phone_number != null) {
+
+                await db('userData')
+                    .where({ username: old_username })
+                    .update({ phone_number })
+                    .transacting(trx);
+
+            }
+            if (username && old_username && (username.valueOf() !== old_username.valueOf())) {
+                await db('users')
+                    .where({ username: old_username })
+                    .update({ username: username })
+                    .transacting(trx);
+            }
 
             if (password != null) {
                 const hash = bcrypt.hashSync(data.password, 12);
@@ -83,9 +92,7 @@ function update(data) {
                 await db('users')
                     .where({ username: username })
                     .update({ password: data.password })
-                    .transacting(trx)
-                    .then(trx.commit)
-                    .catch(trx.rollback);
+                    .transacting(trx);
             }
         })
         .then(() => {
@@ -98,9 +105,9 @@ function update(data) {
 
 // TODO invalidate tokens and logout user
 
-function del(username) {
+async function del(username) {
     db.transaction(
-        (trx) => {
+        async (trx) => {
             var user_id = await db('users').where({ username }).select('id').first();
             var realtor_id = await db('realtors').where({ username }).select('id').first();
             var all_properties_ids = await db('propertyAd').where({ realtor_id }).select('id');
