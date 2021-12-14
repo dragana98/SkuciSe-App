@@ -1,5 +1,6 @@
 package com.blackbyte.skucise.screens
 
+import Card
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -13,6 +14,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +34,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.AmenityChip
 import com.blackbyte.skucise.components.NavTopBar
@@ -38,29 +43,26 @@ import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.components.RatingStars
 import com.blackbyte.skucise.data.Amenity
 import com.blackbyte.skucise.data.PropertyEntry
+import com.blackbyte.skucise.data.RealtyAdInfo
 import com.blackbyte.skucise.ui.theme.Gold
 import com.blackbyte.skucise.ui.theme.LightGrey
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
-import kotlin.math.round
+
+private val _data = MutableLiveData<RealtyAdInfo>()
+
+fun realtyAdInfoInit(t: RealtyAdInfo) {
+    _data.postValue(t)
+}
 
 @Composable
 fun PropertyEntryScreen(
+    dataLive: LiveData<RealtyAdInfo> = _data,
     returnToPreviousScreen: () -> Unit,
     navigateToVendorInbox: () -> Unit,
     navigateToPropertyReviews: () -> Unit,
     navigateToScheduleATour: () -> Unit
 ) {
-    //val propertyEntry: PropertyEntry(id = 1,
-    //    imageUrls = listOf("http://localhost:8080/img/property_1.jpg","http://localhost:8080/img/property_2.jpg"),
-    //    propertyName = "Apartmani Petrović",
-    //    approximateLocation = "34000, Kragujevac",
-    //    flats = listOf(
-    //
-    //    ),
-    //    val addedToFavorites: Boolean,
-    //    val avgReviewRating: Float,
-    //    val description: String,
-    //    val amenities: List<Amenity>,) = object : Leasable()
+    val data: RealtyAdInfo? by dataLive.observeAsState()
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
         topBar = {
@@ -100,7 +102,7 @@ fun PropertyEntryScreen(
 
                         ) {
                         Text(
-                            "Apartmani Petrović",
+                            text = data.title,
                             style = MaterialTheme.typography.h5.copy(
                                 color = MaterialTheme.colors.primary,
                                 fontWeight = FontWeight.Bold
@@ -114,7 +116,7 @@ fun PropertyEntryScreen(
                             )
                             Spacer(modifier = Modifier.size(8.dp))
                             Text(
-                                text = "34000, Kragujevac",
+                                text = ,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -163,7 +165,7 @@ fun PropertyEntryScreen(
                                 tint = Gold
                             )
                             Spacer(modifier = Modifier.size(6.dp))
-                            Text("(4.8)", fontWeight = FontWeight.Medium)
+                            Text("(${roudneddigitblabla})", fontWeight = FontWeight.Medium)
                         }
                         Row(modifier = Modifier.pointerInput(Unit) {
                             detectTapGestures(
@@ -173,7 +175,7 @@ fun PropertyEntryScreen(
                             )
                         }) {
                             Text(
-                                "Sve recenzije (9)",
+                                ,
                                 color = MaterialTheme.colors.secondary,
                                 fontWeight = FontWeight.Medium
                             )
@@ -217,9 +219,9 @@ fun PropertyEntryScreen(
                 )
                 {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Mesečno*")
+                        Text() //Mesečno*
                         Text(
-                            "200.00 - 600.00 EUR",
+                            , // 200.00 - 600.00 EUR
                             style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
                         )
                     }
@@ -230,7 +232,7 @@ fun PropertyEntryScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("Soba")
                             Text(
-                                "2 - 4",
+                                ,
                                 style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
                             )
                         }
@@ -238,7 +240,7 @@ fun PropertyEntryScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("Kupatila")
                             Text(
-                                "1 - 2",
+                                ,
                                 style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
                             )
                         }
@@ -272,7 +274,7 @@ fun PropertyEntryScreen(
                 )
                 {
                     Text(
-                        text = "Dvosoban stan, jedno kupatilo".toUpperCase(),
+                        text = .uppercase(),
                         fontWeight = FontWeight.Medium
                     )
                     Divider()
@@ -307,7 +309,7 @@ fun PropertyEntryScreen(
                                 .padding(8.dp)
                         )
                         Column {
-                            Text("200.00 EUR, mesečno")
+                            Text() // 200.00 EUR, mesečno
                             /*
                             //SPANSTYLE THROWS EXCEPTION
                             Text(
@@ -323,24 +325,12 @@ fun PropertyEntryScreen(
                                     }
                                 }
                             )*/
-                            Text("Depozit: 300.00 EUR")
+                            Text() // Depozit: 300.00 EUR
                         }
                     }
                     Spacer(
                         modifier = Modifier
                             .size(12.dp)
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Text("Slobodnih jedinica: ", fontWeight = FontWeight.Bold)
-                        Text("2")
-                    }
-                    Spacer(
-                        modifier = Modifier
-                            .size(6.dp)
                     )
                     Button(
                         onClick = { navigateToScheduleATour() },
@@ -360,12 +350,12 @@ fun PropertyEntryScreen(
                         )
                     )
                     Text(
-                        text = "Apartmani Petrović", style = MaterialTheme.typography.h5.copy(
+                        text = , style = MaterialTheme.typography.h5.copy(
                             fontWeight = FontWeight.Bold
                         )
                     )
                 }
-                Text("Dobro nam došli! Apartmani Petrović nalaze se u samom centru grada, tako da Vam je sve nadohvat ruke - šoping, prodavnice, škole, fakulteti.")
+                Text() // desc goes here
 
                 Spacer(modifier = Modifier.size(12.dp))
                 Text(
@@ -376,11 +366,13 @@ fun PropertyEntryScreen(
                 )
 
                 val amenities: List<Amenity> = listOf(
+                    /*
                     Amenity.TERRACE,
                     Amenity.PET_FRIENDLY,
                     Amenity.FURNISHED,
                     Amenity.TV,
                     Amenity.WIFI
+                     */
                 )
                 val columns = 2
                 val wholeRows = (amenities.lastIndex + 1) / columns
