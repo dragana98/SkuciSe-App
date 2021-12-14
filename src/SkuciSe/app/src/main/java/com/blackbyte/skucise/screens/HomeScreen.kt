@@ -268,7 +268,9 @@ fun HomeScreen(
                     modifier = Modifier.pointerInput(Unit) {
                         detectTapGestures(
                             onTap = {
-                                navigateToPropertyEntry()
+                                card?.let {
+                                    navigateToPropertyEntry(card.id)
+                                }
                             }
                         )
                     }

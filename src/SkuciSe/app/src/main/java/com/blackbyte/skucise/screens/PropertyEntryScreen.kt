@@ -1,18 +1,15 @@
 package com.blackbyte.skucise.screens
 
-import Card
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -21,37 +18,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import com.blackbyte.skucise.ui.theme.Cyan
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.AmenityChip
-import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.components.RatingStars
 import com.blackbyte.skucise.data.Amenity
-import com.blackbyte.skucise.data.PropertyEntry
 import com.blackbyte.skucise.data.RealtyAdInfo
+import com.blackbyte.skucise.ui.theme.Cyan
 import com.blackbyte.skucise.ui.theme.Gold
 import com.blackbyte.skucise.ui.theme.LightGrey
-import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.utils.Config
 
 private val _data = MutableLiveData<RealtyAdInfo>()
 
 fun realtyAdInfoInit(t: RealtyAdInfo) {
-    _data.postValue(t)
+    _data?.postValue(t)
 }
 
 @Composable
@@ -101,13 +92,15 @@ fun PropertyEntryScreen(
                         horizontalAlignment = Alignment.Start,
 
                         ) {
-                        Text(
-                            text = data.title,
-                            style = MaterialTheme.typography.h5.copy(
-                                color = MaterialTheme.colors.primary,
-                                fontWeight = FontWeight.Bold
+                        data?.let {
+                            Text(
+                                text = it.title,
+                                style = MaterialTheme.typography.h5.copy(
+                                    color = MaterialTheme.colors.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
                             )
-                        )
+                        }
                         Spacer(Modifier.height(5.dp))
                         Row {
                             Icon(
@@ -115,10 +108,12 @@ fun PropertyEntryScreen(
                                 contentDescription = "map pin location"
                             )
                             Spacer(modifier = Modifier.size(8.dp))
-                            Text(
-                                text = ,
-                                fontWeight = FontWeight.Medium
-                            )
+                            data?.let {
+                                Text(
+                                    text = it.address,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                     }
                 }
@@ -165,7 +160,9 @@ fun PropertyEntryScreen(
                                 tint = Gold
                             )
                             Spacer(modifier = Modifier.size(6.dp))
-                            Text("(${roudneddigitblabla})", fontWeight = FontWeight.Medium)
+                            data?.let {
+                                Text("(${it.avgScore})", fontWeight = FontWeight.Medium)
+                            }
                         }
                         Row(modifier = Modifier.pointerInput(Unit) {
                             detectTapGestures(
@@ -174,11 +171,13 @@ fun PropertyEntryScreen(
                                 }
                             )
                         }) {
-                            Text(
-                                ,
-                                color = MaterialTheme.colors.secondary,
-                                fontWeight = FontWeight.Medium
-                            )
+                            data?.let {
+                                Text(
+                                    "{$it.totalReviews}",
+                                    color = MaterialTheme.colors.secondary,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                             Icon(
                                 Icons.Filled.ArrowForward,
                                 contentDescription = "arrow right",
@@ -219,30 +218,34 @@ fun PropertyEntryScreen(
                 )
                 {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text() //Mesečno*
-                        Text(
-                            , // 200.00 - 600.00 EUR
-                            style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
-                        )
+                        data?.let {
+                            Text(text = "${if (it.monthly) "Mesečno" else "Prodajna cena"}*")
+                            Text(
+                                text = "${it.priceRange} ${Config.CURRENCY}",
+                                style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.size(8.dp))
                     Divider()
                     Spacer(modifier = Modifier.size(8.dp))
-                    Row {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Soba")
-                            Text(
-                                ,
-                                style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
-                            )
-                        }
-                        Spacer(modifier = Modifier.size(48.dp))
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Kupatila")
-                            Text(
-                                ,
-                                style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
-                            )
+                    data?.let {
+                        Row {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Soba")
+                                Text(
+                                    "${it.roomsRange}",
+                                    style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
+                                )
+                            }
+                            Spacer(modifier = Modifier.size(48.dp))
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Kupatila")
+                                Text(
+                                    "${it.bathroomRange}",
+                                    style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Bold)
+                                )
+                            }
                         }
                     }
                 }
@@ -261,86 +264,89 @@ fun PropertyEntryScreen(
                     )
                 )
 
-                Column(
-                    modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colors.onBackground,
-                            shape = RoundedCornerShape(4.dp)
+                data?.let {
+                    for (floor in it.floors) {
+                        Column(
+                            modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colors.onBackground,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .padding(12.dp)
                         )
-                        .padding(12.dp)
-                )
-                {
-                    Text(
-                        text = .uppercase(),
-                        fontWeight = FontWeight.Medium
-                    )
-                    Divider()
-                    Spacer(
-                        modifier = Modifier
-                            .size(8.dp)
-                    )
-                    Row {
-                        Box(contentAlignment = Alignment.Center) {
-                            Image(
-                                painter = painterResource(id = R.drawable.floor_plan_1),
-                                contentDescription = "floor plan",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize(0.4f)
-                                    .clip(shape = RoundedCornerShape(4.dp))
-                                    .border(
-                                        2.dp,
-                                        color = LightGrey,
-                                        shape = RoundedCornerShape(4.dp)
-                                    )
-                            )
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = "floor plan zoom in",
-                                tint = Color(0xAA000000),
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                        Spacer(
-                            modifier = Modifier
-                                .padding(8.dp)
-                        )
-                        Column {
-                            Text() // 200.00 EUR, mesečno
-                            /*
-                            //SPANSTYLE THROWS EXCEPTION
+                        {
                             Text(
-                                text = buildAnnotatedString {
-                                    append("Površina: 32 m")
-                                    withStyle(
-                                        SpanStyle(
-                                            fontSize = TextStyle.Default.fontSize.div(2),
-                                            baselineShift = BaselineShift.Superscript
-                                        )
-                                    ) {
-                                        append("2")
-                                    }
+                                text = "Soba: ${floor.rooms}, Kupatila: ${floor.bathrooms}".uppercase(),
+                                fontWeight = FontWeight.Medium
+                            )
+                            Divider()
+                            Spacer(
+                                modifier = Modifier
+                                    .size(8.dp)
+                            )
+                            Row {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.floor_plan_1),
+                                        contentDescription = "floor plan",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .fillMaxSize(0.4f)
+                                            .clip(shape = RoundedCornerShape(4.dp))
+                                            .border(
+                                                2.dp,
+                                                color = LightGrey,
+                                                shape = RoundedCornerShape(4.dp)
+                                            )
+                                    )
+                                    Icon(
+                                        Icons.Default.Search,
+                                        contentDescription = "floor plan zoom in",
+                                        tint = Color(0xAA000000),
+                                        modifier = Modifier.size(32.dp)
+                                    )
                                 }
-                            )*/
-                            Text() // Depozit: 300.00 EUR
+                                Spacer(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                )
+                                Column {
+                                    Text("${floor.price} ${Config.CURRENCY}")
+                                    /*
+                                    //SPANSTYLE THROWS EXCEPTION
+                                    Text(
+                                        text = buildAnnotatedString {
+                                            append("Površina: 32 m")
+                                            withStyle(
+                                                SpanStyle(
+                                                    fontSize = TextStyle.Default.fontSize.div(2),
+                                                    baselineShift = BaselineShift.Superscript
+                                                )
+                                            ) {
+                                                append("2")
+                                            }
+                                        }
+                                    )*/
+                                    Text("${floor.deposit} ${Config.CURRENCY}")
+                                }
+                            }
+                            Spacer(
+                                modifier = Modifier
+                                    .size(12.dp)
+                            )
+                            Button(
+                                onClick = { navigateToScheduleATour() },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Zakažite obilazak")
+                            }
                         }
                     }
-                    Spacer(
-                        modifier = Modifier
-                            .size(12.dp)
-                    )
-                    Button(
-                        onClick = { navigateToScheduleATour() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Zakažite obilazak")
-                    }
+
                 }
-
-
                 Spacer(modifier = Modifier.size(12.dp))
                 Row {
                     Text(
@@ -349,13 +355,17 @@ fun PropertyEntryScreen(
                             fontWeight = FontWeight.Bold
                         )
                     )
-                    Text(
-                        text = , style = MaterialTheme.typography.h5.copy(
-                            fontWeight = FontWeight.Bold
+                    data?.let {
+                        Text(
+                            text = it.title, style = MaterialTheme.typography.h5.copy(
+                                fontWeight = FontWeight.Bold
+                            )
                         )
-                    )
+                    }
                 }
-                Text() // desc goes here
+                data?.let {
+                    Text(it.description)
+                }
 
                 Spacer(modifier = Modifier.size(12.dp))
                 Text(
@@ -480,6 +490,7 @@ fun PropertyEntryScreen(
 }
 
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun PropertyEntryPreview() {
@@ -487,3 +498,5 @@ fun PropertyEntryPreview() {
         PropertyEntryScreen({}, {}, {}, {})
     }
 }
+
+ */

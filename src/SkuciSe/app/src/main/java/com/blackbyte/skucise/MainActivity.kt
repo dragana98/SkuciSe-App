@@ -151,7 +151,7 @@ class MainActivity : ComponentActivity() {
                                 surface = propertyObject.getInt("surface"),
                                 floorPlanUrl = propertyObject.getString("floor_plan_url"),
                                 price = if (_unified != 0) null else propertyObject.getInt("price"),
-                                deposit = if (_leasable != 0) propertyObject.getInt("deposit") else null
+                                deposit = if ((_leasable != 0) && (_unified == 0)) propertyObject.getInt("deposit") else null
                             )
                         )
                     }
