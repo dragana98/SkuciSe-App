@@ -9,6 +9,7 @@ const realtorsRouter = require("../routes/realtors-routes");
 const favoritesRouter = require("../routes/favorites-routes");
 const tourDatesRouter = require("../routes/tourdates-routes");
 const reviewsRouter = require("../routes/reviews-routes");
+const messagesRouter = require("../routes/messages-routes");
 
 const server = express();
 
@@ -24,6 +25,7 @@ server.use('/api/realtors', restricted, realtorsRouter);
 server.use('/api/favorites', restricted, favoritesRouter);
 server.use('/api/tourDates', restricted, tourDatesRouter);
 server.use('/api/reviews', restricted, reviewsRouter);
+server.use('/api/messages', restricted, messagesRouter);
 
 server.use('/api/auth', authRouter);
 

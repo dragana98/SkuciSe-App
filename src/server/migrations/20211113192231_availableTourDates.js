@@ -11,7 +11,7 @@ exports.up = function (knex) {
             .references('id').inTable('users')
             .onDelete('CASCADE').onUpdate('CASCADE')
 
-        tbl.text('scheduled_at', 128).notNullable()
+        tbl.text('scheduled_at', 128)
     })
 };
 
