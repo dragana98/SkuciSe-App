@@ -4,20 +4,21 @@ package com.blackbyte.skucise.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,13 @@ fun LoginScreen(
         topBar = { NavTopBar("Prijava", returnToPreviousScreen = returnToPreviousScreen) },
         backgroundColor = MaterialTheme.colors.background
     ) {
+        var email by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+        var passwordVisibility by remember { mutableStateOf(false) }
+
+        val isFormValid by derivedStateOf{
+             email.isNotBlank() && password.length > 6
+        }
         Column(
             modifier = Modifier
                 .padding(20.dp)
@@ -75,11 +83,36 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.size(size = 30.dp))
 
-            OutlinedInputField("E-adresa", modifier = Modifier.fillMaxWidth())
+            //OutlinedInputField("E-adresa", modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("E-adresa") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.size(size = 20.dp))
 
-            OutlinedPasswordField("Lozinka", modifier = Modifier.fillMaxWidth())
+            //OutlinedPasswordField("Lozinka", modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Lozinka") },
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    val image = if (passwordVisibility)
+                        Icons.Filled.Visibility
+                    else Icons.Filled.VisibilityOff
+
+                    IconButton(onClick = {
+                        passwordVisibility = !passwordVisibility
+                    }) {
+                        Icon(imageVector  = image, "")
+                    }
+                }
+            )
 
             Spacer(modifier = Modifier.size(size = 10.dp))
 
@@ -99,7 +132,9 @@ fun LoginScreen(
             Button(
                 onClick = {
                     navigateToHomeScreen()
-                }, modifier = Modifier.fillMaxWidth()
+                },
+                enabled = isFormValid,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Prijava", color = Color.White, fontSize = 16.sp)
             }
