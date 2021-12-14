@@ -2,8 +2,6 @@ const express = require('express');
 const TourDate = require('../models/TourDates');
 const router = express.Router();
 
-//TODO populate reserved_by, reserved_at, del
-
 router.get('/:property_ad_id', (req, res) => {
     const { property_ad_id } = req.params;
 

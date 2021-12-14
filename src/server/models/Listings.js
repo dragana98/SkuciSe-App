@@ -8,10 +8,8 @@ module.exports = {
     create,
     del,
     readAll,
+    readAllByUserId,
     readByPropertyId
-    //readByUsername,
-    //leaveReview,
-    //getReview
 }
 
 async function readByPropertyId(data) {
@@ -205,6 +203,8 @@ async function create(data) {
                     }
                 }
             }
+        }).then(() => {
+            console.log('transaction complete');
         })
     }
     catch (err) { console.log(err) }
@@ -214,7 +214,6 @@ async function create(data) {
     }
 }
 function del(id) {
-    /* TODO */
     return db("propertyAd").where({ id }).del();
 }
 async function readAll(data) {
@@ -234,20 +233,20 @@ async function readAll(data) {
     return result
 }
 
-// TODO
-/* 
-async function readByUsername(username) {
-    var listings = db("listings").where({ username })
+async function readAllByUserId(data) {
+    var user_id = await db('users').where({ username: data['username'] }).select('id').first();
+    user_id = user_id.id;
+    var realtor_id = await db('realtors').where({ user_id }).select('id').first();
+    realtor_id = realtor_id.id;
 
-    for (i = 0; i < listings.length; i++) {
-        listings[i]['amenities'] = JSON.parse(listings[i]['amenities'])
-        var realties = db('realties as r')
-            .join('listings-and-realties as lnr', 'r.id', 'lnr.realty')
-            .where({ listing: listings[i]['id'] })
+    var ads = await db('propertyAd').where({ realtor_id }).select('id');
+    var result = [];
 
-        listings[i]['realties'] = []
-        listings[i]['realties'].push(...realties)
+    for (i = 0; i < ads.length; i++) {
+        const property_id = ads[i].id;
+        data.id = property_id;
+        result.push(await readByPropertyId(data));
     }
 
-    return listings;
-} */
+    return result;
+}

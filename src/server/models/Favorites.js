@@ -20,7 +20,7 @@ async function read(username) {
 }
 
 async function create_del(data) {
-    db.transaction(
+   return db.transaction(
         async (trx) => {
             var [user_id] = await db('users')
                 .where({ username: data['username'] })

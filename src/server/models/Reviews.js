@@ -17,7 +17,7 @@ function readUserToRealtyByPropertyId(property_ad_id) {
 }
 
 async function createUserToRealty(data) {
-    db.transaction(
+    return db.transaction(
         async (trx) => {
             var [user_id] = await db('users')
                 .where({ username: data['username'] })
@@ -56,7 +56,7 @@ function readRealtorToUserByUserId(user_id) {
 }
 
 async function createRealtorToUser(data) {
-    db.transaction(
+    return db.transaction(
         async (trx) => {
             var [user_id] = await db('users')
                 .where({ username: data['username'] })
@@ -95,7 +95,7 @@ function delRealtorToUserByReviewId(id) {
 }
 
 async function realtorsResponse(data) {
-    db.transaction(
+    return db.transaction(
         async (trx) => {
             var [user_id] = await db('users')
                 .where({ username: data['username'] })

@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
             res.status(200).json(fav)
         })
         .catch(error => {
-            res.status(500).json({ mesage: "Server Error" })
+            res.status(500).json({ message: "Server Error" })
         })
 });
 

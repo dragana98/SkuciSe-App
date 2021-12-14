@@ -24,7 +24,7 @@ function readAll(property_ad_id) {
 }
 
 async function create(data) {
-    db.transaction(
+    return db.transaction(
         async (trx) => {
             var [user_id] = await db('users')
                 .where({ username: data['username'] })
@@ -52,7 +52,7 @@ async function create(data) {
 }
 
 async function schedule(data) {
-    db.transaction(
+    return db.transaction(
         async (trx) => {
             var [user_id] = await db('users')
                 .where({ username: data['username'] })

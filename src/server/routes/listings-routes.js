@@ -17,6 +17,21 @@ router.get('/all', (req, res) => {
         })
 });
 
+router.get('/all/:id', (req, res) => {
+    var data = {username: ""};
+    
+    data.username = req.decodedToken.username;
+
+    Listings.readAllByUserId(data)
+        .then(realties => {
+            res.status(200).json(realties)
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json(err)
+        })
+});
+
 router.get('/:id', (req, res) => {
     var data = req.params;
 

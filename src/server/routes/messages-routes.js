@@ -8,7 +8,7 @@ router.post('/push', (req, res) => {
 
     var { urcv, contents } = data
 
-    if (!(urcv  && contents)) {
+    if (!(urcv && contents)) {
         res.status(400).json({ message: "Missing information" })
     } else {
         Messages.push(data)
@@ -42,15 +42,15 @@ router.post('/markAsRead', (req, res) => {
     }
 });
 
-router.get('/preview/:uid', (req, res) => {
-    const { uid } = req.params;
-    Messages.preview(uid)
-        .then(avdate => {
-            res.status(200).json(avdate)
-        })
-        .catch(error => {
-            res.status(500).json({ message: "Server Error" + error })
-        })
+router.get('/preview', (req, res) => {
+    const username = req.decodedToken.username;
+    Messages.preview(username)
+            .then(avdate => {
+                res.status(200).json(avdate)
+            })
+            .catch(error => {
+                res.status(500).json({ message: "Server Error" + error })
+            })
 });
 
 router.get('/:uid', (req, res) => {

@@ -30,7 +30,7 @@ function readBasicData(id) {
 }
 
 async function create(data) {
-    db.transaction(
+    return db.transaction(
         (trx) => {
             db('users').insert({
                 username: data['username'],
@@ -106,7 +106,7 @@ async function update(data) {
 // TODO invalidate tokens and logout user
 
 async function del(username) {
-    db.transaction(
+    return db.transaction(
         async (trx) => {
             var user_id = await db('users').where({ username }).select('id').first();
             var realtor_id = await db('realtors').where({ username }).select('id').first();

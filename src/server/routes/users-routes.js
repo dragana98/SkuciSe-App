@@ -10,7 +10,7 @@ const router = express.Router();
         res.status(200).json(users) 
     })
     .catch( error => {
-        res.status(500).json({ mesage: "Server Error"})
+        res.status(500).json({ message: "Server Error"})
     })
 }); */
 
@@ -21,7 +21,7 @@ router.get('/', (req, res) => {
             res.status(200).json(user)
         })
         .catch(error => {
-            res.status(500).json({ mesage: "Server Error" })
+            res.status(500).json({ message: "Server Error" })
         })
 });
 
@@ -32,7 +32,7 @@ router.get('/basic/:id', (req, res) => {
             res.status(200).json(user)
         })
         .catch(error => {
-            res.status(500).json({ mesage: "Server Error" })
+            res.status(500).json({ message: "Server Error" })
         })
 });
 
@@ -65,7 +65,7 @@ router.post('/update/', (req, res) => {
             res.status(200).json(user)
         })
         .catch(error => {
-            res.status(500).json({ mesage: "Server Error" })
+            res.status(500).json({ message: "Server Error" })
         })
 });
 
