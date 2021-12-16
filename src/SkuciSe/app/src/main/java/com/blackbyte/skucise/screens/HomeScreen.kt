@@ -1,64 +1,97 @@
 package com.blackbyte.skucise.screens
 
+import Card
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.*
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.blackbyte.skucise.R
-import androidx.compose.material.TextField
-import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.semantics.Role
-import androidx.navigation.compose.rememberNavController
-import com.blackbyte.skucise.MainActivity
-import com.blackbyte.skucise.components.OutlinedInputField
+import coil.compose.rememberImagePainter
+import coil.transform.CircleCropTransformation
+import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.data.DrawerEntry
 import com.blackbyte.skucise.ui.theme.LightGreen
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.utils.Config
+import com.blackbyte.skucise.utils.Utils
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import org.json.JSONTokener
+import org.json.JSONArray
+
+import android.widget.Toast
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+
+private val _cards = MutableLiveData<List<Card>>()
+
+fun cardsInvokeInit(t: List<Card>) {
+    _cards.postValue(t)
+}
 
 @Composable
 fun HomeScreen(
+    cardLive: LiveData<List<Card>> = _cards,
     drawerOptions: List<DrawerEntry>,
     returnToPreviousScreen: () -> Unit,
-    navigateToPropertyEntry: () -> Unit,
+    navigateToPropertyEntry: (Int) -> Unit,
     navigateToSavedEntries: () -> Unit,
     navigateToScheduledTours: () -> Unit,
     navigateToSearch: () -> Unit,
-    navigateToAd: () -> Unit,
-    navigateToMyAccount: () -> Unit
-    ) {
+    navigateToAdvertise: () -> Unit,
+) {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-
     var query by remember { mutableStateOf("") }
     var enableDrawerGestures by remember { mutableStateOf(true) }
-
     val regulateDrawer = fun(shouldEnable: Boolean) {
         enableDrawerGestures = shouldEnable
     }
 
+    /* DATA */
+    var name by remember { mutableStateOf("") }
+    var avatarURL: MutableState<String?> = remember { mutableStateOf(null) }
+    val cards: List<Card>? by cardLive.observeAsState()
+
+    Utils.getUserData(onFinish = fun(body: String, responseCode: Int) {
+        try {
+            val jsonObject = JSONObject(body)
+            val _name = jsonObject.getString("name")
+            val _surname = jsonObject.getString("surname")
+            Handler(Looper.getMainLooper()).post(Runnable {
+                avatarURL.value = jsonObject.getString("avatar_url")
+                name = "$_name $_surname"
+            })
+        } catch (e: Exception) {
+            Log.d("BODY", "$body\n\n${e.stackTraceToString()}")
+        }
+    })
     Scaffold(
         backgroundColor = MaterialTheme.colors.surface,
         scaffoldState = state,
@@ -70,14 +103,25 @@ fun HomeScreen(
                     .padding(all = 20.dp)
                     .fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Filled.AccountCircle,
-                    contentDescription = "registration icn",
-                    modifier = Modifier.size(84.dp)
-                )
+                if (avatarURL != null) {
+                    Image(
+                        painter = rememberImagePainter(avatarURL),
+                        contentDescription = "review profile picture",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(84.dp)
+                            .clip(shape = CircleShape)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "registration icon",
+                        modifier = Modifier.size(84.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(
-                    "Dušan Petrović",
+                    name,
                     style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight.Medium)
                 )
             }
@@ -100,15 +144,14 @@ fun HomeScreen(
                         fontSize = 18.sp,
                         modifier = Modifier.clickable(
                             enabled = true,
-                            role = Role.Button){
-                            if(option.label == "Sačuvani oglasi")
+                            role = Role.Button
+                        ) {
+                            if (option.label == "Sačuvani oglasi")
                                 navigateToSavedEntries()
-                            if(option.label == "Zakazani obilasci")
+                            if (option.label == "Zakazani obilasci")
                                 navigateToScheduledTours()
-                            if(option.label == "Oglasi")
-                                navigateToAd()
-                            if(option.label == "Moj nalog")
-                                navigateToMyAccount()
+                            if (option.label == "Oglasi")
+                                navigateToAdvertise()
                         }
                     )
                 }
@@ -213,106 +256,110 @@ fun HomeScreen(
                 text = "Aktuelne ponude",
                 style = MaterialTheme.typography.h4.copy(fontWeight = FontWeight.Bold)
             )
-            /* CARD STARTS HERE */
-            val cardShape = RoundedCornerShape(8.dp)
-            Surface(
-                color = MaterialTheme.colors.background,
-                shape = cardShape,
-                elevation = 10.dp
-            ) {
-                Column {
-                    Pager(
-                        items = listOf(
-                            R.drawable.property_1,
-                            R.drawable.property_2
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(256.dp),
-                        overshootFraction = .75f,
-                        contentFactory = { item ->
-                            Image(
-                                painter = painterResource(item),
-                                contentDescription = "property image",
-                                contentScale = ContentScale.Crop,            // crop the image if it's not a square
-                                modifier = Modifier
-                                    .fillMaxSize() // add a border (optional)
-                            )
-                        },
-                        regulateDrawer = regulateDrawer
-                    )
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = "Apartmani Petrović",
-                            style = MaterialTheme.typography.h5.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colors.primary
-                            )
+            cards?.forEach { card ->
+                val cardShape = RoundedCornerShape(8.dp)
+                Surface(
+                    color = MaterialTheme.colors.background,
+                    shape = cardShape,
+                    elevation = 10.dp,
+                    modifier = Modifier.pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                card?.let {
+                                    navigateToPropertyEntry(card.id)
+                                }
+                            }
                         )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        val ribbonShape = RoundedCornerShape(0.dp, 18.dp, 18.dp, 0.dp)
-
-                        Box(modifier = Modifier.offset(x = (-12).dp, y = 0.dp)) {
-                            Column(
-                                modifier = Modifier
-                                    .clip(shape = ribbonShape)
-                                    .background(color = LightGreen, shape = ribbonShape)
-                            ) {
-                                Text(
-                                    "200.00 - 600.00 EUR, mesečno",
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(
-                                        12.dp,
-                                        4.dp,
-                                        20.dp,
-                                        4.dp
-                                    )
+                    }
+                )
+                {
+                    Column {
+                        Pager(
+                            items = card.images,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(256.dp),
+                            overshootFraction = .75f,
+                            contentFactory = { item ->
+                                Image(
+                                    painter = rememberImagePainter(item),
+                                    contentDescription = "property image",
+                                    contentScale = ContentScale.Crop,            // crop the image if it's not a square
+                                    modifier = Modifier
+                                        .fillMaxSize() // add a border (optional)
                                 )
-                            }
-                        }
-                        Spacer(modifier = Modifier.size(12.dp))
-                        Column {
-                            Row {
-                                Text(text = "Broj soba: ", fontWeight = FontWeight.Bold)
-                                Text(text = "2 - 4")
-                            }
-                            Row {
-                                Text(text = "Broj ležaja: ", fontWeight = FontWeight.Bold)
-                                Text(text = "2 - 4")
-                            }
-                            Row {
-                                Text(text = "Grad: ", fontWeight = FontWeight.Bold)
-                                Text(text = "Kragujevac")
-                            }
-                        }
+                            },
+                            regulateDrawer = regulateDrawer
+                        )
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(
+                                text = card.title,
+                                style = MaterialTheme.typography.h5.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colors.primary
+                                )
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            val ribbonShape = RoundedCornerShape(0.dp, 18.dp, 18.dp, 0.dp)
 
-                        Spacer(modifier = Modifier.size(12.dp))
-
-                        val amenities = listOf("Terasa", "Pet-friendly", "WiFi", "TV")
-                        val pillShape = RoundedCornerShape(18.dp)
-
-                        Row {
-                            LazyRow {
-                                items(amenities.lastIndex + 1) {
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(shape = pillShape)
-                                            .background(
-                                                color = MaterialTheme.colors.onBackground,
-                                                shape = ribbonShape
-                                            )
-                                    ) {
-                                        Text(
-                                            text = amenities[it],
-                                            color = MaterialTheme.colors.background,
-                                            modifier = Modifier.padding(
-                                                horizontal = 20.dp,
-                                                vertical = 4.dp
-                                            )
+                            Box(modifier = Modifier.offset(x = (-12).dp, y = 0.dp)) {
+                                Column(
+                                    modifier = Modifier
+                                        .clip(shape = ribbonShape)
+                                        .background(color = LightGreen, shape = ribbonShape)
+                                ) {
+                                    Text(
+                                        "${card.priceRange} ${Config.CURRENCY}${if (card.monthly) ", mesečno" else ""}",
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Black,
+                                        modifier = Modifier.padding(
+                                            12.dp,
+                                            4.dp,
+                                            20.dp,
+                                            4.dp
                                         )
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.size(12.dp))
+                            Column {
+                                Row {
+                                    Text(text = "Broj soba: ", fontWeight = FontWeight.Bold)
+                                    Text(text = card.roomCount)
+                                }
+                                Row {
+                                    Text(text = "Grad: ", fontWeight = FontWeight.Bold)
+                                    Text(text = card.city)
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.size(12.dp))
+
+                            val amenities = card.amenities
+                            val pillShape = RoundedCornerShape(18.dp)
+
+                            Row {
+                                LazyRow {
+                                    items(amenities.lastIndex + 1) {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(shape = pillShape)
+                                                .background(
+                                                    color = MaterialTheme.colors.onBackground,
+                                                    shape = ribbonShape
+                                                )
+                                        ) {
+                                            Text(
+                                                text = amenities[it],
+                                                color = MaterialTheme.colors.background,
+                                                modifier = Modifier.padding(
+                                                    horizontal = 20.dp,
+                                                    vertical = 4.dp
+                                                )
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.size(8.dp))
                                     }
-                                    Spacer(modifier = Modifier.size(8.dp))
                                 }
                             }
                         }
@@ -324,10 +371,12 @@ fun HomeScreen(
     }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
     SkuciSeTheme {
-        HomeScreen(listOf(), {}, {},{},{},{},{},{})
+        HomeScreen(listOf(), {}, {}, {}, {}, {}, {})
     }
 }
+ */

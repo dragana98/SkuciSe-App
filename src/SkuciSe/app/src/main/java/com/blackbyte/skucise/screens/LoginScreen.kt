@@ -1,6 +1,9 @@
 package com.blackbyte.skucise.screens
 
 
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,7 +11,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,17 +29,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.blackbyte.skucise.MainActivity.Companion.prefs
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.components.OutlinedInputField
 import com.blackbyte.skucise.components.OutlinedPasswordField
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.utils.Utils
+import org.json.JSONObject
+import org.json.JSONTokener
 
 @Composable
 fun LoginScreen(
     returnToPreviousScreen: () -> Unit,
-    navigateToHomeScreen: () -> Unit
-) {
+    navigateToHomeScreen: () -> Unit,
+    navigateToSignUpScreen: () -> Unit,
+    ) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var showSnackbar by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = { NavTopBar("Prijava", returnToPreviousScreen = returnToPreviousScreen) },
         backgroundColor = MaterialTheme.colors.background
@@ -83,37 +98,17 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.size(size = 30.dp))
 
-            //OutlinedInputField("E-adresa", modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(
-                value = email,
+            OutlinedInputField(
+                "E-adresa",
                 onValueChange = { email = it },
-                label = { Text("E-adresa") },
                 modifier = Modifier.fillMaxWidth()
             )
-
             Spacer(modifier = Modifier.size(size = 20.dp))
-
-            //OutlinedPasswordField("Lozinka", modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(
-                value = password,
+            OutlinedPasswordField(
+                "Lozinka",
                 onValueChange = { password = it },
-                label = { Text("Lozinka") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    val image = if (passwordVisibility)
-                        Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
-
-                    IconButton(onClick = {
-                        passwordVisibility = !passwordVisibility
-                    }) {
-                        Icon(imageVector  = image, "")
-                    }
-                }
+                modifier = Modifier.fillMaxWidth()
             )
-
             Spacer(modifier = Modifier.size(size = 10.dp))
 
             Row(
@@ -131,10 +126,28 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    navigateToHomeScreen()
-                },
-                enabled = isFormValid,
-                modifier = Modifier.fillMaxWidth()
+                    Utils.Requests.login(
+                        username = email,
+                        password = password,
+                        onFinish = fun(body: String, responseCode: Int): Unit {
+                            if (responseCode == 200) {
+                                val jsonObject = JSONTokener(body).nextValue() as JSONObject
+                                val token = jsonObject.getString("token")
+                                val id = jsonObject.getInt("id")
+                                Handler(Looper.getMainLooper()).post(Runnable {
+                                    prefs?.authToken = token
+                                    prefs?.username = email
+                                    prefs?.id = id
+
+                                    navigateToHomeScreen()
+                                })
+                            } else {
+                                Handler(Looper.getMainLooper()).post(Runnable {
+                                    showSnackbar = true
+                                })
+                            }
+                        })
+                }, modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Prijava", color = Color.White, fontSize = 16.sp)
             }
@@ -168,11 +181,19 @@ fun LoginScreen(
                     //modifier = Modifier.width(100.dp)
                     modifier = Modifier.fillMaxWidth(0.7f)
                 )
-
-
             }
-
-
+        }
+        if (showSnackbar) {
+            Snackbar(
+                action = {
+                    Button(onClick = {
+                        showSnackbar = false
+                    }) {
+                        Text("Pokušajte ponovo")
+                    }
+                },
+                modifier = Modifier.padding(8.dp)
+            ) { Text(text = "Uneti podaci nisu ispravni.") }
         }
     }
 }
@@ -181,6 +202,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     SkuciSeTheme {
-        LoginScreen({}, {})
+        LoginScreen({}, {}, {})
     }
 }

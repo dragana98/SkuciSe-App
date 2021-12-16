@@ -1,31 +1,83 @@
 const express = require('express');
-const TourDates = require('../models/TourDates');
+const TourDate = require('../models/TourDates');
 const router = express.Router();
 
-//TODO populate reserved_by, reserved_at, del
-
-router.get('/:data', (req, res) => {
+router.get('/:property_ad_id', (req, res) => {
     const { property_ad_id } = req.params;
-    TourDate.read(property_ad_id)
-        .then(avdate => {
-            res.status(200).json(avdate)
-        })
-        .catch(error => {
-            res.status(500).json({ message: "Server Error" })
-        })
+
+    if (!property_ad_id) {
+        res.status(500).json({ message: "Missing information" })
+    } else {
+        TourDate.read(property_ad_id)
+            .then(avdate => {
+                res.status(200).json(avdate)
+            })
+            .catch(error => {
+                res.status(500).json({ message: "Server Error"})
+            })
+    }
+});
+
+router.get('/all/:property_ad_id', (req, res) => {
+    const { property_ad_id } = req.params;
+
+    if (!property_ad_id) {
+        res.status(500).json({ message: "Missing information" })
+    } else {
+        TourDate.readAll(property_ad_id)
+            .then(avdate => {
+                res.status(200).json(avdate)
+            })
+            .catch(error => {
+                res.status(500).json({ message: "Server Error"})
+            })
+    }
 });
 
 router.post('/', (req, res) => {
-    const data = req.body;
-    var { property_ad_id, date, scheduled_by_user_id, scheduled_at } = data
+    var data = req.body;
+    var { property_ad_id, date } = data
 
-    scheduled_at = null
-    scheduled_by_user_id = null
+    data.username = req.decodedToken.username;
 
     if (!(property_ad_id && date)) {
-        res.status(400).json({ message: "Missing information" })
+        res.status(400).json({ message: "Missing information"})
     } else {
         TourDate.create(data)
+            .then(avdate => {
+                res.status(200).json(avdate);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json(err);
+            })
+    }
+});
+
+router.get('/', (req, res) => {
+    var data = {username: ""};
+
+    data.username = req.decodedToken.username;
+    TourDate.readForId(data)
+    .then(avdate => {
+        res.status(200).json(avdate);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+    })
+});
+
+router.post('/reserve', (req, res) => {
+    var data = req.body;
+    const { tour_id } = data
+
+    data.username = req.decodedToken.username;
+
+    if (!tour_id) {
+        res.status(400).json({ message: "Missing information"})
+    } else {
+        TourDate.schedule(data)
             .then(avdate => {
                 res.status(200).json(avdate);
             })

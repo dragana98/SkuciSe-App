@@ -1,5 +1,8 @@
 package com.blackbyte.skucise.screens
 
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +16,7 @@ import androidx.compose.material.icons.outlined.LockClock
 import androidx.compose.material.icons.outlined.QueryBuilder
 import androidx.compose.material.icons.outlined.Watch
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +28,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import coil.compose.rememberImagePainter
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.DatePickerGrid
 import com.blackbyte.skucise.components.NavTopBar
@@ -31,155 +38,168 @@ import com.blackbyte.skucise.data.Ad
 import com.blackbyte.skucise.ui.theme.Cyan
 import com.blackbyte.skucise.ui.theme.LightGray
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.utils.Utils
+import org.json.JSONObject
 import java.time.LocalDate
 
+fun cardsInvokeInit(t: List<List<Any>>) {
+    _dates.postValue(t)
+}
+
+private val _dates = MutableLiveData<List<List<Any>>>()
+
+
+fun addScheduledEntries(t: List<List<Any>>) {
+    _dates.postValue(t)
+}
+
 @Composable
-fun ScheduledToursScreen(returnToPreviousScreen: () -> Unit){
+fun ScheduledToursScreen(
+    datesLive: LiveData<List<List<Any>>> = _dates,
+    returnToPreviousScreen: () -> Unit
+) {
+
+    val dates: List<List<Any>>? by datesLive.observeAsState()
+
 
     Scaffold(
-        topBar = { NavTopBar("Zakazani obilasci", returnToPreviousScreen = returnToPreviousScreen) },
+        topBar = {
+            NavTopBar(
+                "Zakazani obilasci",
+                returnToPreviousScreen = returnToPreviousScreen
+            )
+        },
         backgroundColor = MaterialTheme.colors.background
     ) {
-
         Column(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState())
-        ){
-            var pickedDate by remember {
-                mutableStateOf(LocalDate.now())
-            }
+            modifier = Modifier.padding(20.dp)
+        ) {
 
             Text(
-                text = "Po datumu:",
+                text = "Kalendar",
                 style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colors.primary
             )
 
-            Box (
-                contentAlignment = Alignment.TopCenter,
-                modifier = Modifier.fillMaxSize()
+            Column(
+
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
             ) {
-                Column {
+                dates?.let {
                     DatePickerGrid(
-                        date = LocalDate.of(2021, 11, 14),
-                        highlighted = listOf(
-                            LocalDate.of(2021, 11, 6),
-                            LocalDate.of(2021, 11, 7),
-                            LocalDate.of(2021, 11, 12)
-                        ),
-                        onDateSelected = { t : LocalDate? -> pickedDate = t}
+                        date = if (it.lastIndex != -1) it[0][0] as LocalDate else LocalDate.now(),
+                        highlighted = it.map { q: List<Any> -> q[0] as LocalDate },
+                        onDateSelected = {}
                     )
                 }
-            } // end
+            }
 
             Spacer(modifier = Modifier.size(25.dp))
 
             Text(
-                text = "Narednih 5 dana:",
+                text = "Svi obilasci",
                 style = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colors.primary
             )
-
-            Spacer(modifier = Modifier.size(20.dp))
-
-
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             )
             {
-                Row(
-                    modifier = Modifier
-                        .background(color = LightGray)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.property_2),
-                        contentScale = ContentScale.Inside,
-                        contentDescription = "Property 2",
-                        modifier = Modifier
-                            .size(width = 140.dp, height = 110.dp)
-                            .clip(
-                                RoundedCornerShape(
-                                    topStartPercent = 10,
-                                    bottomEndPercent = 0,
-                                    bottomStartPercent = 10,
-                                    topEndPercent = 0
+                dates?.let {
+                    it.forEach() {
+                        Surface(
+                            shape = RoundedCornerShape(
+                                topStartPercent = 10,
+                                bottomEndPercent = 10,
+                                bottomStartPercent = 10,
+                                topEndPercent = 10
+                            )
+                        ) {
+                            Row {
+                                Image(
+                                    painter = rememberImagePainter(it[2] as String),
+                                    contentScale = ContentScale.Crop,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(width = 140.dp, height = 110.dp)
                                 )
-                            )
-                            .border(
-                                1.dp, Color.Gray, // RoundedCornerShape(percent = 10)
-                                RoundedCornerShape(
-                                    topStartPercent = 10,
-                                    bottomEndPercent = 0,
-                                    bottomStartPercent = 10,
-                                    topEndPercent = 0
-                                )
-                            )
-                    )
-                    Column(
-                        horizontalAlignment = Alignment.Start,
-                        modifier= Modifier.fillMaxWidth()
+                                Spacer(modifier = Modifier.size(12.dp))
+                                Column(
+                                    horizontalAlignment = Alignment.Start,
+                                    modifier = Modifier.fillMaxWidth()
 
-                    ){
-                        Text(
-                            text = "Apartmani Petrović",
-                            modifier = Modifier.absolutePadding(5.dp,5.dp,0.dp,0.dp),
-                            color = MaterialTheme.colors.primary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 19.sp,
-                            textAlign = TextAlign.Left
-                        )
-                        
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            //horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ){
-                            Icon(
-                                imageVector = Icons.Outlined.QueryBuilder,
-                                contentDescription = "Clock",
-                                modifier = Modifier.size(16.dp),
-                                tint = Color.Black
-                            )
-                            Text(
-                                text = "5. oktobar 2021.\n10.30 časova",
-                                modifier = Modifier.absolutePadding(5.dp,1.dp,0.dp,0.dp),
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                textAlign = TextAlign.Left)
+                                ) {
+                                    Text(
+                                        text = it[1] as String,
+                                        modifier = Modifier.absolutePadding(5.dp, 5.dp, 0.dp, 0.dp),
+                                        color = MaterialTheme.colors.primary,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 19.sp,
+                                        textAlign = TextAlign.Left
+                                    )
 
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        //horizontalArrangement = Arrangement.Center,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.QueryBuilder,
+                                            contentDescription = "Clock",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Text(
+                                            text = "${(it[0] as LocalDate).dayOfMonth}.${(it[0] as LocalDate).monthValue}.${(it[0] as LocalDate).year}.",
+                                            modifier = Modifier.absolutePadding(
+                                                5.dp,
+                                                1.dp,
+                                                0.dp,
+                                                0.dp
+                                            ),
+                                            textAlign = TextAlign.Left
+                                        )
+
+                                    }
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.AddLocation,
+                                            contentDescription = "Location",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Text(
+                                            text = it[3] as String,
+                                            modifier = Modifier.absolutePadding(
+                                                5.dp,
+                                                1.dp,
+                                                0.dp,
+                                                0.dp
+                                            ),
+                                            textAlign = TextAlign.Left
+                                        )
+
+                                    }
+
+                                }
+                            }
+                            Spacer(modifier = Modifier.size(14.dp))
                         }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ){
-                            Icon(
-                                imageVector = Icons.Outlined.AddLocation,
-                                contentDescription = "Location",
-                                modifier = Modifier.size(16.dp),
-                                tint = Color.Black
-                            )
-                            Text(
-                                text = "Zmaj Jovina 14,\nKragujevac 34000",
-                                modifier = Modifier.absolutePadding(5.dp,1.dp,0.dp,0.dp),
-                                color = Color.Black,
-                                fontSize = 15.sp,
-                                textAlign = TextAlign.Left)
-
-                        }
-
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.size(15.dp))
 
             // Button
+            /*
+
+            Spacer(modifier = Modifier.size(15.dp))
             Row(
                 horizontalArrangement = Arrangement.End,
 
@@ -220,12 +240,14 @@ fun ScheduledToursScreen(returnToPreviousScreen: () -> Unit){
                     Text(text = "Prikaži na mapi", color = Color.White, fontSize = 16.sp)
                 }
             }
+             */
 
         }
 
     }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun ScheduledToursScreenPreview () {
@@ -233,3 +255,4 @@ fun ScheduledToursScreenPreview () {
         ScheduledToursScreen({})
     }
 }
+ */

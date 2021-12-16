@@ -29,9 +29,11 @@ fun AdvertiseScreen(
     returnToPreviousScreen: () -> Unit
 ) {
     Scaffold(
-        topBar = { NavTopBar("Dodaj oglas", returnToPreviousScreen = returnToPreviousScreen) },
+        topBar = { NavTopBar("Oglasi", returnToPreviousScreen = returnToPreviousScreen) },
         backgroundColor = MaterialTheme.colors.background
     ) {
+        var shouldAddNewRealty by remember{mutableStateOf(false)}
+
         Column(modifier = Modifier
             .padding(20.dp)
             .fillMaxHeight() // verticalArrangement = Arrangement.Center
@@ -307,9 +309,6 @@ fun AdvertiseScreen(
             ) {
                 Text(text = "Dodaj oglas", color = Color.White, fontSize = 16.sp)
             }
-
-
-
         }
     }
 }

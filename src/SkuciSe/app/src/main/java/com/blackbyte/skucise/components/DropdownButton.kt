@@ -17,6 +17,7 @@ fun DropdownButton(
     hintText: String,
     items: List<String>,
     disabled: List<String>,
+    onSelectedIndex: (Int) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -49,7 +50,7 @@ fun DropdownButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    LightPurple
+                    MaterialTheme.colors.surface
                 )
 
         ) {
@@ -58,6 +59,7 @@ fun DropdownButton(
                     selectedIndex = index
                     expanded = false
                     isSet = true
+                    onSelectedIndex(selectedIndex)
                 }) {
                     val disabledText = if (disabled.contains(s)) {
                         " (Disabled)"

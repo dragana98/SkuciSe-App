@@ -12,13 +12,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
-fun OutlinedPasswordField(label: String = "", modifier: Modifier = Modifier) {
+fun OutlinedPasswordField(
+    label: String = "",
+    onValueChange: (s: String) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
 
     OutlinedTextField(
         value = password,
-        onValueChange = { password = it },
+        onValueChange = { password = it
+                        onValueChange(password)},
         label = { Text(label) },
         modifier = modifier,
         visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
@@ -31,7 +36,7 @@ fun OutlinedPasswordField(label: String = "", modifier: Modifier = Modifier) {
             IconButton(onClick = {
                 passwordVisibility = !passwordVisibility
             }) {
-                Icon(imageVector  = image, "")
+                Icon(imageVector = image, "")
             }
         }
     )
