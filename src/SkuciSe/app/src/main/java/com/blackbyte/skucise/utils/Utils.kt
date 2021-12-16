@@ -260,10 +260,11 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+                includeAuthParams = true,
                 params = listOf(
                     Pair("property_ad_id", property_ad_id)
                 ),
-                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/users/update",
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/favorites",
                 onFinish = onFinish
             )
         }
@@ -372,6 +373,7 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+                includeAuthParams = true,
                 params = listOf(
                     Pair("urcv", urcv),
                     Pair("contents", contents)
@@ -386,6 +388,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("usnd", usnd)
                 ),
@@ -423,6 +427,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("user_id", user_id),
                     Pair("recommends", recommends),
@@ -440,6 +446,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("property_ad_id", property_ad_id),
                     Pair("stars", stars),
@@ -456,6 +464,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("id", id),
                     Pair("response", response)
@@ -476,6 +486,17 @@ class Utils {
             )
         }
 
+        fun getAllTourDatesForUser(
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            GET(
+                includeAuthParams = true,
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/tourDates",
+                onFinish = onFinish
+            )
+        }
+
+
         fun getTourDatesFromNowOnward(
             id: Int,
             onFinish: (body: String, responseCode: Int) -> Unit
@@ -492,6 +513,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("tour_id", tour_id)
                 ),
@@ -506,6 +529,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("property_ad_id", property_ad_id),
                     Pair("date", date)

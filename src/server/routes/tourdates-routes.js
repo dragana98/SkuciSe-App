@@ -54,6 +54,20 @@ router.post('/', (req, res) => {
     }
 });
 
+router.get('/', (req, res) => {
+    var data = {username: ""};
+
+    data.username = req.decodedToken.username;
+    TourDate.readForId(data)
+    .then(avdate => {
+        res.status(200).json(avdate);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+    })
+});
+
 router.post('/reserve', (req, res) => {
     var data = req.body;
     const { tour_id } = data

@@ -1,17 +1,16 @@
 package com.blackbyte.skucise.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,16 +27,19 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import coil.compose.rememberImagePainter
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.AmenityChip
 import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.components.RatingStars
 import com.blackbyte.skucise.data.Amenity
 import com.blackbyte.skucise.data.RealtyAdInfo
+import com.blackbyte.skucise.data.resolveAmenity
 import com.blackbyte.skucise.ui.theme.Cyan
 import com.blackbyte.skucise.ui.theme.Gold
 import com.blackbyte.skucise.ui.theme.LightGrey
 import com.blackbyte.skucise.utils.Config
+import com.blackbyte.skucise.utils.Utils
 
 private val _data = MutableLiveData<RealtyAdInfo>()
 
@@ -49,11 +51,13 @@ fun realtyAdInfoInit(t: RealtyAdInfo) {
 fun PropertyEntryScreen(
     dataLive: LiveData<RealtyAdInfo> = _data,
     returnToPreviousScreen: () -> Unit,
-    navigateToVendorInbox: () -> Unit,
-    navigateToPropertyReviews: () -> Unit,
+    navigateToVendorInbox: (Int) -> Unit,
+    navigateToPropertyReviews: (Int) -> Unit,
     navigateToScheduleATour: () -> Unit
 ) {
     val data: RealtyAdInfo? by dataLive.observeAsState()
+    var isFavorite: MutableState<Boolean?> = remember { mutableStateOf(null) }
+
     Scaffold(
         backgroundColor = MaterialTheme.colors.background,
         topBar = {
@@ -125,25 +129,24 @@ fun PropertyEntryScreen(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
         ) {
-            Pager(
-                items = listOf(
-                    R.drawable.property_1,
-                    R.drawable.property_2
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(256.dp),
-                overshootFraction = .75f,
-                contentFactory = { item ->
-                    Image(
-                        painter = painterResource(item),
-                        contentDescription = "property image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
-                }
-            )
+            data?.let {
+                Pager(
+                    items = it.images,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(256.dp),
+                    overshootFraction = .75f,
+                    contentFactory = { item ->
+                        Image(
+                            painter = rememberImagePainter(item),
+                            contentDescription = "property image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
+                    }
+                )
+            }
             Column(modifier = Modifier.padding(20.dp)) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -151,6 +154,7 @@ fun PropertyEntryScreen(
 
                     ) {
                     Column {
+                        /*
                         Row {
                             RatingStars(
                                 rating = 4.6f,
@@ -164,20 +168,21 @@ fun PropertyEntryScreen(
                                 Text("(${it.avgScore})", fontWeight = FontWeight.Medium)
                             }
                         }
+                         */
                         Row(modifier = Modifier.pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
-                                    navigateToPropertyReviews()
+                                    data?.let {
+                                        navigateToPropertyReviews(it.id)
+                                    }
                                 }
                             )
                         }) {
-                            data?.let {
-                                Text(
-                                    "{$it.totalReviews}",
-                                    color = MaterialTheme.colors.secondary,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
+                            Text(
+                                "Sve recenzije", // it.totalReviews
+                                color = MaterialTheme.colors.secondary,
+                                fontWeight = FontWeight.Medium
+                            )
                             Icon(
                                 Icons.Filled.ArrowForward,
                                 contentDescription = "arrow right",
@@ -186,15 +191,32 @@ fun PropertyEntryScreen(
                         }
                     }
                     Row {
-                        OutlinedButton(
-                            onClick = { /*TODO*/ },
-                            modifier = Modifier
-                                .size(56.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FavoriteBorder,
-                                contentDescription = "add to favorites"
-                            )
+
+
+                        data?.let {
+                            if (isFavorite.value == null) {
+                                isFavorite.value = it.isFavorite
+                            }
+                            OutlinedButton(
+                                onClick = {
+                                    Utils.addRemoveFavorite(
+                                        property_ad_id = it.id,
+                                        onFinish = fun(_body: String, responseCode: Int) {
+                                            if (responseCode == 200) {
+                                                Handler(Looper.getMainLooper()).post {
+                                                    isFavorite.value = !(isFavorite.value!!)
+                                                }
+                                            }
+                                        })
+                                },
+                                modifier = Modifier
+                                    .size(56.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (isFavorite.value!!) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                    contentDescription = "add to favorites"
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.size(20.dp))
                         OutlinedButton(
@@ -290,7 +312,7 @@ fun PropertyEntryScreen(
                             Row {
                                 Box(contentAlignment = Alignment.Center) {
                                     Image(
-                                        painter = painterResource(id = R.drawable.floor_plan_1),
+                                        painter = rememberImagePainter(floor.floorPlanUrl),
                                         contentDescription = "floor plan",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -314,23 +336,28 @@ fun PropertyEntryScreen(
                                         .padding(8.dp)
                                 )
                                 Column {
-                                    Text("${floor.price} ${Config.CURRENCY}")
-                                    /*
-                                    //SPANSTYLE THROWS EXCEPTION
-                                    Text(
-                                        text = buildAnnotatedString {
-                                            append("Površina: 32 m")
-                                            withStyle(
-                                                SpanStyle(
-                                                    fontSize = TextStyle.Default.fontSize.div(2),
-                                                    baselineShift = BaselineShift.Superscript
-                                                )
-                                            ) {
-                                                append("2")
+                                    Text("Površina: ${floor.surface}")
+                                    if (!it.unified) {
+                                        Text("Cena: ${floor.price} ${Config.CURRENCY}")
+                                        /*
+                                        //SPANSTYLE THROWS EXCEPTION
+                                        Text(
+                                            text = buildAnnotatedString {
+                                                append("Površina: 32 m")
+                                                withStyle(
+                                                    SpanStyle(
+                                                        fontSize = TextStyle.Default.fontSize.div(2),
+                                                        baselineShift = BaselineShift.Superscript
+                                                    )
+                                                ) {
+                                                    append("2")
+                                                }
                                             }
+                                        )*/
+                                        if (it.monthly) {
+                                            Text("Depozit: ${floor.deposit} ${Config.CURRENCY}")
                                         }
-                                    )*/
-                                    Text("${floor.deposit} ${Config.CURRENCY}")
+                                    }
                                 }
                             }
                             Spacer(
@@ -338,7 +365,19 @@ fun PropertyEntryScreen(
                                     .size(12.dp)
                             )
                             Button(
-                                onClick = { navigateToScheduleATour() },
+                                onClick = {
+                                    data?.let {
+                                        scheduleInvokeInit(
+                                            listOf<Any>(
+                                                it.images[0],
+                                                it.title,
+                                                it.homeownerName,
+                                                it.id,
+                                            )
+                                        )
+                                        navigateToScheduleATour()
+                                    }
+                                },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text("Zakažite obilazak")
@@ -374,48 +413,40 @@ fun PropertyEntryScreen(
                         fontWeight = FontWeight.Bold
                     )
                 )
+                data?.let {
+                    val amenities: List<Amenity> = it.amenities.map { q -> resolveAmenity(q) }
 
-                val amenities: List<Amenity> = listOf(
-                    /*
-                    Amenity.TERRACE,
-                    Amenity.PET_FRIENDLY,
-                    Amenity.FURNISHED,
-                    Amenity.TV,
-                    Amenity.WIFI
-                     */
-                )
-                val columns = 2
-                val wholeRows = (amenities.lastIndex + 1) / columns
-                val remainder = (amenities.lastIndex + 1) - (wholeRows * columns)
+                    val columns = 2
+                    val wholeRows = (amenities.lastIndex + 1) / columns
+                    val remainder = (amenities.lastIndex + 1) - (wholeRows * columns)
+                    Column {
+                        var i = 0
+                        while (i < wholeRows) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp)
+                            ) {
+                                for (t in 0 until columns) {
+                                    AmenityChip(amenity = amenities[i * columns + t])
+                                }
+                            }
+                            i++
+                        }
 
-
-                Column {
-                    var i = 0
-                    while (i < wholeRows) {
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 10.dp)
                         ) {
-                            for (t in 0 until columns) {
-                                AmenityChip(amenity = amenities[i * columns + t])
+                            var j = 0
+                            while (j < remainder) {
+                                AmenityChip(amenity = amenities[i * columns + j])
+                                j++
+                                i++
                             }
-                        }
-                        i++
-                    }
-
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    ) {
-                        var j = 0
-                        while (j < remainder) {
-                            AmenityChip(amenity = amenities[i * columns + j])
-                            j++
-                            i++
                         }
                     }
                 }
@@ -434,43 +465,46 @@ fun PropertyEntryScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row {
-                        Image(
-                            painter = painterResource(id = R.drawable.profile_pic_vendor),
-                            contentDescription = "vendor profile picture",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(84.dp)
-                                .clip(RoundedCornerShape(42.dp))
-                                .border(
-                                    width = 4.dp,
-                                    color = LightGrey,
-                                    shape = RoundedCornerShape(42.dp)
-                                )
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Column {
-                            Text(text = "GHP Management d.o.o.", fontWeight = FontWeight.Bold)
-                            Row {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = "location icon"
-                                )
-                                Column {
-                                    Text("Radoja Domanovića 12")
-                                    Text("Kragujevac 34112")
+                    data?.let {
+                        Row {
+                            Image(
+                                painter = rememberImagePainter(it.homeownerUrl),
+                                contentDescription = "vendor profile picture",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(84.dp)
+                                    .clip(RoundedCornerShape(42.dp))
+                                    .border(
+                                        width = 4.dp,
+                                        color = LightGrey,
+                                        shape = RoundedCornerShape(42.dp)
+                                    )
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Column {
+                                Text(text = it.homeownerName, fontWeight = FontWeight.Bold)
+                                if (!it.homeownerIsNaturalPerson) {
+                                    Row {
+                                        Icon(
+                                            imageVector = Icons.Default.LocationOn,
+                                            contentDescription = "location icon"
+                                        )
+                                        Column {
+                                            it.addressOfIncorporation?.let { r -> Text(r) }
+                                        }
+                                    }
                                 }
-                            }
-                            Row {
-                                Icon(
-                                    imageVector = Icons.Default.Home,
-                                    contentDescription = "location icon"
-                                )
-                                Text(
-                                    "www.ghpmana.rs",
-                                    color = Cyan,
-                                    textDecoration = TextDecoration.Underline
-                                )
+                                Row {
+                                    Icon(
+                                        imageVector = if (it.homeownerIsNaturalPerson) Icons.Default.Phone else Icons.Default.Home,
+                                        contentDescription = "icon"
+                                    )
+                                    Text(
+                                        it.contact,
+                                        color = Cyan,
+                                        textDecoration = TextDecoration.Underline
+                                    )
+                                }
                             }
                         }
                     }
@@ -478,7 +512,9 @@ fun PropertyEntryScreen(
                 Spacer(modifier = Modifier.size(16.dp))
 
                 OutlinedButton(
-                    onClick = { navigateToVendorInbox() },
+                    onClick = { data?.let {
+                        navigateToVendorInbox(it.homeOwnerUserId)
+                    } },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Pošaljite poruku")

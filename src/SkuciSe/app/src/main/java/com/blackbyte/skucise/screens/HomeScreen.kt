@@ -43,6 +43,7 @@ import org.json.JSONTokener
 import org.json.JSONArray
 
 import android.widget.Toast
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -62,7 +63,7 @@ fun HomeScreen(
     navigateToSavedEntries: () -> Unit,
     navigateToScheduledTours: () -> Unit,
     navigateToSearch: () -> Unit,
-    navigateToAdvertise: () -> Unit
+    navigateToAdvertise: () -> Unit,
 ) {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
@@ -79,13 +80,17 @@ fun HomeScreen(
     val cards: List<Card>? by cardLive.observeAsState()
 
     Utils.getUserData(onFinish = fun(body: String, responseCode: Int) {
-        val jsonObject = JSONTokener(body).nextValue() as JSONObject
-        val _name = jsonObject.getString("name")
-        val _surname = jsonObject.getString("surname")
-        Handler(Looper.getMainLooper()).post(Runnable {
-            avatarURL.value = jsonObject.getString("avatar_url")
-            name = "$_name $_surname"
-        })
+        try {
+            val jsonObject = JSONObject(body)
+            val _name = jsonObject.getString("name")
+            val _surname = jsonObject.getString("surname")
+            Handler(Looper.getMainLooper()).post(Runnable {
+                avatarURL.value = jsonObject.getString("avatar_url")
+                name = "$_name $_surname"
+            })
+        } catch (e: Exception) {
+            Log.d("BODY", "$body\n\n${e.stackTraceToString()}")
+        }
     })
     Scaffold(
         backgroundColor = MaterialTheme.colors.surface,
@@ -99,14 +104,13 @@ fun HomeScreen(
                     .fillMaxWidth()
             ) {
                 if (avatarURL != null) {
-                    Icon(
-                        painter = rememberImagePainter(data = avatarURL,
-                            builder = {
-                                transformations(CircleCropTransformation())
-                            }),
-                        contentDescription = null,
-                        modifier = Modifier.size(84.dp),
-                        tint = Color.Unspecified
+                    Image(
+                        painter = rememberImagePainter(avatarURL),
+                        contentDescription = "review profile picture",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(84.dp)
+                            .clip(shape = CircleShape)
                     )
                 } else {
                     Icon(

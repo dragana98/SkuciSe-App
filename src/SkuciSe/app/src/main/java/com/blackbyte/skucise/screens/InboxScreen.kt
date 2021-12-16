@@ -1,5 +1,7 @@
 package com.blackbyte.skucise.screens
 
+import android.os.Handler
+import android.os.Looper
 import android.provider.Telephony
 import android.util.Log
 import androidx.compose.foundation.*
@@ -13,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,48 +29,86 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import coil.compose.rememberImagePainter
+import com.blackbyte.skucise.MainActivity
 import com.blackbyte.skucise.R
+import com.blackbyte.skucise.components.Chat
 import com.blackbyte.skucise.components.InboxMessage
 import com.blackbyte.skucise.components.MsgType
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.utils.Utils
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.time.LocalDate
 
+private val _messages = MutableLiveData<List<InboxMessage>>()
+private val _strings = MutableLiveData<List<String>>()
+
+fun messagesInvokeInit(t: List<InboxMessage>, u: List<String>) {
+    _messages.postValue(t)
+    _strings.postValue(u)
+}
+
+var otherId: Int = 0
+
+fun inboxScreenPrepare(id: Int) {
+    otherId = id
+    Utils.getAllMessages(id = id, onFinish = fun(body: String, responseCode: Int) {
+        if (responseCode == 200) {
+            var _messages = mutableListOf<InboxMessage>()
+            var jsonObj = JSONObject("{\"data\": $body}")
+            var allObj = jsonObj.getJSONArray("data")
+            for (q in 0 until allObj.length()) {
+                var singleMessage = allObj[q] as JSONObject
+
+                val usnd = singleMessage.getInt("usnd")
+                val urcv = singleMessage.getInt("urcv")
+                val contents = singleMessage.getString("contents")
+                val date = LocalDate.parse(
+                    singleMessage.getString("date").substring(startIndex = 0, endIndex = 10)
+                )
+                _messages.add(
+                    InboxMessage(
+                        contents,
+                        "${date.dayOfMonth}.${date.monthValue}.${date.year}",
+                        MsgType.TEXT,
+                        if (usnd == MainActivity.prefs?.id) 0 else 1
+                    )
+                )
+            }
+            Utils.getBasicUserData(
+                user_id = id,
+                onFinish = fun(body: String, responseCode: Int) {
+                    if (responseCode == 200) {
+                        val jsonObj = JSONObject(body)
+                        val name =
+                            "${jsonObj.getString("name")} ${jsonObj.getString("surname")}"
+                        var avatarUrl = jsonObj.getString("avatar_url")
+                        Handler(Looper.getMainLooper()).post {
+                            messagesInvokeInit(_messages, listOf<String>(avatarUrl, name))
+                        }
+                    }
+                })
+        }
+    })
+}
 
 @Composable
 fun InboxScreen(
+    messagesLive: LiveData<List<InboxMessage>> = _messages,
+    stringsLive: LiveData<List<String>> = _strings,
     returnToPreviousScreen: () -> Unit
 ) {
     var text by rememberSaveable { mutableStateOf("") }
-    var messages: List<InboxMessage> by rememberSaveable { mutableStateOf(mutableListOf()) }
-    messages = mutableListOf(
-        InboxMessage(
-            "Poštovani,\n" +
-                    "Vaša poseta je zakazana. Molimo Vas proverite da li je zakazani termin evidentiran u Vašem kalendaru.\n" +
-                    "\n" +
-                    "Očekujemo Vas!", "13.5.2021. u 9.42 časova", MsgType.TEXT, 0
-        ),
-        InboxMessage(
-            "Poštovani,\n" +
-                    "Vaša poseta je zakazana. Molimo Vas proverite da li je zakazani termin evidentiran u Vašem kalendaru.\n" +
-                    "\n" +
-                    "Očekujemo Vas!", "13.5.2021. u 9.42 časova", MsgType.TEXT, 0
-        ),
-        InboxMessage(
-            "Poštovani,\n" +
-                    "Vaša poseta je zakazana. Molimo Vas proverite da li je zakazani termin evidentiran u Vašem kalendaru.\n" +
-                    "\n" +
-                    "Očekujemo Vas!", "13.5.2021. u 9.42 časova", MsgType.TEXT, 1
-        )
-    );
-    fun sendMessage() {
-        var message = InboxMessage(text, "nzm vreme", MsgType.TEXT, 0)
-        text = ""
-        messages += message
-    }
+    val messages: List<InboxMessage>? by messagesLive.observeAsState()
+    val strings: List<String>? by stringsLive.observeAsState()
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -109,19 +150,23 @@ fun InboxScreen(
                             verticalArrangement = Arrangement.Center,
                         ) {
                             Spacer(Modifier.height(3.dp))
-                            Image(
-                                painterResource(id = R.drawable.profile_pic_vendor),
-                                "",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .size(52.dp)
-                            )
+                            strings?.let {
+                                Image(
+                                    rememberImagePainter(it[0]),
+                                    "",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .size(52.dp)
+                                )
+                            }
                             Spacer(Modifier.height(5.dp))
-                            Text(
-                                "GHP Management d.o.o.",
-                                style = MaterialTheme.typography.subtitle1
-                            )
+                            strings?.let {
+                                Text(
+                                    it[1],
+                                    style = MaterialTheme.typography.subtitle1
+                                )
+                            }
                             Spacer(Modifier.height(3.dp))
                         }
                     }
@@ -139,25 +184,26 @@ fun InboxScreen(
                 modifier = Modifier.wrapContentHeight(),
                 color = Color.White
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(bottom = 3.dp, top = 3.dp)
-                        .wrapContentHeight()
-                        .fillMaxWidth()
-                ) {
-                    Spacer(Modifier.width(15.dp))
-                    TextField(
-                        singleLine = false,
-                        value = text,
-                        onValueChange = {
-                            if (it.length <= 400) text = it
-                        },
-                        placeholder = { Text("Unesite poruku...") },
-                        maxLines = 3,
-                        shape = RoundedCornerShape(7.dp),
+                messages?.let {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
+                            .padding(bottom = 3.dp, top = 3.dp)
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                    ) {
+                        Spacer(Modifier.width(15.dp))
+                        TextField(
+                            singleLine = false,
+                            value = text,
+                            onValueChange = {
+                                if (it.length <= 400) text = it
+                            },
+                            placeholder = { Text("Unesite poruku...") },
+                            maxLines = 3,
+                            shape = RoundedCornerShape(7.dp),
+                            modifier = Modifier
 //                            .onFocusEvent { focusState -> when{
 //                                    focusState.isFocused -> {
 //                                        coroutineScope.launch{
@@ -166,51 +212,68 @@ fun InboxScreen(
 //                                    }
 //                                }
 //                            }
-                            .weight(0.8f)
-                            .wrapContentHeight()
-                            .padding(5.dp),
-                        colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = Color.LightGray,
-                            cursorColor = Color.Black,
-                            disabledLabelColor = Color.LightGray,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        ),
-                    )
-                    Spacer(Modifier.width(15.dp))
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.border(2.dp, Color.Black, RoundedCornerShape(7.dp))
-                    ) {
-                        IconButton(onClick = {
-                            sendMessage()
-                            coroutineScope.launch {
-                                listState.animateScrollToItem(index = (messages.size - 1))
+                                .weight(0.8f)
+                                .wrapContentHeight()
+                                .padding(5.dp),
+                            colors = TextFieldDefaults.textFieldColors(
+                                backgroundColor = Color.LightGray,
+                                cursorColor = Color.Black,
+                                disabledLabelColor = Color.LightGray,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                        )
+                        Spacer(Modifier.width(15.dp))
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.border(2.dp, Color.Black, RoundedCornerShape(7.dp))
+                        ) {
+                            IconButton(onClick = {
+                                Utils.sendMessage(
+                                    urcv = otherId,
+                                    contents = text,
+                                    onFinish = fun (body: String, responseCode: Int) {
+                                        Handler(Looper.getMainLooper()).post {
+                                            Log.d("MESSAGE SEND RETURNED", responseCode.toString())
+                                        }
+                                            if(responseCode == 200) {
+                                          Handler(Looper.getMainLooper()).post {
+                                              text = ""
+                                              inboxScreenPrepare(otherId)
+                                              coroutineScope.launch {
+                                                  listState.animateScrollToItem(index = (it.size - 1))
+                                              }
+                                          }
+                                      }
+                                    })
+                            }, Modifier.padding(4.dp)) {
+                                Icon(Icons.Filled.Send, "")
                             }
-                        }, Modifier.padding(4.dp)) {
-                            Icon(Icons.Filled.Send, "")
                         }
+                        Spacer(Modifier.width(15.dp))
                     }
-                    Spacer(Modifier.width(15.dp))
                 }
             }
         }
     ) {
 
-        LazyColumn(
-            state = listState,
-            reverseLayout = false,
-            verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(bottom = 70.dp)
-        ) {
-            items(messages.size) { item ->
-                messages[item].DisplayMessage()
+        messages?.let {
+            LazyColumn(
+                state = listState,
+                reverseLayout = false,
+                verticalArrangement = Arrangement.Bottom,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(bottom = 70.dp)
+            ) {
+                items(it.size) { item ->
+                    it[item].DisplayMessage()
+                }
             }
         }
     }
 }
+
 
 
 @Preview(

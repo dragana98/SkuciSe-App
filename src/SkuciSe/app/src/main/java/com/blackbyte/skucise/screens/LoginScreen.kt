@@ -122,9 +122,11 @@ fun LoginScreen(
                             if (responseCode == 200) {
                                 val jsonObject = JSONTokener(body).nextValue() as JSONObject
                                 val token = jsonObject.getString("token")
+                                val id = jsonObject.getInt("id")
                                 Handler(Looper.getMainLooper()).post(Runnable {
                                     prefs?.authToken = token
                                     prefs?.username = email
+                                    prefs?.id = id
 
                                     navigateToHomeScreen()
                                 })

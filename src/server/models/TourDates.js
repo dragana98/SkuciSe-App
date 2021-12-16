@@ -7,7 +7,8 @@ module.exports = {
     del,
     read,
     readAll,
-    schedule
+    schedule,
+    readForId
 }
 
 function read(property_ad_id) {
@@ -16,6 +17,19 @@ function read(property_ad_id) {
         .andWhere('scheduled_at', 'IS', null)
         .andWhere('date', '>', new Date().toISOString())
         .select('id', 'date');
+}
+
+async function readForId(data) {
+    var user_id = await db('users')
+                .where({ username: data['username'] })
+                .select('id')
+                .first();
+    
+                user_id = user_id.id;
+
+    return await db('availableTourDates')
+        .where('scheduled_by_user_id', '=', user_id )
+        .select('date', 'property_ad_id');
 }
 
 function readAll(property_ad_id) {
@@ -37,7 +51,7 @@ async function create(data) {
                 .insert({
                     property_ad_id: data['property_ad_id'],
                     date: data['date'],
-                    scheduled_by_user_id: null,
+                    scheduled_by_user_id: user_id,
                     scheduled_at: null
                 }).transacting(trx)
                 .then(trx.commit)
