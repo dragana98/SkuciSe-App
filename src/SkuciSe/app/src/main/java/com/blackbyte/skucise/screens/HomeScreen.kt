@@ -131,14 +131,7 @@ fun HomeScreen(
             drawerOptions.forEach { option ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp, vertical = 12.dp)
-                        .clickable(
-                            enabled = true,
-                            role = Role.Button
-                        ) {
-                            option.onTap()
-                        }
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
                 ) {
                     Icon(
                         imageVector = option.icon,
@@ -234,12 +227,12 @@ fun HomeScreen(
                             },
                             label = {
                                 Text(text = "Pretraga...",
-                                    modifier = Modifier.clickable(
-                                        enabled = true,
-                                        role = Role.Switch
-                                    ) {
-                                        navigateToSearch()
-                                    })
+                                modifier = Modifier.clickable(
+                                    enabled = true,
+                                    role = Role.Switch
+                                ){
+                                    navigateToSearch()
+                                })
                             },
                             textStyle = LocalTextStyle.current.copy(color = Color.Black),
                             shape = RoundedCornerShape(4.dp),

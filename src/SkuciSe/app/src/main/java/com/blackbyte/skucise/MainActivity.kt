@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
+               
             }
         }
     }
@@ -61,11 +62,11 @@ class MainActivity : ComponentActivity() {
     @ExperimentalComposeUiApi
     @Composable
     fun AppNavigator(navController: NavHostController) {
-        val returnToPreviousScreen = fun() {
+        var returnToPreviousScreen = fun() {
             navController.popBackStack()
         }
 
-        val toHomeScreen = fun() {
+        var toHomeScreen = fun() {
             navController.navigate(route = "home") {
 
             }
@@ -76,7 +77,7 @@ class MainActivity : ComponentActivity() {
 
             }
         }
-        val toLogin = fun() {
+        var toLogin = fun() {
             navController.navigate(route = "login") {
 
             }
@@ -407,12 +408,12 @@ class MainActivity : ComponentActivity() {
 
             }
         }
-        val toSignUp = fun() {
+        var toSignUp = fun() {
             navController.navigate(route = "signUp") {
 
             }
         }
-        val toWelcome = fun() {
+        var toWelcome = fun() {
             navController.navigate(route = "welcome") {
 
             }
@@ -473,6 +474,12 @@ class MainActivity : ComponentActivity() {
 
             }
         }
+        var toAd = fun(){
+            navController.navigate(route = "ad"){
+                launchSingleTop = true
+            }
+        }
+
 
         val authTokenVal = prefs?.authToken
 
@@ -631,7 +638,9 @@ class MainActivity : ComponentActivity() {
                     navigateToSavedEntries = toSavedEntries,
                     navigateToScheduledTours = toScheduledTours,
                     navigateToSearch = toSearch,
-                    navigateToAdvertise = toAdvertise
+                    navigateToAd = toAd,
+                    navigateToMyAccount = toMyAccount
+
                 )
             }
             composable("inbox") {
@@ -692,6 +701,12 @@ class MainActivity : ComponentActivity() {
             }
             composable("advertise") {
                 AdvertiseScreen(returnToPreviousScreen = returnToPreviousScreen)
+            }
+            composable("ad"){
+                AdScreen(
+                    returnToPreviousScreen = returnToPreviousScreen,
+                    navigateToAdvertise = toAdvertise
+                )
             }
 
         }
