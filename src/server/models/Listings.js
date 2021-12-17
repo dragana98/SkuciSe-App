@@ -9,7 +9,16 @@ module.exports = {
     del,
     readAll,
     readAllByUserId,
-    readByPropertyId
+    readByPropertyId,
+    search
+}
+
+async function search(data) {
+    return db("propertyAd")
+        .where({ leasable: data["leasable"] })
+        .andWhere({ unified: data["unified"] })
+        .andWhere('city', 'in', data["cities"])
+        .select('id');
 }
 
 async function readByPropertyId(data) {

@@ -54,6 +54,7 @@ router.post('/', (req, res) => {
     var pass = true
 
     const data = req.body
+    
     const { name, price, deposit, realtor_id, description, city, postal_code, street_address, leasable, unified, images, amenities, property_ad_realties } = data
 
     pass &&= (name && realtor_id && description && city && postal_code && street_address)
@@ -75,10 +76,10 @@ router.post('/', (req, res) => {
 
         property_ad_realties.forEach(realty => {
             if(unified == 0) {
-                pass &&= realty['price']
+                pass &&= (realty['price'] != undefined)
                 
                 if (leasable != 0) {
-                    pass &&= realty['deposit']
+                    pass &&= (realty['deposit']!= undefined)
                 }
             } 
         });
@@ -89,6 +90,27 @@ router.post('/', (req, res) => {
 
     if (pass) {
         Listings.create(data)
+            .then(realty => {
+                res.status(200).json(realty);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json(err);
+            })
+    } else {
+        res.status(400).json({ message: "Missing information" })
+    }
+});
+
+router.post('/search', (req, res) => {
+    var pass = true
+
+    const data = req.body
+    
+    const { leasable, cities, unified} = data
+
+    if (leasable && cities && unified) {
+        Listings.search(data)
             .then(realty => {
                 res.status(200).json(realty);
             })

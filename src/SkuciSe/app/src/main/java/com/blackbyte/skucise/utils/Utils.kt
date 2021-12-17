@@ -635,6 +635,25 @@ class Utils {
             )
         }
 
+        fun search(
+            leasable: Boolean,
+            unified: Boolean,
+            cities: List<String>,
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            POST(
+
+                includeAuthParams = true,
+                params = listOf(
+                    Pair("leasable", if(leasable) 1 else 0),
+                    Pair("unified", if(unified) 1 else 0),
+                    Pair("cities", cities),
+                    ),
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/listings/search",
+                onFinish = onFinish
+            )
+        }
+
         fun register(
             username: String,
             password: String,
