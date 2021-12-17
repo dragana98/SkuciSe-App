@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -21,6 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +53,13 @@ fun LoginScreen(
         topBar = { NavTopBar("Prijava", returnToPreviousScreen = returnToPreviousScreen) },
         backgroundColor = MaterialTheme.colors.background
     ) {
+        var email by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+        var passwordVisibility by remember { mutableStateOf(false) }
+
+        val isFormValid by derivedStateOf{
+             email.isNotBlank() && password.length > 6
+        }
         Column(
             modifier = Modifier
                 .padding(20.dp)
@@ -122,9 +133,11 @@ fun LoginScreen(
                             if (responseCode == 200) {
                                 val jsonObject = JSONTokener(body).nextValue() as JSONObject
                                 val token = jsonObject.getString("token")
+                                val id = jsonObject.getInt("id")
                                 Handler(Looper.getMainLooper()).post(Runnable {
                                     prefs?.authToken = token
                                     prefs?.username = email
+                                    prefs?.id = id
 
                                     navigateToHomeScreen()
                                 })

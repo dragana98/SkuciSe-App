@@ -1,14 +1,19 @@
 package com.blackbyte.skucise.utils
 
 import android.os.Looper
+import android.util.Base64
 import android.util.Log
 import com.blackbyte.skucise.MainActivity
-import com.squareup.okhttp.*
+import com.blackbyte.skucise.MainActivity.Companion.prefs
 import java.net.URLEncoder
 import kotlin.concurrent.thread
-import com.squareup.okhttp.Response
-import com.squareup.okhttp.RequestBody
-import com.squareup.okhttp.OkHttpClient
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.squareup.okhttp.*
+import java.util.*
+import java.util.Arrays.*
+
+data class fileToUpload (val hexdata: String)
 
 enum class RequestType {
     REQUEST_POST,
@@ -19,26 +24,25 @@ class Utils {
     companion object Requests {
         private fun stringifySimpleObject(
             params: List<Pair<String, Any?>>
-        ): String {
+        ) : String {
             var jsonParam = ""
             for (param in params) {
                 if (param.second == null) {
                     jsonParam += ",\"${param.first}\":null"
                 } else if (param.second is List<*>) {
-                    if ((param.second as List<*>).lastIndex != -1) {
-                        if ((param.second as List<*>)[0] is Pair<*, *>) {
-                            jsonParam += ",\"${param.first}\":["
+                    if((param.second as List<*>).lastIndex != -1) {
+                        if((param.second as List<*>)[0] is Pair<*, *>) {
+                            jsonParam += ",\"${param.first}\":{"
                             var jtmp: String = ""
                             @Suppress("UNCHECKED_CAST")
-                            (param.second as List<*>).forEach {
-                                jtmp += ", ${
-                                    stringifySimpleObject(
-                                        listOf(((it as Pair<String, Any?>)))
-                                    )
-                                }"
-                            }
+                            (param.second as List<*>).forEach{ jtmp += ", ${stringifySimpleObject(listOf(it as Pair<String, Any?>))}" }
                             jtmp = jtmp.substring(startIndex = 1)
-                            jsonParam += "$jtmp]"
+                            jsonParam += jtmp + "}"
+                        } else if((param.second as List<*>)[0] is List<*>) {
+                            var jtmp: String = ""
+                            (param.second as List<*>).forEach { jtmp += ", ${stringifySimpleObject(it as List<Pair<String, Any?>>)}" }
+                            jtmp = "[${jtmp.substring(startIndex = 1)}]"
+                            jsonParam += ",\"${param.first}\":$jtmp"
                         } else {
                             var jtmp: String = ""
                             (param.second as List<*>).forEach { jtmp += ", ${if (it is String) "\"$it\"" else it}" }
@@ -101,7 +105,7 @@ class Utils {
                     }
                 try {
                     val response = client.newCall(request).execute()
-                    onFinish(response.body().string(), response.code())
+                    response.body()?.let { onFinish(it.string(), response.code()) }
                 } catch (e: Exception) {
                     onFinish(e.stackTraceToString(), 12163)
                 }
@@ -122,7 +126,7 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             val task = fun() {
-                val JSON: MediaType = MediaType.parse("application/json; charset=utf-8")
+                val JSON = MediaType.parse("application/json; charset=utf-8")
                 val client = OkHttpClient()
 
                 var jsonParam = stringifySimpleObject(params)
@@ -147,7 +151,7 @@ class Utils {
                 }
                 try {
                     val response = client.newCall(request).execute()
-                    onFinish(response.body().string(), response.code())
+                    response.body()?.let { onFinish(it.string(), response.code()) }
                 } catch (e: Exception) {
                     onFinish("", 12163)
                 }
@@ -203,7 +207,7 @@ class Utils {
             avatar_url: String?,
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
-            POST(
+            POST( includeAuthParams = true,
                 params = listOf(
                     Pair("username", username),
                     Pair("password", password),
@@ -224,6 +228,7 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+                includeAuthParams = true,
                 params = listOf(
                     Pair("natural_person", natural_person),
                     Pair("name", name),
@@ -231,7 +236,7 @@ class Utils {
                     Pair("website_url", website_url),
                     Pair("avatar_url", avatar_url),
                 ),
-                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/users/update",
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/realtors/",
                 onFinish = onFinish
             )
         }
@@ -260,10 +265,11 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+                includeAuthParams = true,
                 params = listOf(
                     Pair("property_ad_id", property_ad_id)
                 ),
-                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/users/update",
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/favorites",
                 onFinish = onFinish
             )
         }
@@ -289,10 +295,10 @@ class Utils {
             amenities: List<String>,
             price: Int?,
             deposit: Int?,
-            property_ad_realties: List<Pair<String, Any>>,
+            property_ad_realties: List<List<Pair<String, Any?>>>,
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
-            POST(
+            POST( includeAuthParams = true,
                 params = listOf(
                     Pair("name", name),
                     Pair("realtor_id", realtor_id),
@@ -372,6 +378,7 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+                includeAuthParams = true,
                 params = listOf(
                     Pair("urcv", urcv),
                     Pair("contents", contents)
@@ -386,6 +393,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("usnd", usnd)
                 ),
@@ -423,6 +432,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("user_id", user_id),
                     Pair("recommends", recommends),
@@ -440,6 +451,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("property_ad_id", property_ad_id),
                     Pair("stars", stars),
@@ -456,6 +469,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("id", id),
                     Pair("response", response)
@@ -476,6 +491,17 @@ class Utils {
             )
         }
 
+        fun getAllTourDatesForUser(
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            GET(
+                includeAuthParams = true,
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/tourDates",
+                onFinish = onFinish
+            )
+        }
+
+
         fun getTourDatesFromNowOnward(
             id: Int,
             onFinish: (body: String, responseCode: Int) -> Unit
@@ -492,10 +518,102 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("tour_id", tour_id)
                 ),
                 apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/tourDates/reserve",
+                onFinish = onFinish
+            )
+        }
+
+        fun setScheduleStatus(
+            tour_id: Int,
+            value: String,
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            POST(
+                includeAuthParams = true,
+                params = listOf(
+                    Pair("id", tour_id),
+                    Pair("val", value)
+                    ),
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/tourDates/setSchedule",
+                onFinish = onFinish
+            )
+        }
+
+        fun unscheduledForRealtor(
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            prefs?.let {
+                GET(
+                    includeAuthParams = true,
+                    apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/tourDates/unscheduled/${it.realtorId}",
+                    onFinish = onFinish
+                )
+            }
+        }
+
+        fun uploadFile(
+            hexdata: ByteArray,
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            val q = Base64.encodeToString(hexdata, Base64.DEFAULT)
+
+            val includeAuthParams = true
+
+            val apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/files"
+
+            val task = fun() {
+                val JSON = MediaType.parse("application/json; charset=utf-8")
+                val client = OkHttpClient()
+
+                val v = fileToUpload(hexdata = q)
+
+                var gson = GsonBuilder().create()
+
+                var jsonParam = gson.toJson(v)
+                val body: RequestBody = RequestBody.create(JSON, jsonParam)
+                val request = if (includeAuthParams) {
+                    Request.Builder()
+                        .url(apiURL)
+                        .post(body)
+                        .addHeader(
+                            "Authorization",
+                            MainActivity.prefs?.authToken
+                        )
+                        .build()
+                } else {
+                    Request.Builder()
+                        .url(apiURL)
+                        .post(body)
+                        .build()
+                }
+                try {
+                    val response = client.newCall(request).execute()
+                    response.body()?.let { onFinish(it.string(), response.code()) }
+                } catch (e: Exception) {
+                    onFinish("", 12163)
+                }
+            }
+            if (Looper.getMainLooper().isCurrentThread) {
+                thread {
+                    task()
+                }
+            } else {
+                task()
+            }
+        }
+
+        fun downloadFile(
+            id: String,
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            GET(
+                includeAuthParams = true,
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/files/$id",
                 onFinish = onFinish
             )
         }
@@ -506,6 +624,8 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+
+                includeAuthParams = true,
                 params = listOf(
                     Pair("property_ad_id", property_ad_id),
                     Pair("date", date)
@@ -527,7 +647,7 @@ class Utils {
             avatar_url: String,
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
-            POST(
+            POST( includeAuthParams = true,
                 params = listOf(
                     Pair("username", username),
                     Pair("password", password),

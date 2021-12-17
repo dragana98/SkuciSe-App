@@ -10,9 +10,10 @@ fun OutlinedInputField(
     label: String = "",
     onValueChange: (s: String) -> Unit = {},
     readOnly: Boolean = false,
+    initialValue: String = "",
     modifier: Modifier = Modifier
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(initialValue) }
 
     OutlinedTextField(
         value = text,

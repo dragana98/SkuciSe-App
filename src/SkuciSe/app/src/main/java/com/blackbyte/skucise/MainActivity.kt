@@ -15,14 +15,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.blackbyte.skucise.data.DrawerEntry
-import com.blackbyte.skucise.data.Floor
-import com.blackbyte.skucise.data.RealtyAdInfo
+import com.blackbyte.skucise.components.Chat
+import com.blackbyte.skucise.components.InboxMessage
+import com.blackbyte.skucise.components.MsgType
+import com.blackbyte.skucise.data.*
 import com.blackbyte.skucise.screens.*
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import com.blackbyte.skucise.utils.Prefs
 import com.blackbyte.skucise.utils.Utils
 import org.json.JSONObject
+import org.json.JSONTokener
+import java.time.LocalDate
 
 val prefs: Prefs by lazy {
     MainActivity.prefs!!
@@ -51,6 +54,7 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
+
             }
         }
     }
@@ -58,33 +62,54 @@ class MainActivity : ComponentActivity() {
     @ExperimentalComposeUiApi
     @Composable
     fun AppNavigator(navController: NavHostController) {
-        val returnToPreviousScreen = fun() {
+        var returnToPreviousScreen = fun() {
             navController.popBackStack()
         }
 
-        val toHomeScreen = fun() {
+        var toHomeScreen = fun() {
             navController.navigate(route = "home") {
-                launchSingleTop = true
+
             }
         }
-        val toInbox = fun() {
+        val toInbox = fun(id: Int) {
+            inboxScreenPrepare(id = id)
             navController.navigate(route = "inbox") {
-                launchSingleTop = true
+
             }
         }
-        val toLogin = fun() {
+        var toLogin = fun() {
             navController.navigate(route = "login") {
-                launchSingleTop = true
+
             }
         }
         val toMessages = fun() {
+            prepareMessagePreviews()
             navController.navigate(route = "messages") {
-                launchSingleTop = true
+
             }
         }
+
         val toMyAccount = fun() {
+            Utils.getUserData(
+                onFinish = fun(body: String, responseCode: Int) {
+                    if (responseCode == 200) {
+                        val jsonObj =
+                            JSONTokener(body).nextValue() as JSONObject
+                        val name = jsonObj.getString("name")
+                        val surname = jsonObj.getString("surname")
+                        val contact = jsonObj.getString("phone_number")
+                        val url = jsonObj.getString("avatar_url")
+                        val email = jsonObj.getString("username")
+                        Handler(Looper.getMainLooper()).post(Runnable {
+                            loadMyAccountData(listOf(name, surname, url, contact, email))
+                            Log.d("PREFETCHED DATA", listOf(name, surname, url, contact, email).toString())
+                        })
+                    } else {
+                        Log.d("REQUEST ERROR", body)
+                    }
+                })
             navController.navigate(route = "myAccount") {
-                launchSingleTop = true
+
             }
         }
         val toPropertyEntry = fun(id: Int) {
@@ -92,7 +117,7 @@ class MainActivity : ComponentActivity() {
                 if (responseCode == 200) {
                     var body = _body
                     val jsonObj = JSONObject(body)
-                    val id = jsonObj.getInt("id")
+                    val __id = id
                     val realtorId = jsonObj.getInt("realtor_id")
                     val postalCode = jsonObj.getInt("postal_code")
                     val title = jsonObj.getString("name")
@@ -151,7 +176,9 @@ class MainActivity : ComponentActivity() {
                                 surface = propertyObject.getInt("surface"),
                                 floorPlanUrl = propertyObject.getString("floor_plan_url"),
                                 price = if (_unified != 0) null else propertyObject.getInt("price"),
-                                deposit = if ((_leasable != 0) && (_unified == 0)) propertyObject.getInt("deposit") else null
+                                deposit = if ((_leasable != 0) && (_unified == 0)) propertyObject.getInt(
+                                    "deposit"
+                                ) else null
                             )
                         )
                     }
@@ -168,28 +195,102 @@ class MainActivity : ComponentActivity() {
                         unified = true
                     }
 
-                    Handler(Looper.getMainLooper()).post {
-                        realtyAdInfoInit(
-                            RealtyAdInfo(
-                                id = id,
-                                title = title,
-                                address = "$postalCode, $city",
-                                description = description,
-                                isFavorite = isFavorite,
-                                amenities = amenities,
-                                images = images,
-                                monthly = monthly,
-                                unified = unified,
-                                priceRange = priceRange,
-                                deposit = deposit,
-                                roomsRange = roomsRange,
-                                bathroomRange = bathroomRange,
-                                floors = _floors,
-                                totalReviews = 5,
-                                avgScore = 4.2
-                            )
-                        )
-                    }
+
+                    Utils.getRealtorData(
+                        realtor_id = realtorId,
+                        onFinish = fun(_body: String, responseCode: Int) {
+                            if (responseCode == 200) {
+                                var body = _body
+                                val jsonObj = JSONObject(body)
+                                val id = jsonObj.getInt("id")
+                                val userId = jsonObj.getInt("user_id")
+                                val naturalPerson = jsonObj.getInt("natural_person")
+
+                                var homeownerIsNaturalPerson =
+                                    if (naturalPerson != 0) true else false
+                                var homeownerUrl: String = ""
+                                var homeownerName: String = ""
+                                var contact: String = ""
+                                var addressOfIncorporation: String? = null
+
+
+                                var build = fun() {
+                                    Handler(Looper.getMainLooper()).post {
+                                        realtyAdInfoInit(
+                                            RealtyAdInfo(
+                                                id = __id,
+                                                title = title,
+                                                address = "$postalCode, $city",
+                                                description = description,
+                                                isFavorite = isFavorite,
+                                                amenities = amenities,
+                                                images = images,
+                                                monthly = monthly,
+                                                unified = unified,
+                                                priceRange = priceRange,
+                                                deposit = deposit,
+                                                roomsRange = roomsRange,
+                                                bathroomRange = bathroomRange,
+                                                floors = _floors,
+                                                totalReviews = 5,
+                                                avgScore = 4.2,
+                                                addressOfIncorporation = addressOfIncorporation,
+                                                contact = contact,
+                                                homeOwnerUserId = userId,
+                                                homeownerIsNaturalPerson = homeownerIsNaturalPerson,
+                                                homeownerName = homeownerName,
+                                                homeownerUrl = homeownerUrl
+                                            )
+                                        )
+                                    }
+                                }
+
+                                if (naturalPerson != 0) {
+                                    Utils.getBasicUserData(
+                                        user_id = userId,
+                                        onFinish = fun(body: String, responseCode: Int) {
+                                            if (responseCode == 200) {
+                                                val jsonObj =
+                                                    JSONTokener(body).nextValue() as JSONObject
+                                                homeownerName =
+                                                    "${jsonObj.getString("name")} ${
+                                                        jsonObj.getString(
+                                                            "surname"
+                                                        )
+                                                    }"
+                                                contact = jsonObj.getString("phone_number")
+                                                homeownerUrl = jsonObj.getString("avatar_url")
+                                                build()
+                                            } else {
+                                                Log.d("REQUEST ERROR", body)
+                                            }
+                                        })
+                                } else {
+                                    Utils.getRealtorLegalEntityData(
+                                        realtor_id = id,
+                                        onFinish = fun(body: String, responseCode: Int) {
+                                            Handler(Looper.getMainLooper()).post(Runnable {
+                                                Log.d(
+                                                    "RESPONSE",
+                                                    "$body"
+                                                )
+                                            })
+                                            if (responseCode == 200) {
+                                                val jsonObj = JSONObject(body)
+                                                val id = jsonObj.getInt("id")
+                                                homeownerName = jsonObj.getString("name")
+                                                addressOfIncorporation =
+                                                    jsonObj.getString("corporate_address")
+                                                contact = jsonObj.getString("website_url")
+                                                homeownerUrl = jsonObj.getString("avatar_url")
+                                                build()
+                                            } else {
+                                                Log.d("REQUEST ERROR", body)
+                                            }
+                                        })
+                                }
+                            }
+                        })
                 } else {
                     Handler(Looper.getMainLooper()).post(Runnable {
                         Log.d(
@@ -202,58 +303,302 @@ class MainActivity : ComponentActivity() {
             })
 
             navController.navigate(route = "propertyEntry") {
-                launchSingleTop = true
+
             }
         }
-        val toReviews = fun() {
+        val toReviews = fun(id: Int) {
+            Utils.getAllReviewsUsersToRealty(
+                id = id,
+                onFinish = fun(_body: String, responseCode: Int) {
+                    Handler(Looper.getMainLooper()).post {
+                        Log.d("GET ALL REVIEWS", "$responseCode  {\"data\": $_body}")
+                    }
+                    if (responseCode == 200) {
+
+                        var _reviews = mutableListOf<Review>()
+
+                        var body = "{\"data\": $_body}"
+                        val jsonObj = JSONObject(body)
+
+                        val allData = jsonObj.getJSONArray("data")
+
+                        for (p in 0 until allData.length()) {
+                            var rev = allData[p] as JSONObject
+
+                            var _rev_id = rev.getInt("id")
+
+                            Utils.getBasicUserData(
+                                user_id = _rev_id,
+                                onFinish = fun(body: String, responseCode: Int) {
+                                    Handler(Looper.getMainLooper()).post {
+                                        Log.d("GET BASIC USER DATA", "$responseCode  $body")
+                                    }
+                                    if (responseCode == 200) {
+                                        val jsonObj = JSONObject(body)
+                                        val _reviewerName =
+                                            "${jsonObj.getString("name")} ${jsonObj.getString("surname")}"
+                                        val _reviewerUrl = jsonObj.getString("avatar_url")
+                                        _reviews.add(
+                                            Review(
+                                                stars = rev.getInt("stars"),
+                                                date = LocalDate.parse(
+                                                    rev.getString("date")
+                                                        .substring(startIndex = 0, endIndex = 10)
+                                                ),
+                                                contents = rev.getString("contents"),
+                                                reviewerName = _reviewerName,
+                                                reviewerProfileUrl = _reviewerUrl
+                                            )
+                                        )
+                                        Handler(Looper.getMainLooper()).post({
+                                            reviewsInvokeInit(_reviews)
+                                        })
+                                        Utils.getPropertyById(
+                                            id = id,
+                                            onFinish = fun(body: String, responseCode: Int) {
+                                                if (responseCode == 200) {
+                                                    val jsonObj = JSONObject(body)
+
+                                                    val _name = jsonObj.getString("name")
+                                                    val _images = jsonObj.getJSONArray("images")
+                                                    val _image = _images[0] as String
+
+
+                                                    Handler(Looper.getMainLooper()).post(Runnable {
+                                                        reviewsLoadOtherData(listOf(_name, _image))
+                                                    })
+
+                                                }
+                                            })
+                                    }
+                                })
+                        }
+                    } else {
+                        Handler(Looper.getMainLooper()).post(Runnable {
+                            Log.d(
+                                "ERROR REQUEST UNSUCCESSFUL",
+                                "Response code $responseCode Body $_body"
+                            )
+                        })
+                    }
+
+                })
+
+
             navController.navigate(route = "reviews") {
-                launchSingleTop = true
+
             }
         }
         val toSavedEntries = fun() {
+            Utils.getAllFavorites(onFinish = fun(body: String, responseCode: Int) {
+                if (responseCode == 200) {
+                    val _entries: MutableList<Ad> = mutableListOf()
+                    val jsonObj = JSONObject("{\"data\": $body}")
+
+                    val allObjects = jsonObj.getJSONArray("data")
+
+                    for (q in 0 until allObjects.length()) {
+                        val tobj = allObjects[q] as JSONObject
+                        val property_id = tobj.getInt("property_ad_id")
+
+                        Utils.getPropertyById(
+                            id = property_id,
+                            onFinish = fun(body: String, responseCode: Int) {
+                                if (responseCode == 200) {
+                                    val jsonObj = JSONObject(body)
+
+                                    val _name = jsonObj.getString("name")
+                                    val _images = jsonObj.getJSONArray("images")
+                                    val _image = _images[0] as String
+
+                                    _entries.add(Ad(_name, _image))
+                                }
+                            })
+                    }
+
+                    Handler(Looper.getMainLooper()).post(Runnable {
+                        entriesInvokeInit(_entries)
+                    })
+                }
+            })
+
             navController.navigate(route = "savedEntries") {
-                launchSingleTop = true
+
             }
         }
-        val toSignUp = fun() {
+        var toSignUp = fun() {
             navController.navigate(route = "signUp") {
-                launchSingleTop = true
+
             }
         }
-        val toWelcome = fun() {
+        var toWelcome = fun() {
             navController.navigate(route = "welcome") {
-                launchSingleTop = true
+
             }
         }
         var toScheduledTours = fun() {
+            Utils.getAllTourDatesForUser(onFinish = fun(body: String, responseCode: Int) {
+                if (responseCode == 200) {
+                    var res = mutableListOf<List<Any>>()
+                    val jsonObj = JSONObject("{\"body\": $body}")
+                    val jsonArr = jsonObj.getJSONArray("body")
+
+                    for (p in 0 until jsonArr.length()) {
+                        val singleObj = jsonArr[p] as JSONObject
+
+                        val date = LocalDate.parse(
+                            singleObj.getString("date").substring(startIndex = 0, endIndex = 10)
+                        )
+                        val id = singleObj.getInt("property_ad_id")
+
+                        Utils.getPropertyById(
+                            id = id,
+                            onFinish = fun(body: String, responseCode: Int) {
+                                if (responseCode == 200) {
+                                    val jsonObj = JSONObject(body)
+
+                                    val _name = jsonObj.getString("name")
+                                    val _images = jsonObj.getJSONArray("images")
+                                    val _street_address = jsonObj.getString("street_address")
+                                    val _postalcode = jsonObj.getString("postal_code")
+                                    val _city = jsonObj.getString("city")
+
+                                    val _image = _images[0] as String
+
+                                    res.add(
+                                        listOf<Any>(
+                                            date,
+                                            _name,
+                                            _image,
+                                            "$_street_address, $_city, $_postalcode"
+                                        )
+                                    )
+                                }
+                            })
+
+                    }
+                    Utils.unscheduledForRealtor(onFinish = fun(body: String, responseCode: Int) {
+                        if(responseCode == 200) {
+                            var unsch = mutableListOf<List<Any>>()
+                            val jsonObj = JSONObject("{\"data\": $body}")
+                            val arr = jsonObj.getJSONArray("data")
+                            for(q in 0 until arr.length()) {
+                                val singleObj = arr[q] as JSONObject
+
+                                val id = singleObj.getInt("id")
+                                val date = singleObj.getString("date")
+                                val property_ad_id = singleObj.getInt("property_ad_id")
+
+                                Utils.getPropertyById(
+                                    id = property_ad_id,
+                                    onFinish = fun(body: String, responseCode: Int) {
+                                        if (responseCode == 200) {
+                                            val jsonObj = JSONObject(body)
+
+                                            val _name = jsonObj.getString("name")
+                                            val _images = jsonObj.getJSONArray("images")
+                                            val _street_address = jsonObj.getString("street_address")
+                                            val _postalcode = jsonObj.getString("postal_code")
+                                            val _city = jsonObj.getString("city")
+
+                                            val _image = _images[0] as String
+
+                                            unsch.add(
+                                                listOf<Any>(
+                                                    date,
+                                                    _name,
+                                                    _image,
+                                                    "$_street_address, $_city, $_postalcode",
+                                                    id,
+                                                )
+                                            )
+                                        }
+                                    })
+                            }
+                            Handler(Looper.getMainLooper()).post {
+                                Log.d("RES VALUES", res.toString())
+                                Log.d("UNSCH VALU", unsch.toString())
+                                addScheduledEntries(res, unsch)
+                            }
+                        } else {
+                            Log.d("GOT ERROR RESPONSE", body)
+                        }
+                    })
+                }
+            })
             navController.navigate(route = "scheduledTours") {
-                launchSingleTop = true
+
             }
         }
         var toScheduleATour = fun() {
             navController.navigate(route = "scheduleATour") {
-                launchSingleTop = true
+
             }
         }
         var toSearch = fun() {
+
             navController.navigate(route = "search") {
-                launchSingleTop = true
+
             }
         }
         var toAdvertise = fun() {
             navController.navigate(route = "advertise") {
+
+            }
+        }
+        var toAd = fun() {
+            prefs?.realtorId?.let {
+                Utils.getAllPropertyAdsByRealtorId(
+                    realtor_id = it,
+                    onFinish = fun(body: String, responseCode: Int) {
+                        if (responseCode == 200) {
+                            val _entries: MutableList<Ad> = mutableListOf()
+                            val jsonObj = JSONObject("{\"data\": $body}")
+
+                            val allObjects = jsonObj.getJSONArray("data")
+
+                            for (q in 0 until allObjects.length()) {
+                                val tobj = allObjects[q] as JSONObject
+                                val property_id = tobj.getInt("property_ad_id")
+
+                                Utils.getPropertyById(
+                                    id = property_id,
+                                    onFinish = fun(body: String, responseCode: Int) {
+                                        if (responseCode == 200) {
+                                            val jsonObj = JSONObject(body)
+
+                                            val _name = jsonObj.getString("name")
+                                            val _images = jsonObj.getJSONArray("images")
+                                            val _image = _images[0] as String
+
+                                            _entries.add(Ad(_name, _image))
+                                        }
+                                    })
+                            }
+
+                            Handler(Looper.getMainLooper()).post(Runnable {
+                                adScreenInvokeInit(_entries)
+                            })
+                        }
+                    })
+            }
+
+            navController.navigate(route = "ad") {
                 launchSingleTop = true
             }
         }
 
+
         val authTokenVal = prefs?.authToken
+
         // TODO test if token expired
         var dest = "welcome"
         if (authTokenVal != "unset") {
             dest = "home"
         }
 
-        NavHost(navController = navController, startDestination = dest) {
+        NavHost(navController = navController, startDestination = dest)
+        {
             // EXAMPLE, WITH PASSING DATA TO A PAGE VIEW:
             /*
             composable("pageName/{argument}",
@@ -338,13 +683,6 @@ class MainActivity : ComponentActivity() {
                                     images
                                 )
                             )
-                            /*
-                            val len = images.length()
-                            val Ingredients_names: ArrayList<String> = ArrayList()
-                            for (j in 0 until len) {
-                                val json = images.getString
-                                Ingredients_names.add(json.getString("name"))
-                            }*/
                         }
                         Handler(Looper.getMainLooper()).post {
                             cardsInvokeInit(__cards)
@@ -370,7 +708,7 @@ class MainActivity : ComponentActivity() {
                         DrawerEntry(
                             label = "Oglasi",
                             icon = Icons.Filled.House,
-                            onTap = { toAdvertise() }
+                            onTap = { toAd() }
                         ),
                         DrawerEntry(
                             label = "Sačuvani oglasi",
@@ -405,10 +743,7 @@ class MainActivity : ComponentActivity() {
                     ),
                     returnToPreviousScreen = returnToPreviousScreen,
                     navigateToPropertyEntry = toPropertyEntry,
-                    navigateToSavedEntries = toSavedEntries,
-                    navigateToScheduledTours = toScheduledTours,
-                    navigateToSearch = toSearch,
-                    navigateToAdvertise = toAdvertise
+                    navigateToSearch = toSearch
                 )
             }
             composable("inbox") {
@@ -469,6 +804,12 @@ class MainActivity : ComponentActivity() {
             }
             composable("advertise") {
                 AdvertiseScreen(returnToPreviousScreen = returnToPreviousScreen)
+            }
+            composable("ad") {
+                AdScreen(
+                    returnToPreviousScreen = returnToPreviousScreen,
+                    navigateToAdvertise = toAdvertise
+                )
             }
 
         }

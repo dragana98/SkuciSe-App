@@ -26,5 +26,11 @@ data class RealtyAdInfo(
     val deposit: Int?,
     val roomsRange: String,
     val bathroomRange: String,
-    val floors: List<Floor>
+    val floors: List<Floor>,
+    val homeOwnerUserId: Int,
+    val homeownerIsNaturalPerson: Boolean,
+    val homeownerUrl: String,
+    val homeownerName: String,
+    val contact: String,
+    val addressOfIncorporation: String?
 )
