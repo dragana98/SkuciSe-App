@@ -3,6 +3,7 @@ package com.blackbyte.skucise.screens
 import android.content.res.Configuration
 import android.os.Handler
 import android.os.Looper
+import com.skydoves.landscapist.glide.GlideImage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,7 +36,7 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import coil.compose.rememberImagePainter
+
 import com.blackbyte.skucise.components.DatePickerMode
 import com.blackbyte.skucise.data.Ad
 import com.blackbyte.skucise.utils.Utils
@@ -84,8 +85,8 @@ fun ScheduleATourScreen(
         ) {
             Box(Modifier.size(height = 200.dp, width = 400.dp)) {
                 entries?.let {
-                    Image(
-                        painter = rememberImagePainter(it[0]),
+                    GlideImage(
+                        imageModel = (it[0]),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .clip(RoundedCornerShape(5.dp))

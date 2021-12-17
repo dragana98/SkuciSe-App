@@ -8,6 +8,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,28 +27,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberImagePainter
-import coil.transform.CircleCropTransformation
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.Pager
 import com.blackbyte.skucise.data.DrawerEntry
 import com.blackbyte.skucise.ui.theme.LightGreen
-import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import com.blackbyte.skucise.utils.Config
 import com.blackbyte.skucise.utils.Utils
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import org.json.JSONTokener
-import org.json.JSONArray
-
-import android.widget.Toast
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 
 private val _cards = MutableLiveData<List<Card>>()
 
@@ -60,10 +54,7 @@ fun HomeScreen(
     drawerOptions: List<DrawerEntry>,
     returnToPreviousScreen: () -> Unit,
     navigateToPropertyEntry: (Int) -> Unit,
-    navigateToSavedEntries: () -> Unit,
-    navigateToScheduledTours: () -> Unit,
-    navigateToSearch: () -> Unit,
-    navigateToAdvertise: () -> Unit,
+    navigateToSearch: () -> Unit
 ) {
     val gradient = Brush.linearGradient(0f to Color.Magenta, 1000f to Color.Yellow)
     val state = rememberScaffoldState()
@@ -103,9 +94,9 @@ fun HomeScreen(
                     .padding(all = 20.dp)
                     .fillMaxWidth()
             ) {
-                if (avatarURL != null) {
-                    Image(
-                        painter = rememberImagePainter(avatarURL),
+                if (avatarURL.value != null) {
+                    GlideImage(
+                        imageModel = avatarURL.value,
                         contentDescription = "review profile picture",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -131,7 +122,9 @@ fun HomeScreen(
             drawerOptions.forEach { option ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp).clickable {
+                        option.onTap()
+                    }
                 ) {
                     Icon(
                         imageVector = option.icon,
@@ -141,18 +134,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = option.label,
-                        fontSize = 18.sp,
-                        modifier = Modifier.clickable(
-                            enabled = true,
-                            role = Role.Button
-                        ) {
-                            if (option.label == "Sačuvani oglasi")
-                                navigateToSavedEntries()
-                            if (option.label == "Zakazani obilasci")
-                                navigateToScheduledTours()
-                            if (option.label == "Oglasi")
-                                navigateToAdvertise()
-                        }
+                        fontSize = 18.sp
                     )
                 }
             }
@@ -281,8 +263,8 @@ fun HomeScreen(
                                 .height(256.dp),
                             overshootFraction = .75f,
                             contentFactory = { item ->
-                                Image(
-                                    painter = rememberImagePainter(item),
+                                GlideImage(
+                                    imageModel =  item,
                                     contentDescription = "property image",
                                     contentScale = ContentScale.Crop,            // crop the image if it's not a square
                                     modifier = Modifier

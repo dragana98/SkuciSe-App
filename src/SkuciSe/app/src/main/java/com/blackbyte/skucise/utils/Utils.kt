@@ -1,14 +1,18 @@
 package com.blackbyte.skucise.utils
 
 import android.os.Looper
+import android.util.Base64
 import android.util.Log
 import com.blackbyte.skucise.MainActivity
-import com.squareup.okhttp.*
 import java.net.URLEncoder
 import kotlin.concurrent.thread
-import com.squareup.okhttp.Response
-import com.squareup.okhttp.RequestBody
-import com.squareup.okhttp.OkHttpClient
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.squareup.okhttp.*
+import java.util.*
+import java.util.Arrays.*
+
+data class fileToUpload (val hexdata: String)
 
 enum class RequestType {
     REQUEST_POST,
@@ -101,7 +105,7 @@ class Utils {
                     }
                 try {
                     val response = client.newCall(request).execute()
-                    onFinish(response.body().string(), response.code())
+                    response.body()?.let { onFinish(it.string(), response.code()) }
                 } catch (e: Exception) {
                     onFinish(e.stackTraceToString(), 12163)
                 }
@@ -122,7 +126,7 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             val task = fun() {
-                val JSON: MediaType = MediaType.parse("application/json; charset=utf-8")
+                val JSON = MediaType.parse("application/json; charset=utf-8")
                 val client = OkHttpClient()
 
                 var jsonParam = stringifySimpleObject(params)
@@ -147,7 +151,7 @@ class Utils {
                 }
                 try {
                     val response = client.newCall(request).execute()
-                    onFinish(response.body().string(), response.code())
+                    response.body()?.let { onFinish(it.string(), response.code()) }
                 } catch (e: Exception) {
                     onFinish("", 12163)
                 }
@@ -224,6 +228,7 @@ class Utils {
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
             POST(
+                includeAuthParams = true,
                 params = listOf(
                     Pair("natural_person", natural_person),
                     Pair("name", name),
@@ -231,7 +236,7 @@ class Utils {
                     Pair("website_url", website_url),
                     Pair("avatar_url", avatar_url),
                 ),
-                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/users/update",
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/realtors/",
                 onFinish = onFinish
             )
         }
@@ -519,6 +524,68 @@ class Utils {
                     Pair("tour_id", tour_id)
                 ),
                 apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/tourDates/reserve",
+                onFinish = onFinish
+            )
+        }
+
+        fun uploadFile(
+            hexdata: ByteArray,
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            val q = Base64.encodeToString(hexdata, Base64.DEFAULT)
+
+            val includeAuthParams = true
+
+            val apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/files"
+
+            val task = fun() {
+                val JSON = MediaType.parse("application/json; charset=utf-8")
+                val client = OkHttpClient()
+
+                val v = fileToUpload(hexdata = q)
+
+                var gson = GsonBuilder().create()
+
+                var jsonParam = gson.toJson(v)
+                val body: RequestBody = RequestBody.create(JSON, jsonParam)
+                val request = if (includeAuthParams) {
+                    Request.Builder()
+                        .url(apiURL)
+                        .post(body)
+                        .addHeader(
+                            "Authorization",
+                            MainActivity.prefs?.authToken
+                        )
+                        .build()
+                } else {
+                    Request.Builder()
+                        .url(apiURL)
+                        .post(body)
+                        .build()
+                }
+                try {
+                    val response = client.newCall(request).execute()
+                    response.body()?.let { onFinish(it.string(), response.code()) }
+                } catch (e: Exception) {
+                    onFinish("", 12163)
+                }
+            }
+            if (Looper.getMainLooper().isCurrentThread) {
+                thread {
+                    task()
+                }
+            } else {
+                task()
+            }
+        }
+
+        fun downloadFile(
+            id: String,
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            GET(
+                includeAuthParams = true,
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/files/$id",
                 onFinish = onFinish
             )
         }

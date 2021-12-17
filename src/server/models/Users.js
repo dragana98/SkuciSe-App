@@ -64,15 +64,14 @@ async function update(data) {
         async (trx) => {
             const { old_username, username, phone_number, password, avatar_url } = data;
 
-            if (avatar_url != null) {
+            if (avatar_url) {
 
                 await db('userData')
                     .where({ username: old_username })
                     .update({ avatar_url })
                     .transacting(trx);
             }
-            if (phone_number != null) {
-
+            if (phone_number) {
                 await db('userData')
                     .where({ username: old_username })
                     .update({ phone_number })
@@ -86,7 +85,7 @@ async function update(data) {
                     .transacting(trx);
             }
 
-            if (password != null) {
+            if (password) {
                 const hash = bcrypt.hashSync(data.password, 12);
                 data.password = hash;
                 await db('users')

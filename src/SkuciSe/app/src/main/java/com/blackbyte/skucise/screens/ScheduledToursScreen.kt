@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import coil.compose.rememberImagePainter
+
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.DatePickerGrid
 import com.blackbyte.skucise.components.NavTopBar
@@ -39,12 +39,9 @@ import com.blackbyte.skucise.ui.theme.Cyan
 import com.blackbyte.skucise.ui.theme.LightGray
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import com.blackbyte.skucise.utils.Utils
+import com.skydoves.landscapist.glide.GlideImage
 import org.json.JSONObject
 import java.time.LocalDate
-
-fun cardsInvokeInit(t: List<List<Any>>) {
-    _dates.postValue(t)
-}
 
 private val _dates = MutableLiveData<List<List<Any>>>()
 
@@ -119,8 +116,8 @@ fun ScheduledToursScreen(
                             )
                         ) {
                             Row {
-                                Image(
-                                    painter = rememberImagePainter(it[2] as String),
+                                GlideImage(
+                                    imageModel = (it[2] as String),
                                     contentScale = ContentScale.Crop,
                                     contentDescription = null,
                                     modifier = Modifier

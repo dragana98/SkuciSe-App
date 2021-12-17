@@ -2,11 +2,12 @@ package com.blackbyte.skucise.screens
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import androidx.compose.foundation.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -20,26 +21,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import coil.compose.rememberImagePainter
-import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.AmenityChip
 import com.blackbyte.skucise.components.Pager
-import com.blackbyte.skucise.components.RatingStars
 import com.blackbyte.skucise.data.Amenity
 import com.blackbyte.skucise.data.RealtyAdInfo
 import com.blackbyte.skucise.data.resolveAmenity
 import com.blackbyte.skucise.ui.theme.Cyan
-import com.blackbyte.skucise.ui.theme.Gold
 import com.blackbyte.skucise.ui.theme.LightGrey
 import com.blackbyte.skucise.utils.Config
 import com.blackbyte.skucise.utils.Utils
+import com.skydoves.landscapist.glide.GlideImage
 
 private val _data = MutableLiveData<RealtyAdInfo>()
 
@@ -137,8 +133,8 @@ fun PropertyEntryScreen(
                         .height(256.dp),
                     overshootFraction = .75f,
                     contentFactory = { item ->
-                        Image(
-                            painter = rememberImagePainter(item),
+                        GlideImage(
+                            imageModel = item,
                             contentDescription = "property image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -311,8 +307,8 @@ fun PropertyEntryScreen(
                             )
                             Row {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Image(
-                                        painter = rememberImagePainter(floor.floorPlanUrl),
+                                    GlideImage(
+                                        imageModel = floor.floorPlanUrl,
                                         contentDescription = "floor plan",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -467,8 +463,8 @@ fun PropertyEntryScreen(
                 ) {
                     data?.let {
                         Row {
-                            Image(
-                                painter = rememberImagePainter(it.homeownerUrl),
+                            GlideImage(
+                                imageModel = it.homeownerUrl,
                                 contentDescription = "vendor profile picture",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier

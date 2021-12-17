@@ -41,7 +41,7 @@ router.post('/', (req, res) => {
                 res.status(200).json(r)
             })
             .catch(err => {
-                res.status(200).json(err);
+                res.status(500).json(err);
             })
     }
 

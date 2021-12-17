@@ -2,6 +2,7 @@ package com.blackbyte.skucise.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import com.skydoves.landscapist.glide.GlideImage
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -24,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import coil.compose.rememberImagePainter
+
 import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.components.RatingStars
 import com.blackbyte.skucise.data.Review
@@ -89,21 +90,22 @@ fun ReviewsScreen(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
-                        .height(IntrinsicSize.Min)
                 ) {
                     data?.let {
-                        Image(
-                            painter = rememberImagePainter(data!![1]),
+                        GlideImage(
+                            imageModel = data!![1],
                             contentDescription = "property image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxWidth()
+                                .height(128.dp)
                         )
                     }
                     Box(
                         contentAlignment = Alignment.CenterStart,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(128.dp)
                             .background(
                                 brush = Brush.horizontalGradient(
                                     listOf(Color.Transparent, Color.Black),
@@ -202,8 +204,8 @@ fun ReviewsScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Row {
-                                    Image(
-                                        painter = rememberImagePainter(review.reviewerProfileUrl),
+                                    GlideImage(
+                                        imageModel = review.reviewerProfileUrl,
                                         contentDescription = "review profile picture",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier

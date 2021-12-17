@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import coil.compose.rememberImagePainter
+
 import com.blackbyte.skucise.MainActivity
 import com.blackbyte.skucise.components.Chat
 import com.blackbyte.skucise.components.InboxMessage
@@ -38,6 +38,7 @@ import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.NavTopBar
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import com.blackbyte.skucise.utils.Utils
+import com.skydoves.landscapist.glide.GlideImage
 import org.json.JSONObject
 import java.time.LocalDate
 
@@ -151,9 +152,8 @@ fun MessagesScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start
                         ) {
-                            Image(
-                                rememberImagePainter(it[index].url),
-                                "",
+                            GlideImage(
+                                imageModel  = it[index].url,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .clip(CircleShape)

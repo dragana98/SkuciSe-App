@@ -44,18 +44,18 @@ router.post('/update/', (req, res) => {
 
     const { username, phone_number, password, avatar_url } = data
 
-    if (username) {
+    if (!username) {
         data.username = req.decodedToken.username;
     }
-    if (phone_number) {
+    if (!phone_number) {
         data.phone_number = null
     }
 
-    if (password) {
+    if (!password) {
         data.password = null
     }
 
-    if (avatar_url) {
+    if (!avatar_url) {
         data.avatar_url = null;
     }
 

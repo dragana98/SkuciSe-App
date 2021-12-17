@@ -1,5 +1,9 @@
 package com.blackbyte.skucise.screens
 
+import android.graphics.BitmapFactory
+import android.os.Handler
+import android.os.Looper
+import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,20 +20,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import coil.compose.rememberImagePainter
-import com.blackbyte.skucise.R
-import com.blackbyte.skucise.data.Ad
 import com.blackbyte.skucise.components.NavTopBar
-import com.blackbyte.skucise.ui.theme.SkuciSeTheme
+import com.blackbyte.skucise.data.Ad
+import com.blackbyte.skucise.utils.Utils.Requests.downloadFile
+import com.skydoves.landscapist.glide.GlideImage
+import org.json.JSONObject
 
 
 private val _entries = MutableLiveData<List<Ad>>()
@@ -78,10 +81,10 @@ fun SavedEntriesScreen(
                                         //.clip(RoundedCornerShape(10.dp))
                                         .background(Color.LightGray)
                                 ) {
-                                    Image(
-                                        painter = rememberImagePainter(it[index].url),
+                                    GlideImage(
+                                        imageModel = it[index].url,
                                         contentScale = ContentScale.Crop,
-                                        contentDescription = "Property 2",
+                                        contentDescription = null,
                                         modifier = Modifier
                                             .size(width = 120.dp, height = 90.dp)
                                             .clip(
@@ -103,6 +106,7 @@ fun SavedEntriesScreen(
                                                 )
                                             )
                                     )
+
                                     Column(
                                         horizontalAlignment = Alignment.Start,
                                         modifier = Modifier.fillMaxWidth()

@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import coil.compose.rememberImagePainter
+
 import com.blackbyte.skucise.MainActivity
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.Chat
@@ -39,6 +39,7 @@ import com.blackbyte.skucise.components.InboxMessage
 import com.blackbyte.skucise.components.MsgType
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import com.blackbyte.skucise.utils.Utils
+import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -151,9 +152,8 @@ fun InboxScreen(
                         ) {
                             Spacer(Modifier.height(3.dp))
                             strings?.let {
-                                Image(
-                                    rememberImagePainter(it[0]),
-                                    "",
+                                GlideImage(
+                                    imageModel = it[0],
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .clip(CircleShape)

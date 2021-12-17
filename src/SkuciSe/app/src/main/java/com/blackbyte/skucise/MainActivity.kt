@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
             SkuciSeTheme {
                 val navController = rememberNavController()
                 AppNavigator(navController = navController)
-               
+
             }
         }
     }
@@ -90,6 +90,24 @@ class MainActivity : ComponentActivity() {
         }
 
         val toMyAccount = fun() {
+            Utils.getUserData(
+                onFinish = fun(body: String, responseCode: Int) {
+                    if (responseCode == 200) {
+                        val jsonObj =
+                            JSONTokener(body).nextValue() as JSONObject
+                        val name = jsonObj.getString("name")
+                        val surname = jsonObj.getString("surname")
+                        val contact = jsonObj.getString("phone_number")
+                        val url = jsonObj.getString("avatar_url")
+                        val email = jsonObj.getString("username")
+                        Handler(Looper.getMainLooper()).post(Runnable {
+                            loadMyAccountData(listOf(name, surname, url, contact, email))
+                            Log.d("PREFETCHED DATA", listOf(name, surname, url, contact, email).toString())
+                        })
+                    } else {
+                        Log.d("REQUEST ERROR", body)
+                    }
+                })
             navController.navigate(route = "myAccount") {
 
             }
@@ -420,15 +438,17 @@ class MainActivity : ComponentActivity() {
         }
         var toScheduledTours = fun() {
             Utils.getAllTourDatesForUser(onFinish = fun(body: String, responseCode: Int) {
-                if(responseCode == 200) {
+                if (responseCode == 200) {
                     var res = mutableListOf<List<Any>>()
                     val jsonObj = JSONObject("{\"body\": $body}")
                     val jsonArr = jsonObj.getJSONArray("body")
 
-                    for(p in 0 until jsonArr.length()) {
+                    for (p in 0 until jsonArr.length()) {
                         val singleObj = jsonArr[p] as JSONObject
 
-                        val date = LocalDate.parse(singleObj.getString("date").substring(startIndex = 0, endIndex = 10))
+                        val date = LocalDate.parse(
+                            singleObj.getString("date").substring(startIndex = 0, endIndex = 10)
+                        )
                         val id = singleObj.getInt("property_ad_id")
 
                         Utils.getPropertyById(
@@ -445,7 +465,14 @@ class MainActivity : ComponentActivity() {
 
                                     val _image = _images[0] as String
 
-                                    res.add(listOf<Any>(date, _name, _image, "$_street_address, $_city, $_postalcode"))
+                                    res.add(
+                                        listOf<Any>(
+                                            date,
+                                            _name,
+                                            _image,
+                                            "$_street_address, $_city, $_postalcode"
+                                        )
+                                    )
                                 }
                             })
 
@@ -474,8 +501,8 @@ class MainActivity : ComponentActivity() {
 
             }
         }
-        var toAd = fun(){
-            navController.navigate(route = "ad"){
+        var toAd = fun() {
+            navController.navigate(route = "ad") {
                 launchSingleTop = true
             }
         }
@@ -600,7 +627,7 @@ class MainActivity : ComponentActivity() {
                         DrawerEntry(
                             label = "Oglasi",
                             icon = Icons.Filled.House,
-                            onTap = { toAdvertise() }
+                            onTap = { toAd() }
                         ),
                         DrawerEntry(
                             label = "Sačuvani oglasi",
@@ -635,12 +662,7 @@ class MainActivity : ComponentActivity() {
                     ),
                     returnToPreviousScreen = returnToPreviousScreen,
                     navigateToPropertyEntry = toPropertyEntry,
-                    navigateToSavedEntries = toSavedEntries,
-                    navigateToScheduledTours = toScheduledTours,
-                    navigateToSearch = toSearch,
-                    navigateToAd = toAd,
-                    navigateToMyAccount = toMyAccount
-
+                    navigateToSearch = toSearch
                 )
             }
             composable("inbox") {
@@ -702,7 +724,7 @@ class MainActivity : ComponentActivity() {
             composable("advertise") {
                 AdvertiseScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
-            composable("ad"){
+            composable("ad") {
                 AdScreen(
                     returnToPreviousScreen = returnToPreviousScreen,
                     navigateToAdvertise = toAdvertise
