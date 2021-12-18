@@ -7,8 +7,10 @@ module.exports = {
     del,
     read,
     readAll,
+    setSchedule,
     schedule,
-    readForId
+    readForId,
+    readUnscheduledForRealtor
 }
 
 function read(property_ad_id) {
@@ -18,6 +20,8 @@ function read(property_ad_id) {
         .andWhere('date', '>', new Date().toISOString())
         .select('id', 'date');
 }
+
+
 
 async function readForId(data) {
     var user_id = await db('users')
@@ -29,8 +33,50 @@ async function readForId(data) {
 
     return await db('availableTourDates')
         .where('scheduled_by_user_id', '=', user_id )
+        .whereNotNull('scheduled_at')
+        .andWhere('scheduled_at', '!=', 'DECLINE')
         .select('date', 'property_ad_id');
 }
+
+async function setSchedule(id, val) {
+    return db.transaction(
+        async (trx) => {
+            return db('availableTourDates')
+                .where({
+                    id
+                })
+                .update({ 
+                    scheduled_at: val
+                 })
+                .transacting(trx)
+                .then(trx.commit)
+                .catch(trx.rollback);
+        })
+        .then(() => {
+            console.log('transaction complete');
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
+
+async function readUnscheduledForRealtor(realtor_id) {
+    var ids = await db('propertyAd')
+                .where({ realtor_id })
+                .select('id');
+
+    var _ids = []
+
+    ids.forEach(element => {
+        _ids.push(element.id)
+    });
+
+    return await db('availableTourDates')
+        .whereNull('scheduled_at')
+        .andWhere('property_ad_id', 'in', _ids)
+        .select('id', 'date', 'property_ad_id');
+}
+
 
 function readAll(property_ad_id) {
     return db('availableTourDates')

@@ -102,7 +102,10 @@ class MainActivity : ComponentActivity() {
                         val email = jsonObj.getString("username")
                         Handler(Looper.getMainLooper()).post(Runnable {
                             loadMyAccountData(listOf(name, surname, url, contact, email))
-                            Log.d("PREFETCHED DATA", listOf(name, surname, url, contact, email).toString())
+                            Log.d(
+                                "PREFETCHED DATA",
+                                listOf(name, surname, url, contact, email).toString()
+                            )
                         })
                     } else {
                         Log.d("REQUEST ERROR", body)
@@ -478,11 +481,11 @@ class MainActivity : ComponentActivity() {
 
                     }
                     Utils.unscheduledForRealtor(onFinish = fun(body: String, responseCode: Int) {
-                        if(responseCode == 200) {
+                        if (responseCode == 200) {
                             var unsch = mutableListOf<List<Any>>()
                             val jsonObj = JSONObject("{\"data\": $body}")
                             val arr = jsonObj.getJSONArray("data")
-                            for(q in 0 until arr.length()) {
+                            for (q in 0 until arr.length()) {
                                 val singleObj = arr[q] as JSONObject
 
                                 val id = singleObj.getInt("id")
@@ -497,7 +500,8 @@ class MainActivity : ComponentActivity() {
 
                                             val _name = jsonObj.getString("name")
                                             val _images = jsonObj.getJSONArray("images")
-                                            val _street_address = jsonObj.getString("street_address")
+                                            val _street_address =
+                                                jsonObj.getString("street_address")
                                             val _postalcode = jsonObj.getString("postal_code")
                                             val _city = jsonObj.getString("city")
 
@@ -538,6 +542,50 @@ class MainActivity : ComponentActivity() {
         var toSearch = fun() {
 
             navController.navigate(route = "search") {
+
+            }
+        }
+        var toSearchResult = fun(
+            leasable: Boolean,
+            unified: Boolean,
+            cities: List<String>,
+        ) {
+            Utils.search(
+                leasable = leasable,
+                unified = unified,
+                cities = cities,
+                onFinish = fun(body: String, responseCode: Int) {
+                if (responseCode == 200) {
+                    val _entries: MutableList<Ad> = mutableListOf()
+                    val jsonObj = JSONObject("{\"data\": $body}")
+
+                    val allObjects = jsonObj.getJSONArray("data")
+
+                    for (q in 0 until allObjects.length()) {
+                        val tobj = allObjects[q] as JSONObject
+                        val property_id = tobj.getInt("id")
+
+                        Utils.getPropertyById(
+                            id = property_id,
+                            onFinish = fun(body: String, responseCode: Int) {
+                                if (responseCode == 200) {
+                                    val jsonObj = JSONObject(body)
+
+                                    val _name = jsonObj.getString("name")
+                                    val _images = jsonObj.getJSONArray("images")
+                                    val _image = _images[0] as String
+
+                                    _entries.add(Ad(_name, _image))
+                                }
+                            })
+                    }
+
+                    Handler(Looper.getMainLooper()).post(Runnable {
+                        searchInvoke(_entries)
+                    })
+                }
+            })
+            navController.navigate(route = "searchResult") {
 
             }
         }
@@ -726,11 +774,6 @@ class MainActivity : ComponentActivity() {
                             onTap = { toScheduledTours() }
                         ),
                         DrawerEntry(
-                            label = "Podešavanja",
-                            icon = Icons.Filled.Settings,
-                            onTap = { /* TODO */ }
-                        ),
-                        DrawerEntry(
                             label = "Odjava",
                             icon = Icons.Filled.ExitToApp,
                             onTap = {
@@ -800,7 +843,10 @@ class MainActivity : ComponentActivity() {
                 )
             }
             composable("search") {
-                SearchScreen(returnToPreviousScreen = returnToPreviousScreen)
+                SearchScreen(returnToPreviousScreen = returnToPreviousScreen, toSearchResults = toSearchResult)
+            }
+            composable("searchResult") {
+                SearchResultScreen(returnToPreviousScreen = returnToPreviousScreen)
             }
             composable("advertise") {
                 AdvertiseScreen(returnToPreviousScreen = returnToPreviousScreen)

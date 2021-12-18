@@ -68,6 +68,40 @@ router.get('/', (req, res) => {
     })
 });
 
+router.get('/unscheduled/:realtor_id', (req, res) => {
+    var {realtor_id} = req.params;
+
+    TourDate.readUnscheduledForRealtor(realtor_id)
+    .then(avdate => {
+        res.status(200).json(avdate);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+    })
+});
+
+
+router.post('/setschedule', (req, res) => {
+    var data = req.body;
+    const { id, val } = data
+
+    data.username = req.decodedToken.username;
+
+    if (!(id && val)) {
+        res.status(400).json({ message: "Missing information"})
+    } else {
+        TourDate.setSchedule(id, val)
+            .then(avdate => {
+                res.status(200).json(avdate);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json(err);
+            })
+    }
+});
+
 router.post('/reserve', (req, res) => {
     var data = req.body;
     const { tour_id } = data

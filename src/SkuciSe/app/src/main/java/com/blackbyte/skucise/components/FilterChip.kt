@@ -1,16 +1,12 @@
 package com.blackbyte.skucise.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.blackbyte.skucise.data.Filter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,7 +40,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.*
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
@@ -54,7 +50,8 @@ import kotlin.math.ln
 
 @Composable
 fun FilterChip(
-    filters:List<Filter>
+    filters:List<Filter>,
+    filterTrigger: (Int) -> Unit
 ){
     val context = LocalContext.current
 
@@ -81,7 +78,8 @@ fun FilterChip(
                 filters.forEach{filter ->  
                     Chip(
                         filter = filter,
-                        modifier = Modifier.padding(end = 4.dp,bottom = 8.dp)
+                        modifier = Modifier.padding(end = 4.dp,bottom = 8.dp),
+                    filterTrigger = filterTrigger
                     )
                     Spacer(modifier = Modifier.size(5.dp))
 
@@ -113,9 +111,15 @@ fun FilterChip(
 fun Chip(
     filter: Filter,
     modifier: Modifier = Modifier,
+    filterTrigger: (Int) -> Unit,
     shape: Shape = MaterialTheme.shapes.small
 ){
-    val  (selected, setSelected) = filter.enabled
+    var selected by remember { mutableStateOf(false)}
+    val  setSelected = fun(_selected: Boolean) {
+        filter.enabled.value = !(filter.enabled.value)
+        selected = !selected
+        filterTrigger(filter.id)
+    }
     val backgroundColor by  animateColorAsState(
         if(selected) Purple500 else Color.White
     )
