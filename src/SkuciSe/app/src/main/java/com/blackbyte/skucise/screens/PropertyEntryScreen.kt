@@ -313,6 +313,7 @@ fun PropertyEntryScreen(
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .fillMaxSize(0.4f)
+                                            .height(128.dp)
                                             .clip(shape = RoundedCornerShape(4.dp))
                                             .border(
                                                 2.dp,

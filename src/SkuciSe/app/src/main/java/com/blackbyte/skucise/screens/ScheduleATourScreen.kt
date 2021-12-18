@@ -38,6 +38,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 import com.blackbyte.skucise.components.DatePickerMode
+import com.blackbyte.skucise.components.OutlinedInputField
 import com.blackbyte.skucise.data.Ad
 import com.blackbyte.skucise.utils.Utils
 
@@ -125,7 +126,7 @@ fun ScheduleATourScreen(
                 }
                 Row() {
                     Text(
-                        "Kontakt",
+                        "Vlasnik",
                         modifier = Modifier.width(120.dp),
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.subtitle1
@@ -142,7 +143,7 @@ fun ScheduleATourScreen(
             }
             Spacer(Modifier.height(15.dp))
             Text(
-                "Izaberite datum i vreme",
+                "Izaberite datum",
                 style = MaterialTheme.typography.h6,
                 modifier = Modifier.align(Alignment.Start)
             )
@@ -162,18 +163,28 @@ fun ScheduleATourScreen(
                 )
             }
             Spacer(Modifier.height(15.dp))
+            var hrs by remember {mutableStateOf("")}
+            var mins by remember {mutableStateOf("")}
             Text(
-                "Obilazak je moguće otkazati ili odgoditi najkasnije 1 dan pred zakazani termin. Propušteni obilasci podležu sankcijama.",
-                style = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.W500),
-                fontSize = 11.sp,
-                textAlign = TextAlign.Center
+                "Izaberite vreme",
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.align(Alignment.Start)
             )
-            Spacer(Modifier.height(15.dp))
-            Button(onClick = {
+            Row (
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()) {
+                OutlinedInputField("Časova", modifier = Modifier.width(128.dp), onValueChange = {hrs = it})
+                Spacer(Modifier.size(15.dp))
+                OutlinedInputField("Minuta", modifier = Modifier.width(128.dp), onValueChange = {mins = it})
+            }
+            Spacer(Modifier.height(148.dp))
+            Button(
+                enabled = if((date != null) && (hrs != "")&& (mins != "")) true else false,
+                onClick = {
                 entries?.let {
                     Utils.addAvailableTerm(
                         property_ad_id = it[3] as Int,
-                        date = date.toString(),
+                        date = "${date.toString()}T$hrs:$mins:00.000Z",
                         onFinish = fun(body: String, responseCode: Int) {
                             if (responseCode == 200) {
                                 Handler(Looper.getMainLooper()).post {
@@ -184,7 +195,11 @@ fun ScheduleATourScreen(
                         })
                 }
             }, modifier = Modifier.fillMaxWidth()) {
-                Text("Zakazati - $buttonText")
+                if((date != null) && (hrs != "")&& (mins != "")) {
+                    Text("Zakazati - $buttonText u $hrs.$mins")
+                } else {
+                    Text("Zakazati")
+                }
             }
         }
 

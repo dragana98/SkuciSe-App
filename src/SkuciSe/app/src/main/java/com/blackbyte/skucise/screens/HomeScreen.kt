@@ -95,6 +95,11 @@ fun HomeScreen(
                     .fillMaxWidth()
             ) {
                 if (avatarURL.value != null) {
+                    (if (avatarURL != null && avatarURL!!.value != null)avatarURL!!.value else "EMPTY OR NULL")?.let {
+                        Log.d("AVATAR      VAL",
+                            it
+                        )
+                    }
                     GlideImage(
                         imageModel = avatarURL.value,
                         contentDescription = "review profile picture",
@@ -347,6 +352,8 @@ fun HomeScreen(
                         }
                     }
                 }
+
+                Spacer(modifier= Modifier.size(48.dp))
             }
 
         }

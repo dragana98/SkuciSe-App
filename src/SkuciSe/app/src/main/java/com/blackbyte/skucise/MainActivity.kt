@@ -477,9 +477,53 @@ class MainActivity : ComponentActivity() {
                             })
 
                     }
-                    Handler(Looper.getMainLooper()).post {
-                        addScheduledEntries(res)
-                    }
+                    Utils.unscheduledForRealtor(onFinish = fun(body: String, responseCode: Int) {
+                        if(responseCode == 200) {
+                            var unsch = mutableListOf<List<Any>>()
+                            val jsonObj = JSONObject("{\"data\": $body}")
+                            val arr = jsonObj.getJSONArray("data")
+                            for(q in 0 until arr.length()) {
+                                val singleObj = arr[q] as JSONObject
+
+                                val id = singleObj.getInt("id")
+                                val date = singleObj.getString("date")
+                                val property_ad_id = singleObj.getInt("property_ad_id")
+
+                                Utils.getPropertyById(
+                                    id = property_ad_id,
+                                    onFinish = fun(body: String, responseCode: Int) {
+                                        if (responseCode == 200) {
+                                            val jsonObj = JSONObject(body)
+
+                                            val _name = jsonObj.getString("name")
+                                            val _images = jsonObj.getJSONArray("images")
+                                            val _street_address = jsonObj.getString("street_address")
+                                            val _postalcode = jsonObj.getString("postal_code")
+                                            val _city = jsonObj.getString("city")
+
+                                            val _image = _images[0] as String
+
+                                            unsch.add(
+                                                listOf<Any>(
+                                                    date,
+                                                    _name,
+                                                    _image,
+                                                    "$_street_address, $_city, $_postalcode",
+                                                    id,
+                                                )
+                                            )
+                                        }
+                                    })
+                            }
+                            Handler(Looper.getMainLooper()).post {
+                                Log.d("RES VALUES", res.toString())
+                                Log.d("UNSCH VALU", unsch.toString())
+                                addScheduledEntries(res, unsch)
+                            }
+                        } else {
+                            Log.d("GOT ERROR RESPONSE", body)
+                        }
+                    })
                 }
             })
             navController.navigate(route = "scheduledTours") {
@@ -492,6 +536,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         var toSearch = fun() {
+
             navController.navigate(route = "search") {
 
             }
@@ -502,6 +547,42 @@ class MainActivity : ComponentActivity() {
             }
         }
         var toAd = fun() {
+            prefs?.realtorId?.let {
+                Utils.getAllPropertyAdsByRealtorId(
+                    realtor_id = it,
+                    onFinish = fun(body: String, responseCode: Int) {
+                        if (responseCode == 200) {
+                            val _entries: MutableList<Ad> = mutableListOf()
+                            val jsonObj = JSONObject("{\"data\": $body}")
+
+                            val allObjects = jsonObj.getJSONArray("data")
+
+                            for (q in 0 until allObjects.length()) {
+                                val tobj = allObjects[q] as JSONObject
+                                val property_id = tobj.getInt("property_ad_id")
+
+                                Utils.getPropertyById(
+                                    id = property_id,
+                                    onFinish = fun(body: String, responseCode: Int) {
+                                        if (responseCode == 200) {
+                                            val jsonObj = JSONObject(body)
+
+                                            val _name = jsonObj.getString("name")
+                                            val _images = jsonObj.getJSONArray("images")
+                                            val _image = _images[0] as String
+
+                                            _entries.add(Ad(_name, _image))
+                                        }
+                                    })
+                            }
+
+                            Handler(Looper.getMainLooper()).post(Runnable {
+                                adScreenInvokeInit(_entries)
+                            })
+                        }
+                    })
+            }
+
             navController.navigate(route = "ad") {
                 launchSingleTop = true
             }

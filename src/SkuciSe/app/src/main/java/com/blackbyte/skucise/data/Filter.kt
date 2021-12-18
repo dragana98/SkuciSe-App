@@ -13,13 +13,10 @@ class Filter(
 
 val listOfCities = listOf(
     Filter("Novi Sad"),
-    Filter("Jagodina"),
-    Filter("Negotin"),
-    Filter("Nis"),
+    Filter("Niš"),
     Filter("Kragujevac"),
     Filter("Beograd"),
-    Filter("Pozarevac"),
-    Filter("Sabac")
+    Filter("Novi Sad")
 
 )
 

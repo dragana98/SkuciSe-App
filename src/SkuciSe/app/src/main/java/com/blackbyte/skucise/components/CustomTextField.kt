@@ -1,7 +1,6 @@
 package com.blackbyte.skucise.components
 
 
-
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -16,13 +15,20 @@ import com.blackbyte.skucise.ui.theme.MediumGray
 import com.blackbyte.skucise.ui.theme.TinyGray
 
 @Composable
-fun CustomTextField(placeholder: String = "", modifier: Modifier = Modifier) {
+fun CustomTextField(
+    placeholder: String = "",
+    modifier: Modifier = Modifier,
+    onValueChange: (String) -> Unit,
+) {
 
-    var text by remember { mutableStateOf("")}
+    var text by remember { mutableStateOf("") }
 
     OutlinedTextField(
         value = text,
-        onValueChange = { text = it },
+        onValueChange = {
+            text = it
+            onValueChange(it)
+        },
         modifier = modifier,
         placeholder = { Text(placeholder) }
     )

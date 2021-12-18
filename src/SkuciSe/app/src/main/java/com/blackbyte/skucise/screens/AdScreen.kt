@@ -13,6 +13,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,24 +36,37 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.blackbyte.skucise.MainActivity.Companion.prefs
 import com.blackbyte.skucise.R
 import com.blackbyte.skucise.components.*
-import com.blackbyte.skucise.data.amenityList
+import com.blackbyte.skucise.data.Ad
 import com.blackbyte.skucise.data.listOfAmenities
 import com.blackbyte.skucise.data.listOfObjects
 import com.blackbyte.skucise.ui.theme.SkuciSeTheme
 import com.blackbyte.skucise.utils.Config
 import com.blackbyte.skucise.utils.Utils
+import com.skydoves.landscapist.glide.GlideImage
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+
+private val _entries = MutableLiveData<List<Ad>>()
+
+fun adScreenInvokeInit(t: List<Ad>) {
+    _entries.postValue(t)
+}
 
 
 @Composable
 fun AdScreen(
+    entriesLive: LiveData<List<Ad>> = _entries,
     returnToPreviousScreen: () -> Unit,
     navigateToAdvertise: () -> Unit
 ) {
+    val entries: List<Ad>? by entriesLive.observeAsState()
+
+
     var isNewRealtyButtonEnabled by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     var corporateAddress by remember { mutableStateOf("") }
@@ -193,7 +208,7 @@ fun AdScreen(
                                         avatarUrl =
                                             "http://${Config.FILESERVER_ADDRESS}:${Config.FILEPORT}/$rawtext"
                                         Log.d("REALTOR AVATARURL", avatarUrl)
-                                        Utils.addNewRealtor(natural_person = 1,
+                                        Utils.addNewRealtor(natural_person = 0,
                                             name = name,
                                             corporate_address = corporateAddress,
                                             website_url = websiteUrl,
@@ -223,87 +238,112 @@ fun AdScreen(
             }
         } else {
             isNewRealtyButtonEnabled = true
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxHeight() // verticalArrangement = Arrangement.Center
-                    .verticalScroll(rememberScrollState())
-            ) {
-
-
-                //Spacer(modifier = Modifier.size(20.dp))
-
-                // Moji oglasi
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+            entries?.let {
+                LazyColumn(
                     modifier = Modifier.fillMaxWidth()
-                )
-                {
-                    Surface(
-                        shape = RoundedCornerShape(10)
-                    ) {
-                        Row {
-                            Image(
-                                painter = painterResource(id = R.drawable.property_2),
-                                contentScale = ContentScale.Inside,
-                                contentDescription = "Property 2",
-                                modifier = Modifier
-                                    .size(width = 120.dp, height = 90.dp)
-                            )
-                            Column(
-                                horizontalAlignment = Alignment.Start,
+                ) {
+                    items(it.size) { index ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                            //, color = background(Color.LightGray)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier.fillMaxWidth()
-
-                            ) {
-                                Text(
-                                    text = "Apartmani Petrović",
-                                    modifier = Modifier.absolutePadding(5.dp, 5.dp, 0.dp, 0.dp),
-                                    color = MaterialTheme.colors.primary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 19.sp,
-                                    textAlign = TextAlign.Left
-                                )
-                                Text(
-                                    text = "600.00e - 700.00e" + ", " + "mesečno",  //"200.00 - 600.00e, mesečno",
-                                    modifier = Modifier.absolutePadding(5.dp, 1.dp, 0.dp, 0.dp),
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    textAlign = TextAlign.Left
-                                )
-                                // strelica i Detalji
+                            )
+                            {
                                 Row(
-                                    verticalAlignment = Alignment.Bottom,
-                                    horizontalArrangement = Arrangement.End,
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .absolutePadding(0.dp, 3.dp, 10.dp, 0.dp)
+                                        //.fillMaxWidth()
+                                        //.clip(RoundedCornerShape(10.dp))
+                                        .background(Color.LightGray)
                                 ) {
-                                    Text(
-                                        text = "Detalji",
-                                        modifier = Modifier.absolutePadding(0.dp, 2.dp, 0.dp, 0.dp),
-                                        fontSize = 14.sp,
-                                        textAlign = TextAlign.Right,
-                                        color = Color.Blue
+                                    GlideImage(
+                                        imageModel = it[index].url,
+                                        contentScale = ContentScale.Crop,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(width = 120.dp, height = 90.dp)
+                                            .clip(
+                                                RoundedCornerShape(
+                                                    topStartPercent = 10,
+                                                    bottomEndPercent = 0,
+                                                    bottomStartPercent = 10,
+                                                    topEndPercent = 0
+                                                )
+                                            )
+                                            .border(
+                                                1.dp,
+                                                Color.Gray, // RoundedCornerShape(percent = 10)
+                                                RoundedCornerShape(
+                                                    topStartPercent = 10,
+                                                    bottomEndPercent = 0,
+                                                    bottomStartPercent = 10,
+                                                    topEndPercent = 0
+                                                )
+                                            )
                                     )
-                                    Icon(
-                                        imageVector = Icons.Filled.ArrowForward,
-                                        contentDescription = "Details",
-                                        modifier = Modifier.size(16.dp),
-                                        tint = Color.Blue
-                                    )
+
+                                    Column(
+                                        horizontalAlignment = Alignment.Start,
+                                        modifier = Modifier.fillMaxWidth()
+
+                                    ) {
+                                        Text(
+                                            text = it[index].name,
+                                            modifier = Modifier.absolutePadding(
+                                                5.dp,
+                                                5.dp,
+                                                0.dp,
+                                                0.dp
+                                            ),
+                                            color = MaterialTheme.colors.primary,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 19.sp,
+                                            textAlign = TextAlign.Left
+                                        )
+                                        Spacer(modifier = Modifier.size(18.dp))
+                                        Row(
+                                            verticalAlignment = Alignment.Bottom,
+                                            horizontalArrangement = Arrangement.End,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .absolutePadding(0.dp, 3.dp, 10.dp, 0.dp)
+                                        ) {
+                                            Text(
+                                                text = "Detalji",
+                                                modifier = Modifier.absolutePadding(
+                                                    0.dp,
+                                                    2.dp,
+                                                    0.dp,
+                                                    0.dp
+                                                ),
+                                                textAlign = TextAlign.Left,
+                                                color = Color.Blue
+                                            )
+                                            Icon(
+                                                imageVector = Icons.Filled.ArrowForward,
+                                                contentDescription = "Details",
+                                                modifier = Modifier.size(16.dp),
+                                                tint = Color.Blue
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
+                        Spacer(modifier = Modifier.size(size = 12.dp))
                     }
                 }
-
-                Spacer(modifier = Modifier.size(20.dp))
             }
         }
     }
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun AdScreenPreview() {
@@ -311,3 +351,4 @@ fun AdScreenPreview() {
         AdScreen({}, {})
     }
 }
+ */

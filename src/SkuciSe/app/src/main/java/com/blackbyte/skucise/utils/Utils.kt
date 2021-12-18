@@ -4,6 +4,7 @@ import android.os.Looper
 import android.util.Base64
 import android.util.Log
 import com.blackbyte.skucise.MainActivity
+import com.blackbyte.skucise.MainActivity.Companion.prefs
 import java.net.URLEncoder
 import kotlin.concurrent.thread
 import com.google.gson.Gson
@@ -23,26 +24,25 @@ class Utils {
     companion object Requests {
         private fun stringifySimpleObject(
             params: List<Pair<String, Any?>>
-        ): String {
+        ) : String {
             var jsonParam = ""
             for (param in params) {
                 if (param.second == null) {
                     jsonParam += ",\"${param.first}\":null"
                 } else if (param.second is List<*>) {
-                    if ((param.second as List<*>).lastIndex != -1) {
-                        if ((param.second as List<*>)[0] is Pair<*, *>) {
-                            jsonParam += ",\"${param.first}\":["
+                    if((param.second as List<*>).lastIndex != -1) {
+                        if((param.second as List<*>)[0] is Pair<*, *>) {
+                            jsonParam += ",\"${param.first}\":{"
                             var jtmp: String = ""
                             @Suppress("UNCHECKED_CAST")
-                            (param.second as List<*>).forEach {
-                                jtmp += ", ${
-                                    stringifySimpleObject(
-                                        listOf(((it as Pair<String, Any?>)))
-                                    )
-                                }"
-                            }
+                            (param.second as List<*>).forEach{ jtmp += ", ${stringifySimpleObject(listOf(it as Pair<String, Any?>))}" }
                             jtmp = jtmp.substring(startIndex = 1)
-                            jsonParam += "$jtmp]"
+                            jsonParam += jtmp + "}"
+                        } else if((param.second as List<*>)[0] is List<*>) {
+                            var jtmp: String = ""
+                            (param.second as List<*>).forEach { jtmp += ", ${stringifySimpleObject(it as List<Pair<String, Any?>>)}" }
+                            jtmp = "[${jtmp.substring(startIndex = 1)}]"
+                            jsonParam += ",\"${param.first}\":$jtmp"
                         } else {
                             var jtmp: String = ""
                             (param.second as List<*>).forEach { jtmp += ", ${if (it is String) "\"$it\"" else it}" }
@@ -207,7 +207,7 @@ class Utils {
             avatar_url: String?,
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
-            POST(
+            POST( includeAuthParams = true,
                 params = listOf(
                     Pair("username", username),
                     Pair("password", password),
@@ -295,10 +295,10 @@ class Utils {
             amenities: List<String>,
             price: Int?,
             deposit: Int?,
-            property_ad_realties: List<Pair<String, Any>>,
+            property_ad_realties: List<List<Pair<String, Any?>>>,
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
-            POST(
+            POST( includeAuthParams = true,
                 params = listOf(
                     Pair("name", name),
                     Pair("realtor_id", realtor_id),
@@ -528,6 +528,34 @@ class Utils {
             )
         }
 
+        fun setScheduleStatus(
+            tour_id: Int,
+            value: String,
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            POST(
+                includeAuthParams = true,
+                params = listOf(
+                    Pair("id", tour_id),
+                    Pair("val", value)
+                    ),
+                apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/tourDates/setSchedule",
+                onFinish = onFinish
+            )
+        }
+
+        fun unscheduledForRealtor(
+            onFinish: (body: String, responseCode: Int) -> Unit
+        ) {
+            prefs?.let {
+                GET(
+                    includeAuthParams = true,
+                    apiURL = "http://${Config.SERVER_ADDRESS}:${Config.PORT}/api/tourDates/unscheduled/${it.realtorId}",
+                    onFinish = onFinish
+                )
+            }
+        }
+
         fun uploadFile(
             hexdata: ByteArray,
             onFinish: (body: String, responseCode: Int) -> Unit
@@ -619,7 +647,7 @@ class Utils {
             avatar_url: String,
             onFinish: (body: String, responseCode: Int) -> Unit
         ) {
-            POST(
+            POST( includeAuthParams = true,
                 params = listOf(
                     Pair("username", username),
                     Pair("password", password),

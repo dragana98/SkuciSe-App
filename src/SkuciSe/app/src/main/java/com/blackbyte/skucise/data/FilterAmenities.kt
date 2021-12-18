@@ -11,18 +11,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 class FilterAmenities(
     val name: String,
     val icon: ImageVector,
+    val id: Int,
     enabled: Boolean = false
 ){
-    val enabled = mutableStateOf(enabled)
+    var enabled = mutableStateOf(enabled)
 }
-
-val amenityList = listOf(
-    FilterAmenities("Parking",icon = Icons.Filled.LocalParking),
-    FilterAmenities("Terasa",icon = Icons.Filled.Balcony),
-    FilterAmenities("Grejanje",icon = Icons.Filled.Fireplace),
-    FilterAmenities("Pet-friendly",icon = Icons.Filled.Pets),
-    FilterAmenities("TV",icon = Icons.Filled.Tv),
-    FilterAmenities("Bazen",icon = Icons.Filled.Pool),
-    FilterAmenities("WiFi",icon = Icons.Filled.Wifi),
-    FilterAmenities("Teretana",icon = Icons.Filled.FitnessCenter)
-)

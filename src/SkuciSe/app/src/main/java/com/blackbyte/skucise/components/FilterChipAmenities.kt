@@ -2,16 +2,11 @@ package com.blackbyte.skucise.components
 
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.blackbyte.skucise.data.Filter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,7 +40,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
@@ -57,7 +54,8 @@ import kotlin.math.ln
 
 @Composable
 fun FilterChipAmenities(
-    filters:List<FilterAmenities>
+    filters:List<FilterAmenities>,
+    triggerIndex: (Int) -> Unit = {},
 ){
     val context = LocalContext.current
 
@@ -84,7 +82,8 @@ fun FilterChipAmenities(
                 filters.forEach{filter ->
                     ChipAmenity(
                         filter = filter,
-                        modifier = Modifier.padding(end = 4.dp,bottom = 8.dp)
+                        modifier = Modifier.padding(end = 4.dp,bottom = 8.dp),
+                        triggerIndex = triggerIndex
                     )
                     Spacer(modifier = Modifier.size(13.dp))
 
@@ -98,9 +97,15 @@ fun FilterChipAmenities(
 fun ChipAmenity(
     filter: FilterAmenities,
     modifier: Modifier = Modifier,
+    triggerIndex: (Int) -> Unit,
     shape: Shape = MaterialTheme.shapes.medium // OVDEEEEEEEEEEEEE
 ){
-    val  (selected, setSelected) = filter.enabled
+    var selected by remember { mutableStateOf(false)}
+    val  setSelected = fun(_selected: Boolean) {
+        filter.enabled.value = !(filter.enabled.value)
+        selected = !selected
+        triggerIndex(filter.id)
+    }
     val backgroundColor by  animateColorAsState(
         if(selected) MaterialTheme.colors.primary else Color.White
     )
@@ -187,3 +192,13 @@ fun ChipAmenity(
     }
 }
 
+val amenityList = listOf(
+    FilterAmenities("Parking",icon = Icons.Filled.LocalParking, id = 0),
+    FilterAmenities("Terasa",icon = Icons.Filled.Balcony, id = 1),
+    FilterAmenities("Grejanje",icon = Icons.Filled.Fireplace, id = 2),
+    FilterAmenities("Pet-friendly",icon = Icons.Filled.Pets, id = 3),
+    FilterAmenities("TV",icon = Icons.Filled.Tv, id = 4),
+    FilterAmenities("Bazen",icon = Icons.Filled.Pool, id = 5),
+    FilterAmenities("WiFi",icon = Icons.Filled.Wifi, id = 6),
+    FilterAmenities("Teretana",icon = Icons.Filled.FitnessCenter, id = 7)
+)

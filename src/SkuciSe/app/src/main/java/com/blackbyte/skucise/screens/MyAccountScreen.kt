@@ -353,24 +353,12 @@ fun MyAccountScreen(
                     modifier = Modifier.size(104.dp)
                 ) {
                     imageUrl?.let {
-                        if ((it == null)) {
-
-                            if(avatarUrl == null || avatarUrl == "") {
-                                Icon(
+                        if (it == null) {
+                            Icon(
                                     imageVector = Icons.Filled.AccountCircle,
                                     contentDescription = "registration icon",
                                     modifier = Modifier.fillMaxSize()
                                 )
-                            } else {
-                                GlideImage(
-                                    imageModel = avatarUrl,
-                                    contentDescription = "Gallery Image",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .size(800.dp)
-                                        .clip(CircleShape)
-                                )
-                            }
                         } else {
                             if (Build.VERSION.SDK_INT < 28) {
                                 bitmap.value =
@@ -505,7 +493,9 @@ fun MyAccountScreen(
                             avatar_url = if (avatarUrl == "") null else avatarUrl,
                             onFinish = fun(body: String, responseCode: Int) {
                                 if (responseCode == 200) {
-                                    returnToPreviousScreen()
+                                    Handler(Looper.getMainLooper()).post(Runnable {
+                                        returnToPreviousScreen()
+                                    })
                                 }
                             })
                     }, modifier = Modifier.fillMaxWidth()
